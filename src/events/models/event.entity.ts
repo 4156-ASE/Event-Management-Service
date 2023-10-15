@@ -10,4 +10,13 @@ export class EventEntity {
 
   @Column()
   desc: string;
+
+  @Column()
+  start_time: Date;
+
+  @Column()
+  end_time: Date;
+
+  @Column()
+  location: string;
 }
