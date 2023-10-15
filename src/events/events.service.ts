@@ -1,50 +1,60 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-
-import { Event } from './events.model';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { EventEntity } from './models/event.entity';
+import { EventInterface } from './models/event.interface';
+import { from, Observable } from 'rxjs';
 
 @Injectable()
 export class EventsService {
-  private events: Event[] = [];
+  constructor(
+    @InjectRepository(EventEntity)
+    private eventRepostitory: Repository<EventEntity>,
+  ) {}
 
-  insertEvent(title: string, desc: string) {
-    const eventID = Math.random().toString();
-    const newEvent = new Event(eventID, title, desc);
-    this.events.push(newEvent);
-    return eventID;
+  insertEvent(event: EventInterface): Observable<EventInterface> {
+    return from(this.eventRepostitory.save(event));
   }
 
-  getEvents() {
-    return [...this.events];
+  getEvents(): Observable<EventInterface[]> {
+    return from(this.eventRepostitory.find());
   }
 
-  getEvent(eventID: string) {
-    const event = this.findEvent(eventID)[0];
-    return { ...event };
-  }
+  async getEvent(eventID: string) {
+    const events = await this.eventRepostitory.find({
+      where: {
+        id: eventID,
+      },
+    });
 
-  updateEvent(eventID: string, title: string, desc: string) {
-    const [event, index] = this.findEvent(eventID);
-    const updatedEvent = { ...event };
-    if (title) {
-      updatedEvent.title = title;
+    if (events.length === 0) {
+      throw new NotFoundException('Event Not Found.');
     }
-    if (desc) {
-      updatedEvent.desc = desc;
+
+    return events[0];
+  }
+
+  updateEvent(eventID: string, updatedEvent: Partial<EventEntity>) {
+    const event = this.eventRepostitory.find({
+      where: {
+        id: eventID,
+      },
+    });
+
+    if (!event) {
+      throw new NotFoundException(`Could not find event: ${eventID}.`);
     }
-    this.events[index] = updatedEvent;
+
+    const protectList = ['id'];
+    protectList.forEach((key) => {
+      if (key in updatedEvent) {
+        delete updatedEvent[key];
+      }
+    });
+    this.eventRepostitory.update(eventID, updatedEvent);
   }
 
   deleteEvent(eventID: string) {
-    const index = this.findEvent(eventID)[1];
-    this.events.splice(index);
-  }
-
-  private findEvent(id: string): [Event, number] {
-    const eventIndex = this.events.findIndex((event) => event.id === id);
-    const event = this.events[eventIndex];
-    if (!event) {
-      throw new NotFoundException('Cound not find event.');
-    }
-    return [event, eventIndex];
+    this.eventRepostitory.delete(eventID);
   }
 }
