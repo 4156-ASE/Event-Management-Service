@@ -45,3 +45,9 @@ $ pnpm run lint
 $ pnpm run format
 
 ```
+## Start Docker
+
+```bash
+$ docker-compose up
+
+```
