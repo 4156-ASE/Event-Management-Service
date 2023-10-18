@@ -16,7 +16,9 @@ export class EventsController {
   constructor(private eventsService: EventsService) {}
 
   @Post()
-  createEvent(@Body() event: EventInterface): Observable<EventInterface> {
+  createEvent(
+    @Body() event: Partial<EventInterface>,
+  ): Observable<EventInterface> {
     return this.eventsService.insertEvent(event);
   }
 
@@ -25,27 +27,29 @@ export class EventsController {
     return this.eventsService.getEvents();
   }
 
-  @Get(':id')
-  getEvent(@Param('id') eventId: string): Observable<EventInterface> {
+  @Get(':eventId')
+  getEvent(@Param('eventId') eventId: string): Observable<EventInterface> {
     return from(this.eventsService.getEvent(eventId));
   }
 
-  @Patch(':id')
+  @Patch(':eventId')
   updateEvent(
-    @Param('id') eventId: string,
+    @Param('eventId') eventId: string,
     @Body() event: Partial<EventInterface>,
   ) {
     this.eventsService.updateEvent(eventId, event);
     return {
       ok: true,
+      message: 'Event updated successfully',
     };
   }
 
-  @Delete(':id')
-  removeEvent(@Param('id') eventId: string) {
+  @Delete(':eventId')
+  removeEvent(@Param('eventId') eventId: string) {
     this.eventsService.deleteEvent(eventId);
     return {
       ok: true,
+      message: 'Event deleted successfully',
     };
   }
 }

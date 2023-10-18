@@ -5,4 +5,5 @@ export interface EventInterface {
   start_time: Date;
   end_time: Date;
   location: string;
+  host: number;
 }

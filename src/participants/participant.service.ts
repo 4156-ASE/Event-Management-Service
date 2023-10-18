@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -38,6 +39,17 @@ export class ParticipantsService {
 
     if (!foundUser) {
       throw new NotFoundException('User not found');
+    }
+
+    const existingParticipant = await this.participantRepository.findOne({
+      where: {
+        event: event,
+        user: foundUser,
+      },
+    });
+
+    if (existingParticipant) {
+      throw new ConflictException('Participant already exists in the event');
     }
 
     const newParticipant = new ParticipantEntity();
@@ -91,12 +103,8 @@ export class ParticipantsService {
     return await this.userRepository.save(foundUser);
   }
 
-  async deleteParticipant(eventId: string, pid: number): Promise<void> {
-    const result = await this.participantRepository.delete({
-      user: { id: pid },
-      event: { id: eventId },
-    });
-
+  async deleteParticipant(pid: number): Promise<void> {
+    const result = await this.participantRepository.delete(pid);
     if (result.affected === 0) {
       throw new NotFoundException('Participant not found');
     }

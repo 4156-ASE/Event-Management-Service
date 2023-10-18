@@ -1,7 +1,7 @@
 import {
   Controller,
   Post,
-  Put,
+  Patch,
   Delete,
   Get,
   Param,
@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 import { ParticipantsService } from './participant.service';
 
-@Controller()
+@Controller('participants')
 export class ParticipantsController {
   constructor(private readonly participantsService: ParticipantsService) {}
 
-  @Post('events/:event_id/invite')
+  @Post(':eventId')
   async inviteParticipant(
-    @Param('event_id') eventId: string,
+    @Param('eventId') eventId: string,
     @Body() user: { first_name: string; last_name: string; email: string },
   ) {
     try {
@@ -34,7 +34,7 @@ export class ParticipantsController {
     }
   }
 
-  @Put('updateParticipant/:event_id/:pid')
+  @Patch(':event_id/:pid')
   async updateParticipantDetails(
     @Param('event_id') eventId: string,
     @Param('pid') pid: number,
@@ -62,13 +62,11 @@ export class ParticipantsController {
     }
   }
 
-  @Delete('deleteParticipant/:event_id/:pid')
-  async deleteParticipant(
-    @Param('event_id') eventId: string,
-    @Param('pid') pid: number,
-  ) {
+  @Delete(':pid')
+  async deleteParticipant(@Param('pid') pid: number) {
     try {
-      await this.participantsService.deleteParticipant(eventId, pid);
+      await this.participantsService.deleteParticipant(pid);
+      return { message: 'Participant deleted successfully' };
     } catch (e) {
       if (e instanceof NotFoundException) {
         throw new NotFoundException(e.message);
@@ -80,12 +78,13 @@ export class ParticipantsController {
     }
   }
 
-  @Get('events/:event_id/participants')
-  async listParticipants(@Param('event_id') eventId: string) {
+  @Get(':eventId')
+  async listParticipants(@Param('eventId') eventId: string) {
     try {
       const participants =
         await this.participantsService.listParticipants(eventId);
       return participants.map((p) => ({
+        pid: p.id,
         first_name: p.user.first_name,
         last_name: p.user.last_name,
         email: p.user.email,
@@ -100,7 +99,7 @@ export class ParticipantsController {
     }
   }
 
-  @Put('updateStatus')
+  @Patch('respond')
   async updateParticipantStatus(
     @Body('event_id') eventId: string,
     @Body('pid') pid: number,
