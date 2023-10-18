@@ -101,12 +101,11 @@ export class ParticipantsController {
 
   @Patch('respond')
   async updateParticipantStatus(
-    @Body('event_id') eventId: string,
     @Body('pid') pid: number,
     @Body('status') status: string,
   ) {
     try {
-      await this.participantsService.updateStatus(eventId, pid, status);
+      await this.participantsService.updateStatus(pid, status);
       return {
         message:
           'Thank you for your response. We look forward to your participation!',

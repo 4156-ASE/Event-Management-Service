@@ -117,13 +117,9 @@ export class ParticipantsService {
     });
   }
 
-  async updateStatus(
-    eventId: string,
-    pid: number,
-    status: string,
-  ): Promise<void> {
+  async updateStatus(pid: number, status: string): Promise<void> {
     const participant = await this.participantRepository.findOne({
-      where: { user: { id: pid }, event: { id: eventId } },
+      where: { id: pid },
     });
 
     if (!participant) {
