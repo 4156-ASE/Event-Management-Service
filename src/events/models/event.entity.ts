@@ -8,15 +8,15 @@ export class EventEntity {
   @Column()
   title: string;
 
-  @Column()
+  @Column({ nullable: true })
   desc: string;
 
-  @Column()
+  @Column({ nullable: true })
   start_time: Date;
 
-  @Column()
+  @Column({ nullable: true })
   end_time: Date;
 
-  @Column()
+  @Column({ nullable: true })
   location: string;
 }
