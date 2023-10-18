@@ -1,0 +1,27 @@
+{
+    "recommendations": [
+      "editorconfig.editorconfig",
+      "dbaeumer.vscode-eslint",
+      "drknoxy.eslint-disable-snippets",
+      "streetsidesoftware.code-spell-checker",
+      "codezombiech.gitignore",
+      "aaron-bond.better-comments",
+      "ziyasal.vscode-open-in-github",
+      "jasonnutter.search-node-modules",
+      "andrejunges.handlebars",
+      "mikestead.dotenv",
+      "gruntfuggly.todo-tree",
+      "vscode-icons-team.vscode-icons",
+      "mgmcdermott.vscode-language-babel",
+      "donjayamanne.githistory",
+      "mhutchie.git-graph",
+      "wix.vscode-import-cost",
+      "visualstudioexptteam.vscodeintellicode",
+      "christian-kohler.path-intellisense",
+      "esbenp.prettier-vscode",
+      "rvest.vs-code-prettier-eslint",
+      "mohsen1.prettify-json",
+      "stylelint.vscode-stylelint",
+      "pflannery.vscode-versionlens"
+    ]
+  }
