@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
-import { from, of } from 'rxjs';
+import { of } from 'rxjs';
 
 describe('EventsController', () => {
   let eventsController: EventsController;
