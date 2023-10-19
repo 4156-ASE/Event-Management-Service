@@ -26,7 +26,6 @@ export class EventsService {
         id: eventID,
       },
     });
-
     if (events.length === 0) {
       throw new NotFoundException('Event Not Found.');
     }
@@ -40,7 +39,6 @@ export class EventsService {
         id: eventID,
       },
     });
-
     if (!event) {
       throw new NotFoundException(`Could not find event: ${eventID}.`);
     }

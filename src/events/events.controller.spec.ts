@@ -29,6 +29,9 @@ describe('EventsController', () => {
       eventId,
       ...event,
     })),
+    deleteEvent: jest.fn().mockImplementation((eventId) => ({
+      eventId,
+    })),
   };
 
   beforeEach(async () => {
@@ -71,8 +74,24 @@ describe('EventsController', () => {
   });
 
   it('should get specific event', () => {
-    eventsController.getEvent('aaa').subscribe((data) => {
-      expect(data).toEqual([{ id: 'aaa', message: 'event found' }]);
+    eventsController.getEvent('aaaa').subscribe((data) => {
+      expect(data).toEqual([{ id: 'aaaa', message: 'event found' }]);
     });
+  });
+
+  it('should update event', () => {
+    const event = {
+      id: 'aaaa',
+      title: 'bbbb',
+      desc: 'aaa',
+      start_time: new Date('December 17, 2023 03:24:00'),
+      end_time: new Date('December 17, 2023 03:24:00'),
+      location: 'aaaa',
+    };
+    expect(eventsController.updateEvent('aaaa', event)).toEqual({ ok: true });
+  });
+
+  it('should delete event', () => {
+    expect(eventsController.removeEvent('aaaa')).toEqual({ ok: true });
   });
 });
