@@ -19,4 +19,7 @@ export class EventEntity {
 
   @Column({ nullable: true })
   location: string;
+
+  @Column({ nullable: true })
+  host: number;
 }
