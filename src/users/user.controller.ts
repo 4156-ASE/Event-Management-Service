@@ -4,7 +4,7 @@ import {
   Post,
   Get,
   Param,
-  Put,
+  Patch,
   Delete,
   BadRequestException,
   UnauthorizedException,
@@ -17,7 +17,7 @@ import {
 import { UsersService } from './user.service';
 import { UserInterface } from './models/user.interface';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private usersService: UsersService) {}
 
@@ -44,7 +44,7 @@ export class UserController {
     return result;
   }
 
-  @Put(':pid')
+  @Patch(':pid')
   async updateUser(
     @Param('pid') pid: number,
     @Body() user: Partial<UserInterface>,

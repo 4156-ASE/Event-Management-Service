@@ -12,7 +12,7 @@ export class EventsService {
     private eventRepostitory: Repository<EventEntity>,
   ) {}
 
-  insertEvent(event: EventInterface): Observable<EventInterface> {
+  insertEvent(event: Partial<EventInterface>): Observable<EventInterface> {
     return from(this.eventRepostitory.save(event));
   }
 
