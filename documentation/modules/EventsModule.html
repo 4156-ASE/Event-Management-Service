@@ -129,6 +129,13 @@
 
 
 
+        <p class="comment">
+            <h3>Description</h3>
+        </p>
+        <p class="comment">
+            <p>Event module which contains EventsController and EventsService.</p>
+
+        </p>
 
 
         <div class="container-fluid module">
@@ -166,6 +173,9 @@ import { EventsService } from &#x27;./events.service&#x27;;
 import { TypeOrmModule } from &#x27;@nestjs/typeorm&#x27;;
 import { EventEntity } from &#x27;./models/event.entity&#x27;;
 
+/**
+ * Event module which contains EventsController and EventsService.
+ */
 @Module({
   imports: [TypeOrmModule.forFeature([EventEntity])],
   controllers: [EventsController],

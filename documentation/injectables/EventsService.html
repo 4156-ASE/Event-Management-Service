@@ -68,6 +68,13 @@
         </p>
 
 
+            <p class="comment">
+                <h3>Description</h3>
+            </p>
+            <p class="comment">
+                <p>Event Service which will handle event relevent database operations, can be used by event controller.</p>
+
+            </p>
 
 
 
@@ -123,12 +130,14 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="9" class="link-to-prism">src/events/events.service.ts:9</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/events/events.service.ts:12</a></div>
                             </td>
                         </tr>
 
                 <tr>
                     <td class="col-md-4">
+                            <div class="io-description"><p>Event constructor which will inject event repository.</p>
+</div>
                             <div>
                                     <b>Parameters :</b>
                                     <table class="params">
@@ -186,14 +195,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="55"
-                                    class="link-to-prism">src/events/events.service.ts:55</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="85"
+                                    class="link-to-prism">src/events/events.service.ts:85</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Delete a event by eventID.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -204,6 +215,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -218,6 +230,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The event ID.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -255,14 +271,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/events/events.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/events/events.service.ts:44</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Get a event by eventID.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -273,6 +291,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -287,16 +306,21 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The event ID.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>unknown</code>
+                            <b>Returns : </b>        <code><a href="../entitys/EventEntity.html" target="_self" >Promise&lt;EventEntity&gt;</a></code>
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>The information of the target event from database.</p>
+
                             </div>
                 </td>
             </tr>
@@ -322,19 +346,25 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="19"
-                                    class="link-to-prism">src/events/events.service.ts:19</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="35"
+                                    class="link-to-prism">src/events/events.service.ts:35</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Get all the events.</p>
+</div>
 
                         <div class="io-description">
                             <b>Returns : </b>        <code><a href="../interfaces/EventInterface.html" target="_self" >Observable&lt;EventInterface[]&gt;</a></code>
 
                         </div>
+                            <div class="io-description">
+                                <p>The information of all the events from database.</p>
+
+                            </div>
                 </td>
             </tr>
         </tbody>
@@ -359,14 +389,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="15"
-                                    class="link-to-prism">src/events/events.service.ts:15</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="27"
+                                    class="link-to-prism">src/events/events.service.ts:27</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Insert a event into database.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -377,6 +409,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -391,6 +424,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The EventInterface object that need to be inserted into database.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -400,7 +437,8 @@
 
                         </div>
                             <div class="io-description">
-                                
+                                <p>Return the content of the event object.</p>
+
                             </div>
                 </td>
             </tr>
@@ -426,14 +464,16 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/events/events.service.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="62"
+                                    class="link-to-prism">src/events/events.service.ts:62</a></div>
                         </td>
                     </tr>
 
 
             <tr>
                 <td class="col-md-4">
+                        <div class="io-description"><p>Update a event by eventID.</p>
+</div>
 
                             <div class="io-description">
                                 <b>Parameters :</b>
@@ -444,6 +484,7 @@
                                             <td>Name</td>
                                                 <td>Type</td>
                                             <td>Optional</td>
+                                                <td>Description</td>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -458,6 +499,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The event ID.</p>
+
+                                            </td>
                                         </tr>
                                         <tr>
                                                 <td>updatedEvent</td>
@@ -470,6 +515,10 @@
                                             </td>
 
 
+                                            <td>
+                                                    <p>The information that need to be modified in an event.</p>
+
+                                            </td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -498,22 +547,43 @@ import { EventEntity } from &#x27;./models/event.entity&#x27;;
 import { EventInterface } from &#x27;./models/event.interface&#x27;;
 import { from, Observable } from &#x27;rxjs&#x27;;
 
+/**
+ * Event Service which will handle event relevent database operations, can be used by event controller.
+ */
 @Injectable()
 export class EventsService {
+  /**
+   * Event constructor which will inject event repository.
+   * @param eventRepostitory
+   */
   constructor(
     @InjectRepository(EventEntity)
     private eventRepostitory: Repository&lt;EventEntity&gt;,
   ) {}
 
+  /**
+   * Insert a event into database.
+   * @param {EventInterface} event The EventInterface object that need to be inserted into database.
+   * @returns {Observable&lt;EventInterface&gt;} Return the content of the event object.
+   */
   insertEvent(event: EventInterface): Observable&lt;EventInterface&gt; {
     return from(this.eventRepostitory.save(event));
   }
 
+  /**
+   * Get all the events.
+   * @returns {Observable&lt;EventInterface[]&gt;} The information of all the events from database.
+   */
   getEvents(): Observable&lt;EventInterface[]&gt; {
     return from(this.eventRepostitory.find());
   }
 
-  async getEvent(eventID: string) {
+  /**
+   * Get a event by eventID.
+   * @param {string} eventID The event ID.
+   * @returns {Promise&lt;EventEntity&gt;} The information of the target event from database.
+   */
+  async getEvent(eventID: string): Promise&lt;EventEntity&gt; {
     const events &#x3D; await this.eventRepostitory.find({
       where: {
         id: eventID,
@@ -526,6 +596,11 @@ export class EventsService {
     return events[0];
   }
 
+  /**
+   * Update a event by eventID.
+   * @param {string} eventID The event ID.
+   * @param {Partial&lt;EventInterface&gt;} updatedEvent The information that need to be modified in an event.
+   */
   updateEvent(eventID: string, updatedEvent: Partial&lt;EventEntity&gt;) {
     const event &#x3D; this.eventRepostitory.find({
       where: {
@@ -545,6 +620,10 @@ export class EventsService {
     this.eventRepostitory.update(eventID, updatedEvent);
   }
 
+  /**
+   * Delete a event by eventID.
+   * @param {string} eventID The event ID.
+   */
   deleteEvent(eventID: string) {
     this.eventRepostitory.delete(eventID);
   }
