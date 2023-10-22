@@ -25,6 +25,7 @@ export class EventsService {
    * @returns {Observable<EventInterface>} Return the content of the event object.
    */
   insertEvent(event: EventInterface): Observable<EventInterface> {
+
     return from(this.eventRepostitory.save(event));
   }
 

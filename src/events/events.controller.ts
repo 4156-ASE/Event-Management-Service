@@ -24,7 +24,9 @@ export class EventsController {
    * @returns {Observable<EventInterface>} Return the content of the event object.
    */
   @Post()
-  createEvent(@Body() event: EventInterface): Observable<EventInterface> {
+  createEvent(
+    @Body() event: Partial<EventInterface>,
+  ): Observable<EventInterface> {
     return this.eventsService.insertEvent(event);
   }
 
@@ -36,6 +38,7 @@ export class EventsController {
   getAllEvents(): Observable<EventInterface[]> {
     return this.eventsService.getEvents();
   }
+
 
   /**
    * Get a event by EventID.
@@ -54,12 +57,14 @@ export class EventsController {
    * @returns {Object} Return status of the event update.
    */
   @Patch(':id')
+
   updateEvent(
-    @Param('id') eventId: string,
+    @Param('eventId') eventId: string,
     @Body() event: Partial<EventInterface>,
   ) {
     this.eventsService.updateEvent(eventId, event);
     return {
+
       success: true,
     };
   }
@@ -74,6 +79,7 @@ export class EventsController {
     this.eventsService.deleteEvent(eventId);
     return {
       success: true,
+
     };
   }
 }
