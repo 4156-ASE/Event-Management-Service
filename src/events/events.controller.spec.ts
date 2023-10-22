@@ -88,10 +88,12 @@ describe('EventsController', () => {
       end_time: new Date('December 17, 2023 03:24:00'),
       location: 'aaaa',
     };
-    expect(eventsController.updateEvent('aaaa', event)).toEqual({ ok: true });
+    expect(eventsController.updateEvent('aaaa', event)).toEqual({
+      success: true,
+    });
   });
 
   it('should delete event', () => {
-    expect(eventsController.removeEvent('aaaa')).toEqual({ ok: true });
+    expect(eventsController.removeEvent('aaaa')).toEqual({ success: true });
   });
 });
