@@ -38,7 +38,12 @@ export class UsersService {
       };
       return response;
     }
-    return null;
+    const errorResponse: LoginResponse = {
+      status: 'error',
+      message: 'Unauthorized',
+      data: null,
+    };
+    return errorResponse;
   }
 
   async getUser(id: number): Promise<UserEntity | null> {
