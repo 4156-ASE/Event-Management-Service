@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UsersService } from './user.service';
@@ -13,77 +14,79 @@ describe('UserController', () => {
     register: jest.fn((user: UserInterface): Promise<UserEntity | null> => {
       if (user.email == 'testregisterfail@gmail.com') {
         return Promise.resolve(null);
-      }
-      else if (user.email == 'testregistersuccess@gmail.com') {
+      } else if (user.email == 'testregistersuccess@gmail.com') {
         return Promise.resolve({
           id: randomInt(100),
-          ...user
+          ...user,
         });
-      }
-
-      else if (user.email == "invalidemail"){
-        return Promise.resolve(null);  // TODO: change this to new type of exception
+      } else if (user.email == 'invalidemail') {
+        return Promise.resolve(null);
       }
     }),
-    login: jest.fn((email: string, password: string): Promise<LoginResponse | null> => {
-      return Promise.resolve({
-        status: 'success',
-        message: 'Logged in successfully',
-        data: {
-          user: {
-            id: 1,
-            first_name: 'John',
-            last_name: 'Doe',
-            email: 'testloginsuccess@test.com'
+    login: jest.fn(
+      (email: string, password: string): Promise<LoginResponse | null> => {
+        return Promise.resolve({
+          status: 'success',
+          message: 'Logged in successfully',
+          data: {
+            user: {
+              id: 1,
+              first_name: 'John',
+              last_name: 'Doe',
+              email: 'testloginsuccess@test.com',
+            },
+            token: 'alnlgsnsoajg',
+            expires_in: 3600,
           },
-          token: 'alnlgsnsoajg',
-          expires_in: 3600,
-        }
-      });
-    }),
+        });
+      },
+    ),
     getUser: jest.fn((id: number): Promise<UserEntity | null> => {
       if (id == 0) {
         return Promise.resolve(null);
-      }
-      else{
+      } else {
         return Promise.resolve({
           id: id,
           first_name: 'John',
           last_name: 'Doe',
           email: 'getUser@test.com',
-          password: 'encodedpassword'
+          password: 'encodedpassword',
         });
       }
     }),
-    updateUser: jest.fn((id: number, updatedUser: Partial<UserEntity>): Promise<UserEntity | null> => {
-      if(id == 0){
-        return Promise.resolve(null);
-      }
-      else{
-        return Promise.resolve({
-          id: id,
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'updateUser@test.com',
-          password: 'encodedpassword'
-        });
-      }
-    }),
+    updateUser: jest.fn(
+      (
+        id: number,
+        updatedUser: Partial<UserEntity>,
+      ): Promise<UserEntity | null> => {
+        if (id == 0) {
+          return Promise.resolve(null);
+        } else {
+          return Promise.resolve({
+            id: id,
+            first_name: 'John',
+            last_name: 'Doe',
+            email: 'updateUser@test.com',
+            password: 'encodedpassword',
+          });
+        }
+      },
+    ),
     deleteUser: jest.fn((id: number): Promise<boolean> => {
       if (id == 0) {
         return Promise.resolve(false);
-      }
-      else{
+      } else {
         return Promise.resolve(true);
       }
-    })
-  }
+    }),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
       providers: [UsersService],
-    }).overrideProvider(UsersService)
+    })
+      .overrideProvider(UsersService)
       .useValue(mockUserService)
       .compile();
 
@@ -99,9 +102,11 @@ describe('UserController', () => {
       first_name: 'John',
       last_name: 'Doe',
       email: 'testregisterfail@gmail.com',
-      password: 'encodedpassword'
-    }
-    await expect(userController.register(user)).rejects.toThrow(new ConflictException('Email already exists'));
+      password: 'encodedpassword',
+    };
+    await expect(userController.register(user)).rejects.toThrow(
+      new ConflictException('Email already exists'),
+    );
   });
   it('register successful: should return message', async () => {
     const user = {
@@ -109,16 +114,18 @@ describe('UserController', () => {
       first_name: 'John',
       last_name: 'Doe',
       email: 'testregistersuccess@gmail.com',
-      password: 'encodedpassword'
-    }
-    await expect(userController.register(user)).resolves.toEqual({ message: 'User registered successfully' });
+      password: 'encodedpassword',
+    };
+    await expect(userController.register(user)).resolves.toEqual({
+      message: 'User registered successfully',
+    });
   });
 
   it('login', async () => {
     const data = {
-      email: "testloginsuccess@test.com",
-      password: "encodedpassword",
-    }
+      email: 'testloginsuccess@test.com',
+      password: 'encodedpassword',
+    };
     await expect(userController.login(data)).resolves.toEqual({
       status: 'success',
       message: 'Logged in successfully',
@@ -127,52 +134,56 @@ describe('UserController', () => {
           id: 1,
           first_name: 'John',
           last_name: 'Doe',
-          email: 'testloginsuccess@test.com'
+          email: 'testloginsuccess@test.com',
         },
         token: 'alnlgsnsoajg',
         expires_in: 3600,
-      }
+      },
     });
   });
 
-  it('getUser: not found', async() => {
+  it('getUser: not found', async () => {
     const pid = 0;
-    await expect(userController.getUser(pid)).rejects.toThrow();  // new error
-  })
+    await expect(userController.getUser(pid)).rejects.toThrow();
+  });
 
-  it('getUser: found', async() => {
+  it('getUser: found', async () => {
     const pid = 2;
     await expect(userController.getUser(pid)).resolves.toEqual({
       id: pid,
       first_name: 'John',
       last_name: 'Doe',
-      email: 'getUser@test.com'
+      email: 'getUser@test.com',
     });
   });
 
-  it('updateUser: not found', async() => {
-    const pid = 0;  // a mock user with id 0 does not exist
+  it('updateUser: not found', async () => {
+    const pid = 0;
     const updatedUser = {
       first_name: 'John',
       last_name: 'Doe',
-      email: ''
+      email: '',
     };
     await expect(userController.updateUser(pid, updatedUser)).rejects.toThrow();
   });
 
-  it('updateUser: found', async() => {
+  it('updateUser: found', async () => {
     const pid = 1;
     const updatedUser = {
       first_name: 'John',
       last_name: 'Doe',
       email: 'updateUser@test.com',
-      password: 'encodedpassword'
+      password: 'encodedpassword',
     };
-    await expect(userController.updateUser(pid, updatedUser)).resolves.toEqual({ message: 'User updated successfully' });
+    await expect(userController.updateUser(pid, updatedUser)).resolves.toEqual({
+      message: 'User updated successfully',
+    });
   });
 
-  it('deleteUser', async() => {
+  it('deleteUser', async () => {
     const pid = 1;
-    await expect(userController.deleteUser(pid)).resolves.toEqual({ message: 'User deleted successfully' });
+    await expect(userController.deleteUser(pid)).resolves.toEqual({
+      message: 'User deleted successfully',
+    });
   });
 });
