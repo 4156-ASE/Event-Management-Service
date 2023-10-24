@@ -9,28 +9,28 @@ import { log } from 'console';
 
 describe('ParticipantsService', () => {
   let participantService: ParticipantsService;
-  const exampleUser1 = {
+  const exampleUser1 = {  // create host of an event
     id: 1,
     first_name: 'John',
     last_name: 'Host',
     email: 'testuser@test.com',
     password: 'encryptedPassword'
   };
-  const exampleUser2 = {
+  const exampleUser2 = {  // create participant of an event
     id: 2,
     first_name: 'Harry',
     last_name: 'Participant',
     email: 'harry@test.com',
     password: 'encryptedPassword'
   };
-  const exampleUser3 = {
+  const exampleUser3 = {  // create user to be invited to an event
     id: 3,
     first_name: 'test',
     last_name: 'ToBeInvited',
     email: 'invite@test.com',
     password: 'encryptedPassword'
   };
-  const exampleEvent = {
+  const exampleEvent = {  // create an event
     id: "1234",
     title: 'Test Event',
     desc: 'This is a test event',
@@ -39,7 +39,7 @@ describe('ParticipantsService', () => {
     location: 'Test Location',
     host: 1
   };
-  const exampleParticipant = {
+  const exampleParticipant = {  // create a participant entity
     id: 1,
     user: {
       ...exampleUser2
@@ -51,8 +51,9 @@ describe('ParticipantsService', () => {
   };
   
   const mockUserRepository = {
-    findOne: jest.fn((arg) => {
-      if (arg.where.email == exampleUser3.email){
+    // mock function of the findOne method
+    findOne: jest.fn((arg) => {  
+      if (arg.where.email == exampleUser3.email){  // return the mock user object if certain conditions are met
         return Promise.resolve(exampleUser3);
       }
       else if (arg.where.email == exampleUser2.email){
@@ -65,12 +66,12 @@ describe('ParticipantsService', () => {
         return Promise.resolve(null);
       }
     }),
-    save: jest.fn((user) => {
+    save: jest.fn((user) => {  // return the same object that was passed in
       return Promise.resolve(user);
     })
   };
   const mockEventRepository = {
-    findOne: jest.fn((arg) => {
+    findOne: jest.fn((arg) => {  // return the mock event object if certain conditions are met
       if (arg.where.id == exampleEvent.id){
         return Promise.resolve(exampleEvent);
       }
@@ -80,7 +81,7 @@ describe('ParticipantsService', () => {
     })
   };
   const mockParticipantRepository = {
-    findOne: jest.fn((arg) => {
+    findOne: jest.fn((arg) => {  // return the mock participant object if certain conditions are met
       try {
         if (arg.where.id == exampleParticipant.id){
           return Promise.resolve(exampleParticipant);
@@ -146,6 +147,7 @@ describe('ParticipantsService', () => {
     participantService = module.get<ParticipantsService>(ParticipantsService);
   });
 
+  // unit tests for the participant service
   it('should be defined', () => {
     expect(participantService).toBeDefined();
   });

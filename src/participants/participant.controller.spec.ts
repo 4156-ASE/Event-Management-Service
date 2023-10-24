@@ -25,7 +25,7 @@ describe('ParticipantsController', () => {
       return Promise.resolve();
     }),
     listParticipants: jest.fn((eventId: string): Promise<ParticipantEntity[]> => {
-      return Promise.resolve([{
+      return Promise.resolve([{  // return a list of mock participant entity object
         id: 1,
         user: {
           id: 1,
@@ -67,7 +67,7 @@ describe('ParticipantsController', () => {
       }])
     }),
     updateStatus: jest.fn((pid: number, status: string): Promise<void> => {
-      return Promise.resolve();
+      return Promise.resolve();  // whatever it receives, it returns null.
     }),
   };
 
@@ -86,7 +86,7 @@ describe('ParticipantsController', () => {
     expect(participantController).toBeDefined();
   });
   it('should call inviteParticipant', async () => {
-    const user = {
+    const user = {  // create a mock user object
       first_name: 'John',
       last_name: 'Doe',
       email: 'test@test.com'
@@ -96,7 +96,7 @@ describe('ParticipantsController', () => {
     expect(result).toEqual({ message: 'Invitations sent successfully.' });
   });
   it('should call updateParticipantDetails', async () => {
-    const user = {
+    const user = { 
       first_name: 'John',
       last_name: 'Doe',
       email: 'test@test.com'

@@ -20,6 +20,7 @@ describe('UserController', () => {
           ...user
         });
       }
+
       else if (user.email == "invalidemail"){
         return Promise.resolve(null);  // TODO: change this to new type of exception
       }
@@ -135,8 +136,8 @@ describe('UserController', () => {
   });
 
   it('getUser: not found', async() => {
-    const pid = 1;
-    await expect(userController.getUser(pid)).resolves.toEqual(null);
+    const pid = 0;
+    await expect(userController.getUser(pid)).rejects.toThrow();  // new error
   })
 
   it('getUser: found', async() => {
@@ -150,13 +151,13 @@ describe('UserController', () => {
   });
 
   it('updateUser: not found', async() => {
-    const pid = 0;
+    const pid = 0;  // a mock user with id 0 does not exist
     const updatedUser = {
       first_name: 'John',
       last_name: 'Doe',
       email: ''
     };
-    await expect(userController.updateUser(pid, updatedUser)).rejects.toThrow(new Error());
+    await expect(userController.updateUser(pid, updatedUser)).rejects.toThrow();
   });
 
   it('updateUser: found', async() => {

@@ -6,7 +6,7 @@ import { log } from "console";
 
 describe('UsersService', () => {
   let userService: UsersService;
-  const exampleUser = {
+  const exampleUser = {  // example user data
     id: 1,
     first_name: 'John',
     last_name: 'Doe',
@@ -86,14 +86,14 @@ describe('UsersService', () => {
 
   it('register: existing user should return null', async () => {
     const user = {...exampleUser};
-    user.email = 'existinguser@register.com';
+    user.email = 'existinguser@register.com';  // change email to existing user
     const result = await userService.register(user);
     expect(result).toBeNull();
   });
 
   it('register: new user should return user', async () => {
     const user = {...exampleUser};
-    user.email = 'newuser@register.com';
+    user.email = 'newuser@register.com';  // change email to new user
     const result = await userService.register(user);
     expect(result).toEqual(user);
   });
@@ -102,7 +102,7 @@ describe('UsersService', () => {
     const user = {...exampleUser};
     user.email = "success@login.com";
     user.password = "successPassword";
-    const {password, ...userData} = user;
+    const {password, ...userData} = user;  // remove password from user data
     const result = await userService.login(user.email, user.password);
     expect(result).toEqual({
       status: 'success',
@@ -147,7 +147,7 @@ describe('UsersService', () => {
       last_name: 'updatedLastName',
       email: 'test@update.com',
       password: 'updatedPassword'
-    };
+    };  // create a partial user data
     const result = await userService.updateUser(user.id, updatedUser);
     expect(result).toEqual(user);
   });
