@@ -88,6 +88,7 @@ describe('EventsController', () => {
       end_time: new Date('December 17, 2023 03:24:00'),
       location: 'aaaa',
     };
+
     expect(eventsController.updateEvent('aaaa', event)).toEqual({
       success: true,
     });
