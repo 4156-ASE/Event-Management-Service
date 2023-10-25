@@ -14,7 +14,9 @@ export class UsersService {
   ) {}
 
   async register(user: RegisterUserDTO): Promise<UserEntity | null> {
+
     // Check if the user with the provided email already exists
+
     const existUser = await this.userRepository.findOne({
       where: { email: user.email },
     });
@@ -27,7 +29,9 @@ export class UsersService {
     }
 
     try {
+
       // Save the new user to the database
+
       return await this.userRepository.save(user);
     } catch (error) {
       throw new HttpException(
@@ -42,7 +46,9 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: { email },
     });
+
     // Check if the user exists and the password matches
+
     if (!user || user.password !== password) {
       throw new HttpException(
         'Invalid email or password',
@@ -90,6 +96,7 @@ export class UsersService {
 
     try {
       // Update the user details in the database
+
       await this.userRepository.update(id, updatedUser);
       return this.userRepository.findOne({ where: { id } });
     } catch (error) {
@@ -101,14 +108,18 @@ export class UsersService {
   }
 
   async deleteUser(id: number): Promise<boolean> {
+
     // Check if the user with the provided ID exists
+
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     try {
+
       // Delete the user from the database
+
       const result = await this.userRepository.delete(id);
       return result.affected > 0;
     } catch (error) {

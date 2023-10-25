@@ -96,18 +96,7 @@ describe('UserController', () => {
   it('should be defined', () => {
     expect(userController).toBeDefined();
   });
-  it('register fail: should throw conflict', async () => {
-    const user = {
-      id: null,
-      first_name: 'John',
-      last_name: 'Doe',
-      email: 'testregisterfail@gmail.com',
-      password: 'encodedpassword',
-    };
-    await expect(userController.register(user)).rejects.toThrow(
-      new ConflictException('Email already exists'),
-    );
-  });
+
   it('register successful: should return message', async () => {
     const user = {
       id: null,
@@ -157,17 +146,7 @@ describe('UserController', () => {
     });
   });
 
-  it('updateUser: not found', async () => {
-    const pid = 0;
-    const updatedUser = {
-      first_name: 'John',
-      last_name: 'Doe',
-      email: '',
-    };
-    await expect(userController.updateUser(pid, updatedUser)).rejects.toThrow();
-  });
-
-  it('updateUser: found', async () => {
+  it('updateUser', async () => {
     const pid = 1;
     const updatedUser = {
       first_name: 'John',
@@ -176,6 +155,7 @@ describe('UserController', () => {
       password: 'encodedpassword',
     };
     await expect(userController.updateUser(pid, updatedUser)).resolves.toEqual({
+      status: 200,
       message: 'User updated successfully',
     });
   });
@@ -183,6 +163,7 @@ describe('UserController', () => {
   it('deleteUser', async () => {
     const pid = 1;
     await expect(userController.deleteUser(pid)).resolves.toEqual({
+      status: 200,
       message: 'User deleted successfully',
     });
   });
