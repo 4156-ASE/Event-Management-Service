@@ -32,6 +32,14 @@
 <title>cluster_AppModule_providers</title>
 <polygon fill="none" stroke="black" points="16,-154 16,-206 146,-206 146,-154 16,-154"/>
 </g>
+<g id="clust7" class="cluster">
+<title>cluster_EventsModule</title>
+<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="67,-70 67,-138 231,-138 231,-70 67,-70"/>
+</g>
+<g id="clust12" class="cluster">
+<title>cluster_EventsModule_providers</title>
+<polygon fill="none" stroke="black" points="75,-78 75,-130 223,-130 223,-78 75,-78"/>
+</g>
 <g id="clust13" class="cluster">
 <title>cluster_ParticipantsModule</title>
 <polygon fill="none" stroke="black" stroke-dasharray="1,5" points="239,-70 239,-138 443,-138 443,-70 239,-70"/>
@@ -47,14 +55,6 @@
 <g id="clust24" class="cluster">
 <title>cluster_UserModule_providers</title>
 <polygon fill="none" stroke="black" points="459,-78 459,-130 599,-130 599,-78 459,-78"/>
-</g>
-<g id="clust7" class="cluster">
-<title>cluster_EventsModule</title>
-<polygon fill="none" stroke="black" stroke-dasharray="1,5" points="67,-70 67,-138 231,-138 231,-70 67,-70"/>
-</g>
-<g id="clust12" class="cluster">
-<title>cluster_EventsModule_providers</title>
-<polygon fill="none" stroke="black" points="75,-78 75,-130 223,-130 223,-78 75,-78"/>
 </g>
 <!-- EventsModule -->
 <g id="node1" class="node">

@@ -68,7 +68,7 @@
                 <h3>Prefix</h3>
             </p>
             <p class="comment">
-                <code>user</code>
+                <code>users</code>
             </p>
 
 
@@ -162,8 +162,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/users/user.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="55"
+                                    class="link-to-prism">src/users/user.controller.ts:55</a></div>
                         </td>
                     </tr>
 
@@ -239,8 +239,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="41"
-                                    class="link-to-prism">src/users/user.controller.ts:41</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="37"
+                                    class="link-to-prism">src/users/user.controller.ts:37</a></div>
                         </td>
                     </tr>
 
@@ -317,8 +317,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="35"
-                                    class="link-to-prism">src/users/user.controller.ts:35</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="30"
+                                    class="link-to-prism">src/users/user.controller.ts:30</a></div>
                         </td>
                     </tr>
 
@@ -380,7 +380,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>register(user: <a href="../interfaces/UserInterface.html" target="_self">UserInterface</a>)</code>
+                    <code>register(user: <a href="../classes/RegisterUserDTO.html" target="_self">RegisterUserDTO</a>)</code>
                 </td>
             </tr>
 
@@ -394,8 +394,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="25"
-                                    class="link-to-prism">src/users/user.controller.ts:25</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="22"
+                                    class="link-to-prism">src/users/user.controller.ts:22</a></div>
                         </td>
                     </tr>
 
@@ -418,7 +418,7 @@
                                         <tr>
                                                 <td>user</td>
                                             <td>
-                                                            <code><a href="../interfaces/UserInterface.html" target="_self" >UserInterface</a></code>
+                                                            <code><a href="../classes/RegisterUserDTO.html" target="_self" >RegisterUserDTO</a></code>
                                             </td>
 
                                             <td>
@@ -457,7 +457,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateUser(pid: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, user: <a href="../interfaces/UserInterface.html" target="_self">Partial&lt;UserInterface&gt;</a>)</code>
+                    <code>updateUser(pid: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, user: <a href="../classes/UpdateUserDTO.html" target="_self">UpdateUserDTO</a>)</code>
                 </td>
             </tr>
 
@@ -465,14 +465,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Put(&#x27;:pid&#x27;)<br /></code>
+                    <code>@Patch(&#x27;:pid&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/users/user.controller.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="45"
+                                    class="link-to-prism">src/users/user.controller.ts:45</a></div>
                         </td>
                     </tr>
 
@@ -507,7 +507,7 @@
                                         <tr>
                                                 <td>user</td>
                                             <td>
-                                                            <code><a href="../interfaces/UserInterface.html" target="_self" >Partial&lt;UserInterface&gt;</a></code>
+                                                            <code><a href="../classes/UpdateUserDTO.html" target="_self" >UpdateUserDTO</a></code>
                                             </td>
 
                                             <td>
@@ -540,32 +540,27 @@
   Post,
   Get,
   Param,
-  Put,
+  Patch,
   Delete,
-  BadRequestException,
-  UnauthorizedException,
-  ConflictException,
-  ForbiddenException,
-  NotFoundException,
   HttpCode,
   HttpStatus,
 } from &#x27;@nestjs/common&#x27;;
 import { UsersService } from &#x27;./user.service&#x27;;
-import { UserInterface } from &#x27;./models/user.interface&#x27;;
+import { RegisterUserDTO, UpdateUserDTO } from &#x27;./models/user.dto&#x27;;
 
-@Controller(&#x27;user&#x27;)
+@Controller(&#x27;users&#x27;)
 export class UserController {
+  // Dependency injection of the UsersService
   constructor(private usersService: UsersService) {}
 
+  // User registration
   @Post(&#x27;register&#x27;)
-  async register(@Body() user: UserInterface) {
-    const result &#x3D; await this.usersService.register(user);
-    if (!result) {
-      throw new ConflictException(&#x27;Email already exists&#x27;);
-    }
+  async register(@Body() user: RegisterUserDTO) {
+    await this.usersService.register(user);
     return { message: &#x27;User registered successfully&#x27; };
   }
 
+  // User login
   @Post(&#x27;login&#x27;)
   @HttpCode(HttpStatus.OK)
   async login(@Body() data: { email: string; password: string }) {
@@ -573,6 +568,7 @@ export class UserController {
     return result;
   }
 
+  // Retrieve user details by their ID
   @Get(&#x27;:pid&#x27;)
   async getUser(@Param(&#x27;pid&#x27;) pid: number) {
     const user &#x3D; await this.usersService.getUser(pid);
@@ -580,19 +576,21 @@ export class UserController {
     return result;
   }
 
-  @Put(&#x27;:pid&#x27;)
-  async updateUser(
-    @Param(&#x27;pid&#x27;) pid: number,
-    @Body() user: Partial&lt;UserInterface&gt;,
-  ) {
-    const updatedUser &#x3D; await this.usersService.updateUser(pid, user);
-    return { message: &#x27;User updated successfully&#x27; };
+  // Update user details by their ID
+  @Patch(&#x27;:pid&#x27;)
+  async updateUser(@Param(&#x27;pid&#x27;) pid: number, @Body() user: UpdateUserDTO) {
+    await this.usersService.updateUser(pid, user);
+    return {
+      status: HttpStatus.OK,
+      message: &#x27;User updated successfully&#x27;,
+    };
   }
 
+  // Delete a user by their ID.
   @Delete(&#x27;:pid&#x27;)
   async deleteUser(@Param(&#x27;pid&#x27;) pid: number) {
-    const deleted &#x3D; await this.usersService.deleteUser(pid);
-    return { message: &#x27;User deleted successfully&#x27; };
+    await this.usersService.deleteUser(pid);
+    return { status: HttpStatus.OK, message: &#x27;User deleted successfully&#x27; };
   }
 }
 </code></pre>

@@ -127,7 +127,7 @@
                 </tr>
                         <tr>
                             <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="13" class="link-to-prism">src/participants/participant.service.ts:13</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="16" class="link-to-prism">src/participants/participant.service.ts:16</a></div>
                             </td>
                         </tr>
 
@@ -209,15 +209,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>deleteParticipant(eventId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, pid: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
+                    <code>deleteParticipant(pid: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="94"
-                                    class="link-to-prism">src/participants/participant.service.ts:94</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="128"
+                                    class="link-to-prism">src/participants/participant.service.ts:128</a></div>
                         </td>
                     </tr>
 
@@ -237,18 +237,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                                <td>eventId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
                                         <tr>
                                                 <td>pid</td>
                                             <td>
@@ -297,8 +285,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="23"
-                                    class="link-to-prism">src/participants/participant.service.ts:23</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="28"
+                                    class="link-to-prism">src/participants/participant.service.ts:28</a></div>
                         </td>
                     </tr>
 
@@ -378,8 +366,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="105"
-                                    class="link-to-prism">src/participants/participant.service.ts:105</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="137"
+                                    class="link-to-prism">src/participants/participant.service.ts:137</a></div>
                         </td>
                     </tr>
 
@@ -447,8 +435,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/participants/participant.service.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="82"
+                                    class="link-to-prism">src/participants/participant.service.ts:82</a></div>
                         </td>
                     </tr>
 
@@ -533,15 +521,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateStatus(eventId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, pid: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
+                    <code>updateStatus(pid: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, status: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="112"
-                                    class="link-to-prism">src/participants/participant.service.ts:112</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="146"
+                                    class="link-to-prism">src/participants/participant.service.ts:146</a></div>
                         </td>
                     </tr>
 
@@ -561,18 +549,6 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                                <td>eventId</td>
-                                            <td>
-                                                            <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-                                            </td>
-
-                                            <td>
-                                                    No
-                                            </td>
-
-
-                                        </tr>
                                         <tr>
                                                 <td>pid</td>
                                             <td>
@@ -621,15 +597,19 @@
   Injectable,
   NotFoundException,
   InternalServerErrorException,
+  ConflictException,
 } from &#x27;@nestjs/common&#x27;;
 import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
 import { Repository } from &#x27;typeorm&#x27;;
 import { ParticipantEntity } from &#x27;./models/participant.entity&#x27;;
-import { UserEntity } from &#x27;src/users/models/user.entity&#x27;;
+
 import { EventEntity } from &#x27;src/events/models/event.entity&#x27;;
+import { UserEntity } from &#x27;src/users/models/user.entity&#x27;;
+
 
 @Injectable()
 export class ParticipantsService {
+  // Injects the repositories for participant, user, and event entities
   constructor(
     @InjectRepository(ParticipantEntity)
     private participantRepository: Repository&lt;ParticipantEntity&gt;,
@@ -639,31 +619,51 @@ export class ParticipantsService {
     private readonly eventRepository: Repository&lt;EventEntity&gt;,
   ) {}
 
+  // Invite a participant to a given event.
   async inviteParticipant(
     eventId: string,
     user: { first_name: string; last_name: string; email: string },
   ): Promise&lt;void&gt; {
+    // Retrieve the event from the database
     const event &#x3D; await this.eventRepository.findOne({
       where: { id: eventId },
     });
 
+    // Throw an exception if the event is not found
     if (!event) {
       throw new NotFoundException(&#x60;Event not found&#x60;);
     }
 
+    // Check if the user with the provided email exists
     const foundUser &#x3D; await this.userRepository.findOne({
       where: { email: user.email },
     });
 
+    // Throw an exception if the user is not found
     if (!foundUser) {
       throw new NotFoundException(&#x27;User not found&#x27;);
     }
 
+    // Check if the user is already a participant for the event
+    const existingParticipant &#x3D; await this.participantRepository.findOne({
+      where: {
+        event: event,
+        user: foundUser,
+      },
+    });
+
+    // Throw a conflict exception if the user is already a participant
+    if (existingParticipant) {
+      throw new ConflictException(&#x27;Participant already exists in the event&#x27;);
+    }
+
+    // Create a new participant and associate it with the user and event
     const newParticipant &#x3D; new ParticipantEntity();
     newParticipant.event &#x3D; event;
     newParticipant.user &#x3D; foundUser;
     newParticipant.status &#x3D; &#x27;invited&#x27;;
 
+    // Save the new participant to the database
     try {
       await this.participantRepository.save(newParticipant);
     } catch (e) {
@@ -673,19 +673,23 @@ export class ParticipantsService {
     }
   }
 
+  // Update details of an existing participant
   async updateParticipant(
     eventId: string,
     pid: number,
     user: { first_name: string; last_name: string; email: string },
   ): Promise&lt;UserEntity&gt; {
+    // Retrieve the event from the database
     const event &#x3D; await this.eventRepository.findOne({
       where: { id: eventId },
     });
 
+    // Throw an exception if the event is not found
     if (!event) {
       throw new NotFoundException(&#x60;Event not found&#x60;);
     }
 
+    // Check if the user is a participant of the given event
     const participant &#x3D; await this.participantRepository.findOne({
       where: {
         user: { id: pid },
@@ -693,56 +697,62 @@ export class ParticipantsService {
       },
     });
 
+    // Throw an exception if the user is not associated with the event
     if (!participant) {
       throw new NotFoundException(&#x60;Participant not associated with this event&#x60;);
     }
 
+    // Retrieve the user from the database using the participant ID
     const foundUser &#x3D; await this.userRepository.findOne({ where: { id: pid } });
 
+    // Throw an exception if the user is not found
     if (!foundUser) {
       throw new NotFoundException(&#x27;User not found&#x27;);
     }
 
+    // Update the user&#x27;s details
     foundUser.first_name &#x3D; user.first_name;
     foundUser.last_name &#x3D; user.last_name;
     foundUser.email &#x3D; user.email;
 
+    // Save the updated user details to the database
     return await this.userRepository.save(foundUser);
   }
 
-  async deleteParticipant(eventId: string, pid: number): Promise&lt;void&gt; {
-    const result &#x3D; await this.participantRepository.delete({
-      user: { id: pid },
-      event: { id: eventId },
-    });
-
+  // Delete a participant
+  async deleteParticipant(pid: number): Promise&lt;void&gt; {
+    const result &#x3D; await this.participantRepository.delete(pid);
+    // Throw an exception if no rows were affected
     if (result.affected &#x3D;&#x3D;&#x3D; 0) {
       throw new NotFoundException(&#x27;Participant not found&#x27;);
     }
   }
 
+  // Retrieve a list of participants for a given event
   async listParticipants(eventId: string): Promise&lt;ParticipantEntity[]&gt; {
+    // Find all participants associated with the event and return them along with their user details
     return await this.participantRepository.find({
       where: { event: { id: eventId } },
       relations: [&#x27;user&#x27;],
     });
   }
 
-  async updateStatus(
-    eventId: string,
-    pid: number,
-    status: string,
-  ): Promise&lt;void&gt; {
+  // Update a participant&#x27;s response status
+  async updateStatus(pid: number, status: string): Promise&lt;void&gt; {
+    // Retrieve the participant from the database
     const participant &#x3D; await this.participantRepository.findOne({
-      where: { user: { id: pid }, event: { id: eventId } },
+      where: { id: pid },
     });
 
+    // Throw an exception if the participant is not found
     if (!participant) {
       throw new NotFoundException(&#x27;Participant not found&#x27;);
     }
 
+    // Update the participant&#x27;s status
     participant.status &#x3D; status;
 
+    // Save the updated status to the database
     await this.participantRepository.save(participant);
   }
 }

@@ -28,7 +28,7 @@
                    <compodoc-menu mode="normal"></compodoc-menu>
                </div>
                <!-- START CONTENT -->
-               <div class="content entity">
+               <div class="content class">
                    <div class="content-data">
 
 
@@ -36,9 +36,15 @@
 
 
 
+
+
+
+
+
+
 <ol class="breadcrumb">
-  <li class="breadcrumb-item">Entities</li>
-  <li class="breadcrumb-item" >EventEntity</li>
+  <li class="breadcrumb-item">Classes</li>
+  <li class="breadcrumb-item" >CreateEventDTO</li>
 </ol>
 
 <ul class="nav nav-tabs" role="tablist">
@@ -62,17 +68,12 @@
             <h3>File</h3>
         </p>
         <p class="comment">
-            <code>src/events/models/event.entity.ts</code>
+            <code>src/events/models/event.dto.ts</code>
         </p>
 
 
-            <p class="comment">
-                <h3>Description</h3>
-            </p>
-            <p class="comment">
-                <p>Event entity which is used to store event information in database.</p>
 
-            </p>
+
 
 
             <section data-compodoc="block-index">
@@ -89,29 +90,31 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#desc" >desc</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#end_time" >end_time</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#host" >host</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
-                                <a href="#id" >id</a>
-                            </li>
-                            <li>
                                     <span class="modifier"></span>
                                 <a href="#location" >location</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier"></span>
                                 <a href="#start_time" >start_time</a>
                             </li>
                             <li>
+                                    <span class="modifier"></span>
                                     <span class="modifier"></span>
                                 <a href="#title" >title</a>
                             </li>
@@ -128,6 +131,7 @@
     </table>
 </section>
 
+
             <section data-compodoc="block-properties">
     
     <h3 id="inputs">
@@ -139,6 +143,7 @@
                 <td class="col-md-4">
                     <a name="desc"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>desc</b></span>
                         <a href="#desc"><span class="icon ion-ios-link"></span></a>
@@ -156,22 +161,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column({nullable: true})<br />
+                            @IsNotEmpty()<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="24" class="link-to-prism">src/events/models/event.entity.ts:24</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="10" class="link-to-prism">src/events/models/event.dto.ts:10</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Event description. Optional.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -181,6 +180,7 @@
                 <td class="col-md-4">
                     <a name="end_time"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>end_time</b></span>
                         <a href="#end_time"><span class="icon ion-ios-link"></span></a>
@@ -198,22 +198,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column()<br />
+                            @IsNotEmpty()<br />@IsDateString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="36" class="link-to-prism">src/events/models/event.entity.ts:36</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/events/models/event.dto.ts:18</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Event end time. Required.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -223,6 +217,7 @@
                 <td class="col-md-4">
                     <a name="host"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>host</b></span>
                         <a href="#host"><span class="icon ion-ios-link"></span></a>
@@ -240,58 +235,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column({nullable: true})<br />
+                            @IsNotEmpty()<br />@IsNumber()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="45" class="link-to-prism">src/events/models/event.entity.ts:45</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="26" class="link-to-prism">src/events/models/event.dto.ts:26</a></div>
                         </td>
                     </tr>
 
-
-        </tbody>
-    </table>
-    <table class="table table-sm table-bordered">
-        <tbody>
-            <tr>
-                <td class="col-md-4">
-                    <a name="id"></a>
-                    <span class="name">
-                            <span class="modifier"></span>
-                        <span ><b>id</b></span>
-                        <a href="#id"><span class="icon ion-ios-link"></span></a>
-                    </span>
-                </td>
-            </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <i>Type : </i>        <code><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank" >string</a></code>
-
-                    </td>
-                </tr>
-                <tr>
-                    <td class="col-md-4">
-                        <b>Decorators : </b>
-                        <br />
-                        <code>
-                            @PrimaryGeneratedColumn()<br />
-                        </code>
-                    </td>
-                </tr>
-                    <tr>
-                        <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="12" class="link-to-prism">src/events/models/event.entity.ts:12</a></div>
-                        </td>
-                    </tr>
-
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Event ID. Generated by database.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -301,6 +254,7 @@
                 <td class="col-md-4">
                     <a name="location"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>location</b></span>
                         <a href="#location"><span class="icon ion-ios-link"></span></a>
@@ -318,22 +272,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column({nullable: true})<br />
+                            @IsNotEmpty()<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="42" class="link-to-prism">src/events/models/event.entity.ts:42</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="22" class="link-to-prism">src/events/models/event.dto.ts:22</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Event location. Optional.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -343,6 +291,7 @@
                 <td class="col-md-4">
                     <a name="start_time"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>start_time</b></span>
                         <a href="#start_time"><span class="icon ion-ios-link"></span></a>
@@ -360,22 +309,16 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column()<br />
+                            @IsNotEmpty()<br />@IsDateString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="30" class="link-to-prism">src/events/models/event.entity.ts:30</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="14" class="link-to-prism">src/events/models/event.dto.ts:14</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Event start time. Required.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
@@ -385,6 +328,7 @@
                 <td class="col-md-4">
                     <a name="title"></a>
                     <span class="name">
+                            <span class="modifier"></span>
                             <span class="modifier"></span>
                         <span ><b>title</b></span>
                         <a href="#title"><span class="icon ion-ios-link"></span></a>
@@ -402,85 +346,83 @@
                         <b>Decorators : </b>
                         <br />
                         <code>
-                            @Column()<br />
+                            @IsNotEmpty()<br />@IsString()<br />
                         </code>
                     </td>
                 </tr>
                     <tr>
                         <td class="col-md-4">
-                                <div class="io-line">Defined in <a href="" data-line="18" class="link-to-prism">src/events/models/event.entity.ts:18</a></div>
+                                <div class="io-line">Defined in <a href="" data-line="6" class="link-to-prism">src/events/models/event.dto.ts:6</a></div>
                         </td>
                     </tr>
 
-            <tr>
-                <td class="col-md-4">
-                    <div class="io-description"><p>Event title. Required.</p>
-</div>
-                </td>
-            </tr>
 
         </tbody>
     </table>
 </section>
+
+
+
+
+
+
+
     </div>
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Column, Entity, PrimaryGeneratedColumn } from &#x27;typeorm&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { IsNotEmpty, IsString, IsNumber, IsDateString } from &#x27;class-validator&#x27;;
 
-/**
- * Event entity which is used to store event information in database.
- */
-@Entity()
-export class EventEntity {
-  /**
-   * Event ID. Generated by database.
-   */
-  @PrimaryGeneratedColumn()
-  id: string;
-
-  /**
-   * Event title. Required.
-   */
-  @Column()
+export class CreateEventDTO {
+  @IsNotEmpty()
+  @IsString()
   title: string;
 
-  /**
-   * Event description. Optional.
-   */
-  @Column({ nullable: true })
+  @IsNotEmpty()
+  @IsString()
   desc: string;
 
-  /**
-   * Event start time. Required.
-   */
-  @Column()
+  @IsNotEmpty()
+  @IsDateString()
   start_time: Date;
 
-  /**
-   * Event end time. Required.
-   */
-  @Column()
+  @IsNotEmpty()
+  @IsDateString()
   end_time: Date;
 
-  /**
-   * Event location. Optional.
-   */
-  @Column({ nullable: true })
+  @IsNotEmpty()
+  @IsString()
   location: string;
 
-  @Column({ nullable: true })
+  @IsNotEmpty()
+  @IsNumber()
   host: number;
+}
+
+export class UpdateEventDTO {
+  @IsNotEmpty()
+  @IsString()
+  title: string;
+
+  @IsNotEmpty()
+  @IsString()
+  desc: string;
+
+  @IsNotEmpty()
+  @IsDateString()
+  start_time: Date;
+
+  @IsNotEmpty()
+  @IsDateString()
+  end_time: Date;
+
+  @IsNotEmpty()
+  @IsString()
+  location: string;
 }
 </code></pre>
     </div>
 </div>
-
-
-
-
-
-
 
 
 
@@ -515,8 +457,8 @@ export class EventEntity {
 
        <script>
             var COMPODOC_CURRENT_PAGE_DEPTH = 1;
-            var COMPODOC_CURRENT_PAGE_CONTEXT = 'entity';
-            var COMPODOC_CURRENT_PAGE_URL = 'EventEntity.html';
+            var COMPODOC_CURRENT_PAGE_CONTEXT = 'class';
+            var COMPODOC_CURRENT_PAGE_URL = 'CreateEventDTO.html';
             var MAX_SEARCH_RESULTS = 15;
        </script>
 
