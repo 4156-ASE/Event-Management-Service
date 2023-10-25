@@ -79,13 +79,13 @@ export class EventsService {
    * @param {string} eventID The event ID.
    * @param {UpdateEventDTO} updatedEvent The information that need to be modified in an event.
    */
-  updateEvent(eventID: string, updatedEvent: UpdateEventDTO) {
-    const event = this.eventRepository.find({
+  async updateEvent(eventID: string, updatedEvent: UpdateEventDTO) {
+    const events = await this.eventRepository.find({
       where: {
         id: eventID,
       },
     });
-    if (!event) {
+    if (events.length === 0) {
       throw new NotFoundException(`Could not find event: ${eventID}.`);
     }
 
@@ -95,14 +95,17 @@ export class EventsService {
         delete updatedEvent[key];
       }
     });
-    this.eventRepository.update(eventID, updatedEvent);
+    await this.eventRepository.update({ id: eventID }, updatedEvent);
   }
 
   /**
    * Delete a event by eventID.
    * @param {string} eventID The event ID.
    */
-  deleteEvent(eventID: string) {
-    this.eventRepository.delete(eventID);
+  async deleteEvent(eventID: string): Promise<void> {
+    const result = await this.eventRepository.delete(eventID);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Event with ID ${eventID} not found.`);
+    }
   }
 }

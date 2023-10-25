@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Delete,
+  HttpStatus,
 } from '@nestjs/common';
 import { from, Observable } from 'rxjs';
 import { EventsService } from './events.service';
@@ -54,14 +55,15 @@ export class EventsController {
    * @param {UpdateEventDTO} event The information that need to be modified in an event.
    * @returns {Object} Return status of the event update.
    */
-  @Patch(':id')
-  updateEvent(
+  @Patch(':eventId')
+  async updateEvent(
     @Param('eventId') eventId: string,
     @Body() event: UpdateEventDTO,
   ) {
-    this.eventsService.updateEvent(eventId, event);
+    await this.eventsService.updateEvent(eventId, event);
     return {
-      success: true,
+      status: HttpStatus.OK,
+      message: 'Event updated successfully',
     };
   }
 
@@ -71,10 +73,11 @@ export class EventsController {
    * @returns {Object} Return status of the event delete.
    */
   @Delete(':id')
-  removeEvent(@Param('id') eventId: string) {
-    this.eventsService.deleteEvent(eventId);
+  async removeEvent(@Param('id') eventId: string) {
+    await this.eventsService.deleteEvent(eventId);
     return {
-      success: true,
+      status: HttpStatus.OK,
+      message: 'Event deleted successfully',
     };
   }
 }
