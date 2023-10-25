@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { of } from 'rxjs';
+import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
 
 describe('EventsController', () => {
   let eventsController: EventsController;
@@ -46,22 +47,21 @@ describe('EventsController', () => {
     eventsController = app.get<EventsController>(EventsController);
   });
 
-  it('should create an event', () => {
-    expect(
-      eventsController.createEvent({
-        id: 'aaaa',
-        title: 'aaaa',
-        desc: 'aaa',
-        start_time: new Date('December 17, 1995 03:24:00'),
-        end_time: new Date('December 17, 1995 03:24:00'),
-        location: 'aaaa',
-      }),
-    ).toStrictEqual({
-      message: 'event created',
+  it('should create an event', async () => {
+    const event = {
+      title: 'aaaa',
+      desc: 'aaa',
+      start_time: new Date('December 17, 1995 03:24:00'),
+      end_time: new Date('December 17, 1995 03:24:00'),
+      location: 'aaaa',
+      host: 1,
+    };
+    expect(await eventsController.createEvent(event)).toEqual({
       desc: 'aaa',
       end_time: new Date('December 17, 1995 03:24:00'),
-      id: 'aaaa',
+      host: 1,
       location: 'aaaa',
+      message: 'event created',
       start_time: new Date('December 17, 1995 03:24:00'),
       title: 'aaaa',
     });
@@ -79,7 +79,7 @@ describe('EventsController', () => {
     });
   });
 
-  it('should update event', () => {
+  it('should update event', async () => {
     const event = {
       id: 'aaaa',
       title: 'bbbb',
@@ -89,12 +89,16 @@ describe('EventsController', () => {
       location: 'aaaa',
     };
 
-    expect(eventsController.updateEvent('aaaa', event)).toEqual({
-      success: true,
+    expect(await eventsController.updateEvent('aaaa', event)).toEqual({
+      message: 'Event updated successfully',
+      status: 200,
     });
   });
 
-  it('should delete event', () => {
-    expect(eventsController.removeEvent('aaaa')).toEqual({ success: true });
+  it('should delete event', async () => {
+    expect(await eventsController.removeEvent('aaaa')).toEqual({
+      message: 'Event deleted successfully',
+      status: 200,
+    });
   });
 });
