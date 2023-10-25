@@ -5,9 +5,5 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
-  "collectCoverageFrom": [
-    "**/*.ts",
-    "!**/node_modules/**"
-  ],
   "moduleDirectories": ["<rootDir>/", "node_modules"]
 }
