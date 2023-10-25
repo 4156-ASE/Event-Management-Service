@@ -4,8 +4,18 @@ import * as request from 'supertest';
 import { EventsModule } from '../src/events/events.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventEntity } from '../src/events/models/event.entity';
-import { EventInterface } from 'src/events/models/event.interface';
-import { UserEntity } from 'src/users/models/user.entity';
+import { EventInterface } from '../src/events/models/event.interface';
+import { UserEntity } from '../src/users/models/user.entity';
+
+import * as moduleAlias from 'module-alias';
+
+function initAlias() {
+  moduleAlias.addAliases({
+    '@/(.*)': '<rootDit>/$1',
+  });
+}
+
+initAlias();
 
 describe('EventsController (e2e)', () => {
   let app: INestApplication;
