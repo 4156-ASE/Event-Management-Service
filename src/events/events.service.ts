@@ -1,9 +1,16 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventEntity } from './models/event.entity';
 import { EventInterface } from './models/event.interface';
 import { from, Observable } from 'rxjs';
+import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
+import { UserEntity } from 'src/users/models/user.entity';
 
 /**
  * Event Service which will handle event relevent database operations, can be used by event controller.
@@ -12,21 +19,33 @@ import { from, Observable } from 'rxjs';
 export class EventsService {
   /**
    * Event constructor which will inject event repository.
-   * @param eventRepostitory
+   * @param eventRepository
    */
   constructor(
     @InjectRepository(EventEntity)
-    private eventRepostitory: Repository<EventEntity>,
+    private eventRepository: Repository<EventEntity>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
   ) {}
 
   /**
    * Insert a event into database.
-   * @param {EventInterface} event The EventInterface object that need to be inserted into database.
+   * @param {CreateEventDTO} event The EventInterface object that need to be inserted into database.
    * @returns {Observable<EventInterface>} Return the content of the event object.
    */
-  insertEvent(event: EventInterface): Observable<EventInterface> {
+  async insertEvent(event: CreateEventDTO): Promise<EventInterface> {
+    const user = await this.userRepository.findOne({
+      where: { id: event.host },
+    });
 
-    return from(this.eventRepostitory.save(event));
+    if (!user) {
+      throw new HttpException(
+        'Host not found in user database',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.eventRepository.save(event);
   }
 
   /**
@@ -34,7 +53,7 @@ export class EventsService {
    * @returns {Observable<EventInterface[]>} The information of all the events from database.
    */
   getEvents(): Observable<EventInterface[]> {
-    return from(this.eventRepostitory.find());
+    return from(this.eventRepository.find());
   }
 
   /**
@@ -43,7 +62,7 @@ export class EventsService {
    * @returns {Promise<EventEntity>} The information of the target event from database.
    */
   async getEvent(eventID: string): Promise<EventEntity> {
-    const events = await this.eventRepostitory.find({
+    const events = await this.eventRepository.find({
       where: {
         id: eventID,
       },
@@ -58,15 +77,15 @@ export class EventsService {
   /**
    * Update a event by eventID.
    * @param {string} eventID The event ID.
-   * @param {Partial<EventInterface>} updatedEvent The information that need to be modified in an event.
+   * @param {UpdateEventDTO} updatedEvent The information that need to be modified in an event.
    */
-  updateEvent(eventID: string, updatedEvent: Partial<EventEntity>) {
-    const event = this.eventRepostitory.find({
+  async updateEvent(eventID: string, updatedEvent: UpdateEventDTO) {
+    const events = await this.eventRepository.find({
       where: {
         id: eventID,
       },
     });
-    if (!event) {
+    if (events.length === 0) {
       throw new NotFoundException(`Could not find event: ${eventID}.`);
     }
 
@@ -76,14 +95,17 @@ export class EventsService {
         delete updatedEvent[key];
       }
     });
-    this.eventRepostitory.update(eventID, updatedEvent);
+    await this.eventRepository.update({ id: eventID }, updatedEvent);
   }
 
   /**
    * Delete a event by eventID.
    * @param {string} eventID The event ID.
    */
-  deleteEvent(eventID: string) {
-    this.eventRepostitory.delete(eventID);
+  async deleteEvent(eventID: string): Promise<void> {
+    const result = await this.eventRepository.delete(eventID);
+    if (result.affected === 0) {
+      throw new NotFoundException(`Event with ID ${eventID} not found.`);
+    }
   }
 }

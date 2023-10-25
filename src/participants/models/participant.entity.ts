@@ -5,8 +5,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { EventEntity } from '../../../src/events/models/event.entity';
-import { UserEntity } from '../../../src/users/models/user.entity';
+import { EventEntity } from 'src/events/models/event.entity';
+import { UserEntity } from 'src/users/models/user.entity';
 
 @Entity()
 export class ParticipantEntity {

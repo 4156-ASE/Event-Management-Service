@@ -13,7 +13,7 @@ $ sudo docker-compose up --build
 
 ## API Documentation
 
-[Swagger API Docmentation](https://app.swaggerhub.com/apis-docs/dearalina/4156-Project/1.0.0)
+[Swagger API Documentation](https://app.swaggerhub.com/apis-docs/dearalina/4156-Project/1.0.0)
 
 ## Installation
 

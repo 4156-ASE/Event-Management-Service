@@ -1,9 +1,9 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityNotFoundError, Repository } from 'typeorm';
 import { UserEntity } from './models/user.entity';
-import { UserInterface } from './models/user.interface';
 import { LoginResponse } from './models/user.interface';
+import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
 
 @Injectable()
 export class UsersService {
@@ -12,57 +12,101 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async register(user: UserInterface): Promise<UserEntity | null> {
+  async register(user: RegisterUserDTO): Promise<UserEntity | null> {
     const existUser = await this.userRepository.findOne({
       where: { email: user.email },
     });
-    if (existUser) return null;
 
-    return this.userRepository.save(user);
+    if (existUser) {
+      throw new HttpException(
+        'User with this email already exists',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    try {
+      return await this.userRepository.save(user);
+    } catch (error) {
+      throw new HttpException(
+        'Registration failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async login(email: string, password: string): Promise<LoginResponse | null> {
     const user = await this.userRepository.findOne({
-      where: { email, password },
+      where: { email },
     });
-    if (user) {
-      const { password, ...userData } = user;
-      const response: LoginResponse = {
-        status: 'success',
-        message: 'Logged in successfully',
-        data: {
-          user: userData,
-          token: 'alnlgsnsoajg',
-          expires_in: 3600,
-        },
-      };
-      return response;
+    if (!user || user.password !== password) {
+      throw new HttpException(
+        'Invalid email or password',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
-    const errorResponse: LoginResponse = {
-      status: 'error',
-      message: 'Unauthorized',
-      data: null,
+
+    const { password: _, ...userData } = user;
+    const response: LoginResponse = {
+      status: 'success',
+      message: 'Logged in successfully',
+      data: {
+        user: userData,
+        token: 'alnlgsnsoajg',
+        expires_in: 3600,
+      },
     };
-    return errorResponse;
+
+    return response;
   }
 
   async getUser(id: number): Promise<UserEntity | null> {
-    return this.userRepository.findOne({ where: { id } });
+    try {
+      return await this.userRepository.findOneOrFail({ where: { id } });
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(
+        'Internal server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async updateUser(
     id: number,
-    updatedUser: Partial<UserEntity>,
+    updatedUser: UpdateUserDTO,
   ): Promise<UserEntity | null> {
     const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) return null;
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
 
-    await this.userRepository.update(id, updatedUser);
-    return this.userRepository.findOne({ where: { id } });
+    try {
+      await this.userRepository.update(id, updatedUser);
+      return this.userRepository.findOne({ where: { id } });
+    } catch (error) {
+      throw new HttpException(
+        'Failed to update user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async deleteUser(id: number): Promise<boolean> {
-    const result = await this.userRepository.delete(id);
-    return result.affected > 0;
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      const result = await this.userRepository.delete(id);
+      return result.affected > 0;
+    } catch (error) {
+      throw new HttpException(
+        'Error deleting user',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

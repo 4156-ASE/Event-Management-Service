@@ -6,27 +6,19 @@ import {
   Param,
   Patch,
   Delete,
-  BadRequestException,
-  UnauthorizedException,
-  ConflictException,
-  ForbiddenException,
-  NotFoundException,
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
-import { UserInterface } from './models/user.interface';
+import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
 
 @Controller('users')
 export class UserController {
   constructor(private usersService: UsersService) {}
 
   @Post('register')
-  async register(@Body() user: UserInterface) {
-    const result = await this.usersService.register(user);
-    if (!result) {
-      throw new ConflictException('Email already exists');
-    }
+  async register(@Body() user: RegisterUserDTO) {
+    await this.usersService.register(user);
     return { message: 'User registered successfully' };
   }
 
@@ -45,17 +37,17 @@ export class UserController {
   }
 
   @Patch(':pid')
-  async updateUser(
-    @Param('pid') pid: number,
-    @Body() user: Partial<UserInterface>,
-  ) {
-    const updatedUser = await this.usersService.updateUser(pid, user);
-    return { message: 'User updated successfully' };
+  async updateUser(@Param('pid') pid: number, @Body() user: UpdateUserDTO) {
+    await this.usersService.updateUser(pid, user);
+    return {
+      status: HttpStatus.OK,
+      message: 'User updated successfully',
+    };
   }
 
   @Delete(':pid')
   async deleteUser(@Param('pid') pid: number) {
-    const deleted = await this.usersService.deleteUser(pid);
-    return { message: 'User deleted successfully' };
+    await this.usersService.deleteUser(pid);
+    return { status: HttpStatus.OK, message: 'User deleted successfully' };
   }
 }
