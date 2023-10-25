@@ -98,6 +98,7 @@
                         <ul class="index-list">
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
                                 <a href="#createEvent" >createEvent</a>
                             </li>
                             <li>
@@ -110,10 +111,12 @@
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
                                 <a href="#removeEvent" >removeEvent</a>
                             </li>
                             <li>
                                     <span class="modifier"></span>
+                                    <span class="modifier">Async</span>
                                 <a href="#updateEvent" >updateEvent</a>
                             </li>
                         </ul>
@@ -140,6 +143,7 @@
                     <a name="createEvent"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier">Async</span>
                         <span ><b>createEvent</b></span>
                         <a href="#createEvent"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -148,7 +152,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>createEvent(event: <a href="../interfaces/EventInterface.html" target="_self">EventInterface</a>)</code>
+                    <code>createEvent(event: <a href="../classes/CreateEventDTO.html" target="_self">CreateEventDTO</a>)</code>
                 </td>
             </tr>
 
@@ -162,8 +166,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="27"
-                                    class="link-to-prism">src/events/events.controller.ts:27</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="29"
+                                    class="link-to-prism">src/events/events.controller.ts:29</a></div>
                         </td>
                     </tr>
 
@@ -189,7 +193,7 @@
                                         <tr>
                                                 <td>event</td>
                                             <td>
-                                                            <code><a href="../interfaces/EventInterface.html" target="_self" >EventInterface</a></code>
+                                                            <code><a href="../classes/CreateEventDTO.html" target="_self" >CreateEventDTO</a></code>
                                             </td>
 
                                             <td>
@@ -198,7 +202,7 @@
 
 
                                             <td>
-                                                    <p>The information of the event that need to be created. The title, start time and end time are required, other information are optional</p>
+                                                    <p>The information of the event that need to be created.</p>
 
                                             </td>
                                         </tr>
@@ -206,7 +210,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>        <code><a href="../interfaces/EventInterface.html" target="_self" >Observable&lt;EventInterface&gt;</a></code>
+                            <b>Returns : </b>        <code><a href="../interfaces/EventInterface.html" target="_self" >Promise&lt;EventInterface&gt;</a></code>
 
                         </div>
                             <div class="io-description">
@@ -246,8 +250,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="36"
-                                    class="link-to-prism">src/events/events.controller.ts:36</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="38"
+                                    class="link-to-prism">src/events/events.controller.ts:38</a></div>
                         </td>
                     </tr>
 
@@ -298,8 +302,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="46"
-                                    class="link-to-prism">src/events/events.controller.ts:46</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="48"
+                                    class="link-to-prism">src/events/events.controller.ts:48</a></div>
                         </td>
                     </tr>
 
@@ -360,6 +364,7 @@
                     <a name="removeEvent"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier">Async</span>
                         <span ><b>removeEvent</b></span>
                         <a href="#removeEvent"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -382,8 +387,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="73"
-                                    class="link-to-prism">src/events/events.controller.ts:73</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="76"
+                                    class="link-to-prism">src/events/events.controller.ts:76</a></div>
                         </td>
                     </tr>
 
@@ -426,7 +431,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>{ success: boolean; }</code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -444,6 +449,7 @@
                     <a name="updateEvent"></a>
                     <span class="name">
                             <span class="modifier"></span>
+                            <span class="modifier">Async</span>
                         <span ><b>updateEvent</b></span>
                         <a href="#updateEvent"><span class="icon ion-ios-link"></span></a>
                     </span>
@@ -452,7 +458,7 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateEvent(eventId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, event: <a href="../interfaces/EventInterface.html" target="_self">Partial&lt;EventInterface&gt;</a>)</code>
+                    <code>updateEvent(eventId: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/string" target="_blank">string</a>, event: <a href="../classes/UpdateEventDTO.html" target="_self">UpdateEventDTO</a>)</code>
                 </td>
             </tr>
 
@@ -460,14 +466,14 @@
                 <td class="col-md-4">
                     <b>Decorators : </b>
                     <br />
-                    <code>@Patch(&#x27;:id&#x27;)<br /></code>
+                    <code>@Patch(&#x27;:eventId&#x27;)<br /></code>
                 </td>
             </tr>
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="57"
-                                    class="link-to-prism">src/events/events.controller.ts:57</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="59"
+                                    class="link-to-prism">src/events/events.controller.ts:59</a></div>
                         </td>
                     </tr>
 
@@ -509,7 +515,7 @@
                                         <tr>
                                                 <td>event</td>
                                             <td>
-                                                            <code><a href="../interfaces/EventInterface.html" target="_self" >Partial&lt;EventInterface&gt;</a></code>
+                                                            <code><a href="../classes/UpdateEventDTO.html" target="_self" >UpdateEventDTO</a></code>
                                             </td>
 
                                             <td>
@@ -526,7 +532,7 @@
                                 </table>
                             </div>
                         <div class="io-description">
-                            <b>Returns : </b>    <code>{ success: boolean; }</code>
+                            <b>Returns : </b>    <code>unknown</code>
 
                         </div>
                             <div class="io-description">
@@ -549,10 +555,12 @@
   Param,
   Patch,
   Delete,
+  HttpStatus,
 } from &#x27;@nestjs/common&#x27;;
 import { from, Observable } from &#x27;rxjs&#x27;;
 import { EventsService } from &#x27;./events.service&#x27;;
 import { EventInterface } from &#x27;./models/event.interface&#x27;;
+import { CreateEventDTO, UpdateEventDTO } from &#x27;./models/event.dto&#x27;;
 
 /**
  * The event controller which will handle the event relevant operations.
@@ -563,11 +571,11 @@ export class EventsController {
 
   /**
    * Create a event.
-   * @param {EventInterface} event The information of the event that need to be created. The title, start time and end time are required, other information are optional
-   * @returns {Observable&lt;EventInterface&gt;} Return the content of the event object.
+   * @param {CreateEventDTO} event The information of the event that need to be created.
+   * @returns {Promise&lt;EventInterface&gt;} Return the content of the event object.
    */
   @Post()
-  createEvent(@Body() event: EventInterface): Observable&lt;EventInterface&gt; {
+  async createEvent(@Body() event: CreateEventDTO): Promise&lt;EventInterface&gt; {
     return this.eventsService.insertEvent(event);
   }
 
@@ -593,17 +601,18 @@ export class EventsController {
   /**
    * Update Event by EventID.
    * @param {string} eventId The event ID.
-   * @param {Partial&lt;EventInterface&gt;} event The information that need to be modified in an event.
+   * @param {UpdateEventDTO} event The information that need to be modified in an event.
    * @returns {Object} Return status of the event update.
    */
-  @Patch(&#x27;:id&#x27;)
-  updateEvent(
-    @Param(&#x27;id&#x27;) eventId: string,
-    @Body() event: Partial&lt;EventInterface&gt;,
+  @Patch(&#x27;:eventId&#x27;)
+  async updateEvent(
+    @Param(&#x27;eventId&#x27;) eventId: string,
+    @Body() event: UpdateEventDTO,
   ) {
-    this.eventsService.updateEvent(eventId, event);
+    await this.eventsService.updateEvent(eventId, event);
     return {
-      success: true,
+      status: HttpStatus.OK,
+      message: &#x27;Event updated successfully&#x27;,
     };
   }
 
@@ -613,10 +622,11 @@ export class EventsController {
    * @returns {Object} Return status of the event delete.
    */
   @Delete(&#x27;:id&#x27;)
-  removeEvent(@Param(&#x27;id&#x27;) eventId: string) {
-    this.eventsService.deleteEvent(eventId);
+  async removeEvent(@Param(&#x27;id&#x27;) eventId: string) {
+    await this.eventsService.deleteEvent(eventId);
     return {
-      success: true,
+      status: HttpStatus.OK,
+      message: &#x27;Event deleted successfully&#x27;,
     };
   }
 }

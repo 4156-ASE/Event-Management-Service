@@ -192,8 +192,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="59"
-                                    class="link-to-prism">src/users/user.service.ts:59</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="110"
+                                    class="link-to-prism">src/users/user.service.ts:110</a></div>
                         </td>
                     </tr>
 
@@ -261,8 +261,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="44"
-                                    class="link-to-prism">src/users/user.service.ts:44</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="73"
+                                    class="link-to-prism">src/users/user.service.ts:73</a></div>
                         </td>
                     </tr>
 
@@ -330,8 +330,8 @@
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="24"
-                                    class="link-to-prism">src/users/user.service.ts:24</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="44"
+                                    class="link-to-prism">src/users/user.service.ts:44</a></div>
                         </td>
                     </tr>
 
@@ -404,15 +404,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>register(user: <a href="../interfaces/UserInterface.html" target="_self">UserInterface</a>)</code>
+                    <code>register(user: <a href="../classes/RegisterUserDTO.html" target="_self">RegisterUserDTO</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="15"
-                                    class="link-to-prism">src/users/user.service.ts:15</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="16"
+                                    class="link-to-prism">src/users/user.service.ts:16</a></div>
                         </td>
                     </tr>
 
@@ -435,7 +435,7 @@
                                         <tr>
                                                 <td>user</td>
                                             <td>
-                                                            <code><a href="../interfaces/UserInterface.html" target="_self" >UserInterface</a></code>
+                                                            <code><a href="../classes/RegisterUserDTO.html" target="_self" >RegisterUserDTO</a></code>
                                             </td>
 
                                             <td>
@@ -473,15 +473,15 @@
             <tr>
                 <td class="col-md-4">
                         <span class="modifier-icon icon ion-ios-reset"></span>
-                    <code>updateUser(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, updatedUser: <a href="../entitys/UserEntity.html" target="_self">Partial&lt;UserEntity&gt;</a>)</code>
+                    <code>updateUser(id: <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/number" target="_blank">number</a>, updatedUser: <a href="../classes/UpdateUserDTO.html" target="_self">UpdateUserDTO</a>)</code>
                 </td>
             </tr>
 
 
                     <tr>
                         <td class="col-md-4">
-                            <div class="io-line">Defined in <a href="" data-line="48"
-                                    class="link-to-prism">src/users/user.service.ts:48</a></div>
+                            <div class="io-line">Defined in <a href="" data-line="87"
+                                    class="link-to-prism">src/users/user.service.ts:87</a></div>
                         </td>
                     </tr>
 
@@ -516,7 +516,7 @@
                                         <tr>
                                                 <td>updatedUser</td>
                                             <td>
-                                                            <code><a href="../entitys/UserEntity.html" target="_self" >Partial&lt;UserEntity&gt;</a></code>
+                                                            <code><a href="../classes/UpdateUserDTO.html" target="_self" >UpdateUserDTO</a></code>
                                             </td>
 
                                             <td>
@@ -545,67 +545,136 @@
 
 
     <div class="tab-pane fade  tab-source-code" id="source">
-        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { Injectable, NotFoundException } from &#x27;@nestjs/common&#x27;;
+        <pre class="line-numbers compodoc-sourcecode"><code class="language-typescript">import { HttpException, HttpStatus, Injectable } from &#x27;@nestjs/common&#x27;;
 import { InjectRepository } from &#x27;@nestjs/typeorm&#x27;;
-import { Repository } from &#x27;typeorm&#x27;;
+import { EntityNotFoundError, Repository } from &#x27;typeorm&#x27;;
 import { UserEntity } from &#x27;./models/user.entity&#x27;;
-import { UserInterface } from &#x27;./models/user.interface&#x27;;
 import { LoginResponse } from &#x27;./models/user.interface&#x27;;
+import { RegisterUserDTO, UpdateUserDTO } from &#x27;./models/user.dto&#x27;;
 
 @Injectable()
 export class UsersService {
+  // Injection of the UserEntity repository
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository&lt;UserEntity&gt;,
   ) {}
 
-  async register(user: UserInterface): Promise&lt;UserEntity | null&gt; {
+  async register(user: RegisterUserDTO): Promise&lt;UserEntity | null&gt; {
+
+    // Check if the user with the provided email already exists
+
     const existUser &#x3D; await this.userRepository.findOne({
       where: { email: user.email },
     });
-    if (existUser) return null;
 
-    return this.userRepository.save(user);
+    if (existUser) {
+      throw new HttpException(
+        &#x27;User with this email already exists&#x27;,
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    try {
+
+      // Save the new user to the database
+
+      return await this.userRepository.save(user);
+    } catch (error) {
+      throw new HttpException(
+        &#x27;Registration failed&#x27;,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async login(email: string, password: string): Promise&lt;LoginResponse | null&gt; {
+    // Find the user with the provided email
     const user &#x3D; await this.userRepository.findOne({
-      where: { email, password },
+      where: { email },
     });
-    if (user) {
-      const { password, ...userData } &#x3D; user;
-      const response: LoginResponse &#x3D; {
-        status: &#x27;success&#x27;,
-        message: &#x27;Logged in successfully&#x27;,
-        data: {
-          user: userData,
-          token: &#x27;alnlgsnsoajg&#x27;,
-          expires_in: 3600,
-        },
-      };
-      return response;
+
+    // Check if the user exists and the password matches
+
+    if (!user || user.password !&#x3D;&#x3D; password) {
+      throw new HttpException(
+        &#x27;Invalid email or password&#x27;,
+        HttpStatus.UNAUTHORIZED,
+      );
     }
-    return null;
+
+    const { password: _, ...userData } &#x3D; user;
+    const response: LoginResponse &#x3D; {
+      status: &#x27;success&#x27;,
+      message: &#x27;Logged in successfully&#x27;,
+      data: {
+        user: userData,
+        token: &#x27;alnlgsnsoajg&#x27;,
+        expires_in: 3600,
+      },
+    };
+
+    return response;
   }
 
   async getUser(id: number): Promise&lt;UserEntity | null&gt; {
-    return this.userRepository.findOne({ where: { id } });
+    try {
+      return await this.userRepository.findOneOrFail({ where: { id } });
+    } catch (error) {
+      if (error instanceof EntityNotFoundError) {
+        throw new HttpException(&#x27;User not found&#x27;, HttpStatus.NOT_FOUND);
+      }
+      throw new HttpException(
+        &#x27;Internal server error&#x27;,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async updateUser(
     id: number,
-    updatedUser: Partial&lt;UserEntity&gt;,
+    updatedUser: UpdateUserDTO,
   ): Promise&lt;UserEntity | null&gt; {
+    // Check if the user with the provided ID exists
     const user &#x3D; await this.userRepository.findOne({ where: { id } });
-    if (!user) return null;
+    if (!user) {
+      throw new HttpException(&#x27;User not found&#x27;, HttpStatus.NOT_FOUND);
+    }
 
-    await this.userRepository.update(id, updatedUser);
-    return this.userRepository.findOne({ where: { id } });
+    try {
+      // Update the user details in the database
+
+      await this.userRepository.update(id, updatedUser);
+      return this.userRepository.findOne({ where: { id } });
+    } catch (error) {
+      throw new HttpException(
+        &#x27;Failed to update user&#x27;,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 
   async deleteUser(id: number): Promise&lt;boolean&gt; {
-    const result &#x3D; await this.userRepository.delete(id);
-    return result.affected &gt; 0;
+
+    // Check if the user with the provided ID exists
+
+    const user &#x3D; await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new HttpException(&#x27;User not found&#x27;, HttpStatus.NOT_FOUND);
+    }
+
+    try {
+
+      // Delete the user from the database
+
+      const result &#x3D; await this.userRepository.delete(id);
+      return result.affected &gt; 0;
+    } catch (error) {
+      throw new HttpException(
+        &#x27;Error deleting user&#x27;,
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }
 </code></pre>
