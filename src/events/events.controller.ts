@@ -10,6 +10,7 @@ import {
 import { from, Observable } from 'rxjs';
 import { EventsService } from './events.service';
 import { EventInterface } from './models/event.interface';
+import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
 
 /**
  * The event controller which will handle the event relevant operations.
@@ -20,13 +21,11 @@ export class EventsController {
 
   /**
    * Create a event.
-   * @param {EventInterface} event The information of the event that need to be created. The title, start time and end time are required, other information are optional
-   * @returns {Observable<EventInterface>} Return the content of the event object.
+   * @param {CreateEventDTO} event The information of the event that need to be created.
+   * @returns {Promise<EventInterface>} Return the content of the event object.
    */
   @Post()
-  createEvent(
-    @Body() event: Partial<EventInterface>,
-  ): Observable<EventInterface> {
+  async createEvent(@Body() event: CreateEventDTO): Promise<EventInterface> {
     return this.eventsService.insertEvent(event);
   }
 
@@ -38,7 +37,6 @@ export class EventsController {
   getAllEvents(): Observable<EventInterface[]> {
     return this.eventsService.getEvents();
   }
-
 
   /**
    * Get a event by EventID.
@@ -53,18 +51,16 @@ export class EventsController {
   /**
    * Update Event by EventID.
    * @param {string} eventId The event ID.
-   * @param {Partial<EventInterface>} event The information that need to be modified in an event.
+   * @param {UpdateEventDTO} event The information that need to be modified in an event.
    * @returns {Object} Return status of the event update.
    */
   @Patch(':id')
-
   updateEvent(
     @Param('eventId') eventId: string,
-    @Body() event: Partial<EventInterface>,
+    @Body() event: UpdateEventDTO,
   ) {
     this.eventsService.updateEvent(eventId, event);
     return {
-
       success: true,
     };
   }
@@ -79,7 +75,6 @@ export class EventsController {
     this.eventsService.deleteEvent(eventId);
     return {
       success: true,
-
     };
   }
 }
