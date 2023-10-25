@@ -14,14 +14,17 @@ import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
 
 @Controller('users')
 export class UserController {
+  // Dependency injection of the UsersService
   constructor(private usersService: UsersService) {}
 
+  // User registration
   @Post('register')
   async register(@Body() user: RegisterUserDTO) {
     await this.usersService.register(user);
     return { message: 'User registered successfully' };
   }
 
+  // User login
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Body() data: { email: string; password: string }) {
@@ -29,6 +32,7 @@ export class UserController {
     return result;
   }
 
+  // Retrieve user details by their ID
   @Get(':pid')
   async getUser(@Param('pid') pid: number) {
     const user = await this.usersService.getUser(pid);
@@ -36,6 +40,7 @@ export class UserController {
     return result;
   }
 
+  // Update user details by their ID
   @Patch(':pid')
   async updateUser(@Param('pid') pid: number, @Body() user: UpdateUserDTO) {
     await this.usersService.updateUser(pid, user);
@@ -45,6 +50,7 @@ export class UserController {
     };
   }
 
+  // Delete a user by their ID.
   @Delete(':pid')
   async deleteUser(@Param('pid') pid: number) {
     await this.usersService.deleteUser(pid);
