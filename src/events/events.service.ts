@@ -10,7 +10,7 @@ import { EventEntity } from './models/event.entity';
 import { EventInterface } from './models/event.interface';
 import { from, Observable } from 'rxjs';
 import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
-import { UserEntity } from 'src/users/models/user.entity';
+import { UserEntity } from '../../src/users/models/user.entity';
 
 /**
  * Event Service which will handle event relevent database operations, can be used by event controller.
@@ -88,7 +88,6 @@ export class EventsService {
     if (events.length === 0) {
       throw new NotFoundException(`Could not find event: ${eventID}.`);
     }
-
     const protectList = ['id'];
     protectList.forEach((key) => {
       if (key in updatedEvent) {

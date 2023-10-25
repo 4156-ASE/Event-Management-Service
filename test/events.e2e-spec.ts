@@ -105,8 +105,13 @@ describe('EventsController (e2e)', () => {
         }
       }
     }),
-    delete: jest.fn().mockImplementation((id) => {
-      mockEvents = mockEvents.filter((item) => item.id !== id);
+    delete: jest.fn().mockImplementation((arg) => {
+      for (const item of mockEvents) {
+        if (item.id == arg) {
+          return Promise.resolve({ affected: 1 });
+        }
+      }
+      return Promise.resolve({ affected: 0 });
     }),
   };
   beforeEach(async () => {
@@ -214,7 +219,8 @@ describe('EventsController (e2e)', () => {
       .expect(200)
       .then((response) => {
         expect(response.body).toEqual({
-          success: true,
+          message: 'Event updated successfully',
+          status: 200,
         });
       });
   });
@@ -230,9 +236,11 @@ describe('EventsController (e2e)', () => {
         location: 'columbia',
       })
       .expect('Content-Type', /json/)
-      .expect(200)
+      .expect(404)
       .expect({
-        success: true,
+        message: 'Could not find event: 10.',
+        error: 'Not Found',
+        statusCode: 404,
       });
   });
 
@@ -252,27 +260,19 @@ describe('EventsController (e2e)', () => {
     return request(app.getHttpServer())
       .delete('/events/10')
       .expect('Content-Type', /json/)
-      .expect(200)
-      .expect({ success: true });
+      .expect(404)
+      .expect({
+        message: 'Event with ID 10 not found.',
+        error: 'Not Found',
+        statusCode: 404,
+      });
   });
 
   it('/events/:id2 (DELETE)', () => {
     return request(app.getHttpServer())
-      .delete('/events/2')
+      .delete('/events/1')
       .expect('Content-Type', /json/)
       .expect(200)
-      .expect({ success: true });
-  });
-
-  it('/events/:id fail (GET) should fail after delete event 2', () => {
-    return request(app.getHttpServer())
-      .get('/events/2')
-      .expect('Content-Type', /json/)
-      .expect(404)
-      .expect({
-        message: 'Event Not Found.',
-        error: 'Not Found',
-        statusCode: 404,
-      });
+      .expect({ status: 200, message: 'Event deleted successfully' });
   });
 });

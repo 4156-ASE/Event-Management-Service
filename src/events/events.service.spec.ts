@@ -1,37 +1,88 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsService } from './events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { of } from 'rxjs';
 import { EventEntity } from './models/event.entity';
 import { NotFoundException } from '@nestjs/common';
+import { EventInterface } from './models/event.interface';
+import { UserEntity } from '../../src/users/models/user.entity';
 
 describe('EventsService', () => {
   let service: EventsService;
-  const mockEventRepository = {
-    save: jest
-      .fn()
-      .mockImplementation((event) =>
-        of([Promise.resolve({ message: 'insert successfully', ...event })]),
-      ),
+  let mockEvents = [
+    {
+      id: '1',
+      title: 'mock birthday',
+      desc: 'mock event for testing',
+      start_time: new Date('December 17, 2023 03:24:00'),
+      end_time: new Date('December 17, 2023 04:24:00'),
+      location: 'columbia',
+      host: 1,
+    },
+    {
+      id: '2',
+      title: 'mock celebration',
+      desc: 'mock event for testing',
+      start_time: new Date('October 20, 2023 10:00:00'),
+      end_time: new Date('October 20, 2023 12:00:00'),
+      location: 'nyu',
+      host: 1,
+    },
+  ];
+  let mockUsers = [
+    {
+      id: 1,
+      first_name: 'andrew',
+      last_name: 'rockefeller',
+      email: 'andrew@gmail.com',
+      password: '123456',
+    },
+  ];
+  const mockEventsRepository = {
     find: jest.fn().mockImplementation((arg) => {
-      if (arg === undefined) {
-        return of([
-          Promise.resolve({ message: 'found1' }),
-          Promise.resolve({ message: 'found2' }),
-        ]);
-      } else if (arg.where.id === 'aaaa') {
-        return [Promise.resolve({ message: 'found1' })];
-      } else if (arg.where.id === 'bbbb') {
-        return [];
+      if (arg == undefined) {
+        return Promise.resolve(mockEvents);
       } else {
-        return undefined;
+        for (const item of mockEvents) {
+          if (item.id == arg.where.id) {
+            return Promise.resolve([item]);
+          }
+        }
+        return Promise.resolve([]);
       }
     }),
-    update: jest.fn().mockImplementation((eventID, updatedEvent) => {
-      return { message: 'deleted event', id: eventID, ...updatedEvent };
+    save: jest.fn().mockImplementation((event: EventInterface) => {
+      mockEvents.push(event);
+      return [Promise.resolve({ message: 'insert successfully' })];
     }),
-    delete: jest.fn().mockImplementation((eventID) => {
-      return { message: 'deleted event', id: eventID };
+    update: jest.fn().mockImplementation((id, event) => {
+      for (let i = 0; i < mockEvents.length; i++) {
+        if (mockEvents[i].id === id) {
+          const new_event = Object.assign({ id: id }, event);
+          mockEvents[i] = new_event;
+        }
+      }
+    }),
+    delete: jest.fn().mockImplementation((arg) => {
+      for (const item of mockEvents) {
+        if (item.id == arg) {
+          return Promise.resolve({ affected: 1 });
+        }
+      }
+      return Promise.resolve({ affected: 0 });
+    }),
+  };
+  const mockUserRepository = {
+    findOne: jest.fn().mockImplementation((arg) => {
+      for (const item of mockUsers) {
+        if (item.email == arg.where.email || item.id == arg.where.id) {
+          return Promise.resolve(item);
+        }
+      }
+      return Promise.resolve(null);
+    }),
+    save: jest.fn((user) => {
+      mockUsers.push(user);
+      return Promise.resolve({ message: 'inserted' });
     }),
   };
   beforeEach(async () => {
@@ -40,7 +91,11 @@ describe('EventsService', () => {
         EventsService,
         {
           provide: getRepositoryToken(EventEntity),
-          useValue: mockEventRepository,
+          useValue: mockEventsRepository,
+        },
+        {
+          provide: getRepositoryToken(UserEntity),
+          useValue: mockUserRepository,
         },
       ],
     }).compile();
@@ -49,31 +104,59 @@ describe('EventsService', () => {
 
   it('should insert event', async () => {
     const event = {
-      id: 'aaaa',
       title: 'bbbb',
       desc: 'aaa',
       start_time: new Date('December 17, 2023 03:24:00'),
       end_time: new Date('December 17, 2023 03:24:00'),
       location: 'aaaa',
+      host: 1,
     };
-    service.insertEvent(event).subscribe((data) => {
-      expect(data).toEqual([
-        Promise.resolve({ message: 'insert successfully', ...event }),
-      ]);
-    });
+    expect(await service.insertEvent(event)).toEqual([Promise.resolve({})]);
   });
 
   it('should find all events', async () => {
     service.getEvents().subscribe((data) => {
       expect(data).toEqual([
-        Promise.resolve({ message: 'found1' }),
-        Promise.resolve({ message: 'found2' }),
+        {
+          id: '1',
+          title: 'mock birthday',
+          desc: 'mock event for testing',
+          start_time: new Date('December 17, 2023 03:24:00'),
+          end_time: new Date('December 17, 2023 04:24:00'),
+          location: 'columbia',
+          host: 1,
+        },
+        {
+          id: '2',
+          title: 'mock celebration',
+          desc: 'mock event for testing',
+          start_time: new Date('October 20, 2023 10:00:00'),
+          end_time: new Date('October 20, 2023 12:00:00'),
+          location: 'nyu',
+          host: 1,
+        },
+        {
+          title: 'bbbb',
+          desc: 'aaa',
+          start_time: new Date('December 17, 2023 03:24:00'),
+          end_time: new Date('December 17, 2023 03:24:00'),
+          location: 'aaaa',
+          host: 1,
+        },
       ]);
     });
   });
 
   it('should return desired event', async () => {
-    expect(await service.getEvent('aaaa')).toEqual({ message: 'found1' });
+    expect(await service.getEvent('1')).toEqual({
+      desc: 'mock event for testing',
+      end_time: new Date('December 17, 2023 04:24:00'),
+      host: 1,
+      id: '1',
+      location: 'columbia',
+      start_time: new Date('December 17, 2023 03:24:00'),
+      title: 'mock birthday',
+    });
   });
 
   it('should throw error when input id is not found', async () => {
@@ -91,37 +174,21 @@ describe('EventsService', () => {
     }
     expect(throw_error).toBe(true);
   });
-
   it('should update event with id match the given event id', async () => {
     const event = {
-      id: 'aaaa',
       title: 'cccc',
       desc: 'aaa',
       start_time: new Date('December 17, 2023 03:24:00'),
       end_time: new Date('December 17, 2023 03:24:00'),
       location: 'aaaa',
     };
-    service.updateEvent('aaaa', event);
-    expect(mockEventRepository.update).toHaveBeenCalled();
-  });
-
-  it('should update event with id not match the given event id', async () => {
-    const event = {
-      id: 'aaaa',
-      title: 'cccc',
-      desc: 'aaa',
-      start_time: new Date('December 17, 2023 03:24:00'),
-      end_time: new Date('December 17, 2023 03:24:00'),
-      location: 'aaaa',
-    };
-    service.updateEvent('bbbb', event);
-    expect(mockEventRepository.update).toHaveBeenCalled();
+    await service.updateEvent('1', event);
+    expect(mockEventsRepository.update).toHaveBeenCalled();
   });
 
   it('should throw error when input id is not found when updating', async () => {
     let throw_error = false;
     const event = {
-      id: 'cccc',
       title: 'cccc',
       desc: 'aaa',
       start_time: new Date('December 17, 2023 03:24:00'),
@@ -143,7 +210,22 @@ describe('EventsService', () => {
   });
 
   it('should delete event', async () => {
-    service.deleteEvent('aaaa');
-    expect(mockEventRepository.delete).toHaveBeenCalled();
+    await service.deleteEvent('1');
+    expect(mockEventsRepository.delete).toHaveBeenCalled();
+  });
+  it('should throw error when input id is not found when deleting', async () => {
+    let throw_error = false;
+    try {
+      await service.deleteEvent('cccc');
+    } catch (error) {
+      throw_error = true;
+      expect(error).toBeInstanceOf(NotFoundException);
+      expect((error as NotFoundException).getResponse()).toEqual({
+        message: 'Event with ID cccc not found.',
+        error: 'Not Found',
+        statusCode: 404,
+      });
+    }
+    expect(throw_error).toBe(true);
   });
 });

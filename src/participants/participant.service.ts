@@ -7,8 +7,8 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ParticipantEntity } from './models/participant.entity';
-import { EventEntity } from 'src/events/models/event.entity';
-import { UserEntity } from 'src/users/models/user.entity';
+import { EventEntity } from '../../src/events/models/event.entity';
+import { UserEntity } from '../../src/users/models/user.entity';
 
 @Injectable()
 export class ParticipantsService {
