@@ -10,6 +10,7 @@ import { ParticipantEntity } from './models/participant.entity';
 
 import { EventEntity } from 'src/events/models/event.entity';
 import { UserEntity } from 'src/users/models/user.entity';
+import { createTransport } from 'nodemailer';
 
 
 @Injectable()
@@ -159,5 +160,44 @@ export class ParticipantsService {
 
     // Save the updated status to the database
     await this.participantRepository.save(participant);
+  }
+
+  // Send email service function
+  async sendEmail(receivers: string[], subject: string, content: string): Promise<void> {
+    // Check if there are any receivers
+    if (receivers.length === 0) {
+      throw new InternalServerErrorException('No receivers');
+    }
+
+    // Check if all the receivers are valid email addresses
+    const validReceivers = receivers.every((receiver) =>
+      receiver.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/),
+    );
+    if (!validReceivers) {
+      throw new InternalServerErrorException('Invalid email address');
+    }
+
+    // Send email
+    let receivers_string: string = receivers.join(',');
+    let transporter = createTransport({
+      // your transporter configuration
+      host: "smtp-mail.outlook.com", // Outlook SMTP server
+      port: 587,                     // SMTP port (587 is typically used for TLS)
+      secure: false,                 // True for 465, false for other ports
+      auth: {
+          user: "event4156@outlook.com", // Your Outlook email address
+          pass: "4156eventmanagement"          // Your Outlook password
+      },
+      tls: {
+          ciphers:'SSLv3'            // Necessary TLS configuration
+      }
+    });
+    let info = await transporter.sendMail({
+      from: 'event4156@outlook.com',
+      to: "haorui.song@hotmail.com",
+      subject: subject,
+      text: content,
+    });
+
   }
 }
