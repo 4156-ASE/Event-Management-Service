@@ -25,15 +25,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-buildx-
 
-      - name: Build and Start Service
+      - name: Test And Build Service
         # Runs Docker Compose to build and start your service
-        run: sudo docker-compose up --build
+        run: sudo docker build . -t ems
 
-      - name: Static Code Analysis
-        run: pnpm lint
 
-      - name: Run e2e Tests
-        run: pnpm test:e2e
-
-      - name: Run init Tests
-        run: pnpm test
