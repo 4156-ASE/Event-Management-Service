@@ -19,8 +19,8 @@ export class ParticipantsController {
   // Invite a participant to an event
   @Post(':eventId')
   async inviteParticipant(
-    @Param('eventId') eventId: string,  // Extract the 'eventId' parameter from the URL
-    @Body() user: { first_name: string; last_name: string; email: string },  // Extract user details from the request body
+    @Param('eventId') eventId: string, // Extract the 'eventId' parameter from the URL
+    @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from the request body
   ) {
     try {
       // Use the service method to invite the participant
@@ -41,9 +41,9 @@ export class ParticipantsController {
   // Update the details of a participant in an event
   @Patch(':event_id/:pid')
   async updateParticipantDetails(
-    @Param('event_id') eventId: string,  // Extract event id from URL
-    @Param('pid') pid: number,  // Extract participant id from URL.
-    @Body() user: { first_name: string; last_name: string; email: string },  // Extract user details from request body
+    @Param('event_id') eventId: string, // Extract event id from URL
+    @Param('pid') pid: number, // Extract participant id from URL.
+    @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from request body
   ) {
     try {
       // Use the service method to update participant details
@@ -72,7 +72,8 @@ export class ParticipantsController {
 
   // Delete a participant
   @Delete(':pid')
-  async deleteParticipant(@Param('pid') pid: number) {  // Extract 'pid' from URL
+  async deleteParticipant(@Param('pid') pid: number) {
+    // Extract 'pid' from URL
     try {
       // Use the service method to delete the participant
       await this.participantsService.deleteParticipant(pid);

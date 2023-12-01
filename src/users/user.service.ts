@@ -14,7 +14,6 @@ export class UsersService {
   ) {}
 
   async register(user: RegisterUserDTO): Promise<UserEntity | null> {
-
     // Check if the user with the provided email already exists
 
     const existUser = await this.userRepository.findOne({
@@ -29,7 +28,6 @@ export class UsersService {
     }
 
     try {
-
       // Save the new user to the database
 
       return await this.userRepository.save(user);
@@ -108,7 +106,6 @@ export class UsersService {
   }
 
   async deleteUser(id: number): Promise<boolean> {
-
     // Check if the user with the provided ID exists
 
     const user = await this.userRepository.findOne({ where: { id } });
@@ -117,7 +114,6 @@ export class UsersService {
     }
 
     try {
-
       // Delete the user from the database
 
       const result = await this.userRepository.delete(id);

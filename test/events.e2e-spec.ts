@@ -19,7 +19,7 @@ initAlias();
 
 describe('EventsController (e2e)', () => {
   let app: INestApplication;
-  let mockUsers = [
+  const mockUsers = [
     {
       id: 1,
       first_name: 'andrew',
@@ -28,7 +28,7 @@ describe('EventsController (e2e)', () => {
       password: '123456',
     },
   ];
-  let mockEvents = [
+  const mockEvents = [
     {
       id: '1',
       title: 'mock birthday',

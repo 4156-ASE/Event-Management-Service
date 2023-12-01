@@ -11,7 +11,6 @@ import { ParticipantEntity } from './models/participant.entity';
 import { EventEntity } from 'src/events/models/event.entity';
 import { UserEntity } from 'src/users/models/user.entity';
 
-
 @Injectable()
 export class ParticipantsService {
   // Injects the repositories for participant, user, and event entities

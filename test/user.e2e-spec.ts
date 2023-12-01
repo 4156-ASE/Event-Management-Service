@@ -4,11 +4,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserModule } from '../src/users/user.module';
 import { UserEntity } from '../src/users/models/user.entity';
 import * as request from 'supertest';
-import { Entity, EntityNotFoundError } from 'typeorm';
+import { EntityNotFoundError } from 'typeorm';
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
-  let mockUsers = [
+  const mockUsers = [
     {
       id: 1,
       first_name: 'andrew',
@@ -29,19 +29,18 @@ describe('UserController (e2e)', () => {
       last_name: 'chaplin',
       email: 'test3@email.com',
       password: '123456',
-    }
+    },
   ];
   const mockUserRepository = {
     findOne: jest.fn().mockImplementation((arg) => {
       // if arg has where.email field, return the user with that email
-      if(arg.where.email) {
+      if (arg.where.email) {
         for (const item of mockUsers) {
           if (item.email == arg.where.email) {
             return Promise.resolve(item);
           }
         }
-      }
-      else if (arg.where.id) {
+      } else if (arg.where.id) {
         for (const item of mockUsers) {
           if (item.id == arg.where.id) {
             return Promise.resolve(item);
@@ -55,14 +54,13 @@ describe('UserController (e2e)', () => {
     }),
     findOneOrFail: jest.fn().mockImplementation((arg) => {
       // if arg has where.email field, return the user with that email
-      if(arg.where.email) {
+      if (arg.where.email) {
         for (const item of mockUsers) {
           if (item.email == arg.where.email) {
             return Promise.resolve(item);
           }
         }
-      }
-      else if (arg.where.id) {
+      } else if (arg.where.id) {
         for (const item of mockUsers) {
           if (item.id == arg.where.id) {
             return Promise.resolve(item);
@@ -84,11 +82,11 @@ describe('UserController (e2e)', () => {
       for (let i = 0; i < mockUsers.length; i++) {
         if (mockUsers[i].id === id) {
           mockUsers.splice(i, 1);
-          return Promise.resolve({ raw: [], affected: 1});
+          return Promise.resolve({ raw: [], affected: 1 });
         }
       }
-      return Promise.resolve({ raw: [], affected: 0});
-    })
+      return Promise.resolve({ raw: [], affected: 0 });
+    }),
   };
   beforeEach(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -109,7 +107,7 @@ describe('UserController (e2e)', () => {
         first_name: 'testfirst',
         last_name: 'testlast',
         email: 'new@email.com',
-        password: '123456'
+        password: '123456',
       })
       .expect('Content-Type', /json/)
       .expect(201)
@@ -124,8 +122,8 @@ describe('UserController (e2e)', () => {
       .send({
         first_name: 'testfirst',
         last_name: 'testlast',
-        email: 'test3@email.com',  // this email is already in the mockUsers array
-        password: '123456'
+        email: 'test3@email.com', // this email is already in the mockUsers array
+        password: '123456',
       })
       .expect('Content-Type', /json/)
       .expect(409)
@@ -133,13 +131,13 @@ describe('UserController (e2e)', () => {
         statusCode: 409,
         message: 'User with this email already exists',
       });
-      // .then((response) => {
-      //   expect(response.body).({
-      //     statusCode: 409,
-      //     message: 'User with this email already exists',
-      //     error: 'Conflict',
-      //   });
-      // });
+    // .then((response) => {
+    //   expect(response.body).({
+    //     statusCode: 409,
+    //     message: 'User with this email already exists',
+    //     error: 'Conflict',
+    //   });
+    // });
   });
 
   it('/users/login (POST) existing email', () => {
@@ -147,7 +145,7 @@ describe('UserController (e2e)', () => {
       .post('/users/login')
       .send({
         email: mockUsers[0].email,
-        password: mockUsers[0].password
+        password: mockUsers[0].password,
       })
       .expect('Content-Type', /json/)
       .expect(200)
@@ -171,8 +169,8 @@ describe('UserController (e2e)', () => {
     return request(app.getHttpServer())
       .post('/users/login')
       .send({
-        email: "nonexisting@email.com",
-        password: "123456"
+        email: 'nonexisting@email.com',
+        password: '123456',
       })
       .expect('Content-Type', /json/)
       .expect(401)
@@ -187,7 +185,7 @@ describe('UserController (e2e)', () => {
       .post('/users/login')
       .send({
         email: mockUsers[0].email,
-        password: "wrongpassword"
+        password: 'wrongpassword',
       })
       .expect('Content-Type', /json/)
       .expect(401)
@@ -198,7 +196,7 @@ describe('UserController (e2e)', () => {
   });
 
   it('/users/:id (GET)', () => {
-    const {password, ...user} = mockUsers[0];
+    const { password: _, ...user } = mockUsers[0];
     return request(app.getHttpServer())
       .get('/users/1')
       .expect('Content-Type', /json/)
@@ -223,7 +221,7 @@ describe('UserController (e2e)', () => {
       .send({
         first_name: 'newfirst',
         last_name: 'newlast',
-        email: mockUsers[0].email
+        email: mockUsers[0].email,
       })
       .expect('Content-Type', /json/)
       .expect(200)
@@ -235,11 +233,11 @@ describe('UserController (e2e)', () => {
 
   it('/users/:id fail (PATCH)', () => {
     return request(app.getHttpServer())
-      .patch('/users/10')  // this id is not in the mockUsers array
+      .patch('/users/10') // this id is not in the mockUsers array
       .send({
         first_name: 'newfirst',
         last_name: 'newlast',
-        email: mockUsers[0].email
+        email: mockUsers[0].email,
       })
       .expect('Content-Type', /json/)
       .expect(404)
@@ -262,7 +260,7 @@ describe('UserController (e2e)', () => {
 
   it('/users/:id fail (DELETE)', () => {
     return request(app.getHttpServer())
-      .delete('/users/10')  // this id is not in the mockUsers array
+      .delete('/users/10') // this id is not in the mockUsers array
       .expect('Content-Type', /json/)
       .expect(404)
       .expect({

@@ -8,7 +8,7 @@ import { UserEntity } from '../../src/users/models/user.entity';
 
 describe('EventsService', () => {
   let service: EventsService;
-  let mockEvents = [
+  const mockEvents = [
     {
       id: '1',
       title: 'mock birthday',
@@ -28,7 +28,7 @@ describe('EventsService', () => {
       host: 1,
     },
   ];
-  let mockUsers = [
+  const mockUsers = [
     {
       id: 1,
       first_name: 'andrew',
