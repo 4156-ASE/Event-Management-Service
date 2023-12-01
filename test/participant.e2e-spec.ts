@@ -10,7 +10,7 @@ import { NotFoundException } from '@nestjs/common';
 
 describe('ParticipantController (e2e)', () => {
   let app: INestApplication;
-  let mockUsers = [
+  const mockUsers = [
     {
       id: 1,
       first_name: 'andrew',
@@ -33,7 +33,7 @@ describe('ParticipantController (e2e)', () => {
       password: '123456',
     },
   ];
-  let mockEvents = [
+  const mockEvents = [
     {
       id: '1',
       title: 'mock birthday',
@@ -53,7 +53,7 @@ describe('ParticipantController (e2e)', () => {
       host: 1,
     },
   ];
-  let mockParticipants = [
+  const mockParticipants = [
     {
       id: 1,
       user: { ...mockUsers[1] },

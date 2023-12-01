@@ -36,7 +36,7 @@ export class UserController {
   @Get(':pid')
   async getUser(@Param('pid') pid: number) {
     const user = await this.usersService.getUser(pid);
-    const { password, ...result } = user;
+    const { password: _, ...result } = user;
     return result;
   }
 
