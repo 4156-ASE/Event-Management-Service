@@ -1,21 +1,32 @@
-FROM node:18-alpine
+FROM node:18-alpine as installer
 
-# Create app directory
-WORKDIR /usr/src/app
+# ENV NODE_ENV build
 
+WORKDIR /home/node
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+# COPY . /home/node
+
 RUN npm install -g pnpm
 COPY package*.json ./
 RUN pnpm install
-# If you are building your code for production
-# RUN pnpm ci --omit=dev
 
-# Bundle app source
-COPY . .
+FROM installer as builder
 
-EXPOSE 8080
+# WORKDIR /home/node
+COPY . /home/node
 
-CMD [ "pnpm", "run", "start:dev" ]
+RUN pnpm build
+# ---
+
+FROM node:18-alpine as runner
+
+ENV NODE_ENV production
+
+USER node
+WORKDIR /home/node
+
+COPY --from=builder /home/node/package*.json /home/node/
+COPY --from=builder /home/node/node_modules/ /home/node/node_modules/
+COPY --from=builder /home/node/dist/ /home/node/dist/
+
+CMD ["node", "dist/main.js"]

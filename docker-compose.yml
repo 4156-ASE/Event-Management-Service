@@ -11,13 +11,16 @@ services:
       DATABASE_URL: postgres://user:password@postgres:5432/db
       NODE_ENV: development
       PORT: 3000
+    links:
+      - postgres:postgres
     ports:
       - '8080:3000'
 
   postgres:
     image: postgres:10.4
+    restart: always
     ports:
-      - '35000:5432'
+      - '5432:5432'
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password
