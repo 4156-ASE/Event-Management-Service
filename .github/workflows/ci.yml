@@ -27,6 +27,6 @@ jobs:
 
       - name: Test And Build Service
         # Runs Docker Compose to build and start your service
-        run: sudo docker build . -t ems
+        run: sudo docker build . -t ems -f Dockerfile.ci
 
 
