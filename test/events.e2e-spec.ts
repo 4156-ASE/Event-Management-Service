@@ -19,7 +19,7 @@ initAlias();
 
 describe('EventsController (e2e)', () => {
   let app: INestApplication;
-  let mockUsers = [
+  const mockUsers = [
     {
       id: 1,
       first_name: 'andrew',
@@ -28,13 +28,13 @@ describe('EventsController (e2e)', () => {
       password: '123456',
     },
   ];
-  let mockEvents = [
+  const mockEvents = [
     {
       id: '1',
       title: 'mock birthday',
       desc: 'mock event for testing',
-      start_time: new Date('December 17, 2023 03:24:00'),
-      end_time: new Date('December 17, 2023 04:24:00'),
+      start_time: new Date('December 17, 2023 03:24:00 GMT-05:00'),
+      end_time: new Date('December 17, 2023 04:24:00 GMT-05:00'),
       location: 'columbia',
       host: 1,
     },
@@ -42,8 +42,9 @@ describe('EventsController (e2e)', () => {
       id: '2',
       title: 'mock celebration',
       desc: 'mock event for testing',
-      start_time: new Date('October 20, 2023 10:00:00'),
-      end_time: new Date('October 20, 2023 12:00:00'),
+      // FIXME: why GMT-4 work
+      start_time: new Date('October 20, 2023 10:00:00 GMT-04:00'),
+      end_time: new Date('October 20, 2023 12:00:00 GMT-04:00'),
       location: 'nyu',
       host: 1,
     },
@@ -145,8 +146,8 @@ describe('EventsController (e2e)', () => {
         id: '3',
         title: 'mock party',
         desc: 'mock event for testing',
-        start_time: new Date('November 17, 2023 16:00:00'),
-        end_time: new Date('November 17, 2023 19:00:00'),
+        start_time: new Date('November 17, 2023 16:00:00 GMT-05:00'),
+        end_time: new Date('November 17, 2023 19:00:00 GMT-05:00'),
         location: 'columbia',
         host: 1,
       })
@@ -164,8 +165,8 @@ describe('EventsController (e2e)', () => {
         id: '3',
         title: 'mock party',
         desc: 'mock event for testing',
-        start_time: new Date('November 17, 2023 16:00:00'),
-        end_time: new Date('November 17, 2023 19:00:00'),
+        start_time: new Date('November 17, 2023 16:00:00 GMT-05:00'),
+        end_time: new Date('November 17, 2023 19:00:00 GMT-05:00'),
         location: 'columbia',
         host: 2,
       })
@@ -221,8 +222,8 @@ describe('EventsController (e2e)', () => {
       .send({
         title: 'mock birthday 2',
         desc: 'mock event for testing update',
-        start_time: new Date('November 17, 2023 16:00:00'),
-        end_time: new Date('November 17, 2023 19:00:00'),
+        start_time: new Date('November 17, 2023 16:00:00 GMT-05:00'),
+        end_time: new Date('November 17, 2023 19:00:00 GMT-05:00'),
         location: 'columbia',
       })
       .expect('Content-Type', /json/)

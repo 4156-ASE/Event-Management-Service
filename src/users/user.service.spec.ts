@@ -8,7 +8,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('UsersService', () => {
   let userService: UsersService;
-  let mockUsers: UserEntity[] = [
+  const mockUsers: UserEntity[] = [
     {
       id: 1,
       first_name: 'andrew',
@@ -29,19 +29,18 @@ describe('UsersService', () => {
       last_name: 'chaplin',
       email: 'test3@email.com',
       password: '123456',
-    }
+    },
   ];
   const mockUserRepository = {
     findOne: jest.fn().mockImplementation((arg) => {
       // if arg has where.email field, return the user with that email
-      if(arg.where.email) {
+      if (arg.where.email) {
         for (const item of mockUsers) {
           if (item.email == arg.where.email) {
             return Promise.resolve(item);
           }
         }
-      }
-      else if (arg.where.id) {
+      } else if (arg.where.id) {
         for (const item of mockUsers) {
           if (item.id == arg.where.id) {
             return Promise.resolve(item);
@@ -58,11 +57,10 @@ describe('UsersService', () => {
             return Promise.resolve(item);
           }
         }
-      }
-      else{
-        let new_user = {
+      } else {
+        const new_user = {
           id: mockUsers.length + 1,
-          ...user
+          ...user,
         };
         mockUsers.push(new_user);
         return Promise.resolve(new_user);
@@ -70,14 +68,13 @@ describe('UsersService', () => {
     }),
     findOneOrFail: jest.fn().mockImplementation((arg) => {
       // if arg has where.email field, return the user with that email
-      if(arg.where.email) {
+      if (arg.where.email) {
         for (const item of mockUsers) {
           if (item.email == arg.where.email) {
             return Promise.resolve(item);
           }
         }
-      }
-      else if (arg.where.id) {
+      } else if (arg.where.id) {
         for (const item of mockUsers) {
           if (item.id == arg.where.id) {
             return Promise.resolve(item);
@@ -99,11 +96,11 @@ describe('UsersService', () => {
       for (let i = 0; i < mockUsers.length; i++) {
         if (mockUsers[i].id === id) {
           mockUsers.splice(i, 1);
-          return Promise.resolve({ raw: [], affected: 1});
+          return Promise.resolve({ raw: [], affected: 1 });
         }
       }
-      return Promise.resolve({ raw: [], affected: 0});
-    })
+      return Promise.resolve({ raw: [], affected: 0 });
+    }),
   };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -128,24 +125,26 @@ describe('UsersService', () => {
       first_name: 'test',
       last_name: 'test',
       email: 'new@email.com',
-      password: '123456'
+      password: '123456',
     };
     await expect(userService.register(newUser)).resolves.toEqual({
       id: mockUsers.length + 1,
-      ...newUser
+      ...newUser,
     });
   });
 
   it('register: existing user', async () => {
-    const {id, ...user} = mockUsers[0];
-    await expect(userService.register(user)).rejects.toThrow(new HttpException(
-      'User with this email already exists',
-      HttpStatus.CONFLICT
-    ));
+    const { id, ...user } = mockUsers[0];
+    await expect(userService.register(user)).rejects.toThrow(
+      new HttpException(
+        'User with this email already exists',
+        HttpStatus.CONFLICT,
+      ),
+    );
   });
 
   it('login: correct email and password', async () => {
-    const {password, ...user} = mockUsers[0];
+    const { password, ...user } = mockUsers[0];
     await expect(userService.login(user.email, password)).resolves.toEqual({
       status: 'success',
       message: 'Logged in successfully',
@@ -158,73 +157,69 @@ describe('UsersService', () => {
   });
 
   it('login: incorrect email', async () => {
-    const {password, ...user} = mockUsers[0];
-    await expect(userService.login("incorrect@email.com", password))
-      .rejects.toThrow(new HttpException(
-        'Invalid email or password',
-        HttpStatus.UNAUTHORIZED
-      ));
+    const { password, ...user } = mockUsers[0];
+    await expect(
+      userService.login('incorrect@email.com', password),
+    ).rejects.toThrow(
+      new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED),
+    );
   });
 
   it('login: incorrect password', async () => {
-    const {password, ...user} = mockUsers[0];
-    await expect(userService.login(user.email, "incorrectpassword"))
-      .rejects.toThrow(new HttpException(
-        'Invalid email or password',
-        HttpStatus.UNAUTHORIZED
-      ));
+    const { password, ...user } = mockUsers[0];
+    await expect(
+      userService.login(user.email, 'incorrectpassword'),
+    ).rejects.toThrow(
+      new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED),
+    );
   });
 
   it('getUser: existing user', async () => {
-    const {password, ...user} = mockUsers[0];
+    const { password, ...user } = mockUsers[0];
     await expect(userService.getUser(user.id)).resolves.toEqual(mockUsers[0]);
   });
-  
+
   it('getUser: non-existing user', async () => {
-    await expect(userService.getUser(100)).rejects.toThrow(new HttpException(
-      'User not found',
-      HttpStatus.NOT_FOUND
-    ));
+    await expect(userService.getUser(100)).rejects.toThrow(
+      new HttpException('User not found', HttpStatus.NOT_FOUND),
+    );
   });
 
   it('updateUser: existing user', async () => {
-    const {id, ...user} = mockUsers[0];
+    const { id, ...user } = mockUsers[0];
     const updatedUser = {
       first_name: 'updated',
       last_name: 'updated',
       email: 'new@email.com',
-      password: '123456'
+      password: '123456',
     };
     await expect(userService.updateUser(id, updatedUser)).resolves.toEqual({
       id: id,
-      ...updatedUser
+      ...updatedUser,
     });
   });
 
   it('updateUser: non-existing user', async () => {
-    const {id, ...user} = mockUsers[0];
+    const { id, ...user } = mockUsers[0];
     const updatedUser = {
       first_name: 'updated',
       last_name: 'updated',
       email: 'new@email.com',
-      password: '123456'
+      password: '123456',
     };
-    await expect(userService.updateUser(10, updatedUser)).rejects.toThrow(new HttpException(
-      'User not found',
-      HttpStatus.NOT_FOUND
-    ));
+    await expect(userService.updateUser(10, updatedUser)).rejects.toThrow(
+      new HttpException('User not found', HttpStatus.NOT_FOUND),
+    );
   });
 
   it('deleteUser: existing user', async () => {
-    const {id, ...user} = mockUsers[0];
+    const { id, ...user } = mockUsers[0];
     await expect(userService.deleteUser(id)).resolves.toEqual(true);
   });
 
   it('deleteUser: non-existing user', async () => {
-    await expect(userService.deleteUser(10)).rejects.toThrow(new HttpException(
-      'User not found',
-      HttpStatus.NOT_FOUND
-    ));
+    await expect(userService.deleteUser(10)).rejects.toThrow(
+      new HttpException('User not found', HttpStatus.NOT_FOUND),
+    );
   });
-
 });

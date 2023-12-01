@@ -12,7 +12,6 @@ import { EventEntity } from 'src/events/models/event.entity';
 import { UserEntity } from 'src/users/models/user.entity';
 import { createTransport } from 'nodemailer';
 
-
 @Injectable()
 export class ParticipantsService {
   // Injects the repositories for participant, user, and event entities

@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
 import { of } from 'rxjs';
-import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
 
 describe('EventsController', () => {
   let eventsController: EventsController;
