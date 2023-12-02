@@ -42,5 +42,5 @@ export class EventEntity {
   location: string;
 
   @Column({ nullable: true })
-  host: number;
+  host: string;
 }

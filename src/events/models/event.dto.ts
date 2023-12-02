@@ -23,7 +23,7 @@ export class CreateEventDTO {
 
   @IsNotEmpty()
   @IsNumber()
-  host: number;
+  host: string;
 }
 
 export class UpdateEventDTO {

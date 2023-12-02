@@ -1,6 +1,6 @@
 export interface ParticipantInterface {
   id: number;
-  pid: number;
+  pid: string;
   event_id: number;
   status: string;
 }

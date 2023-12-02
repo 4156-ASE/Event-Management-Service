@@ -26,5 +26,5 @@ export interface EventInterface {
    * Event location. Optional.
    */
   location: string;
-  host: number;
+  host: string;
 }
