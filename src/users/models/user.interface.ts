@@ -1,9 +1,10 @@
 export interface UserInterface {
-  id: number;
+  pid: string;
+  cid: string;
   first_name: string;
   last_name: string;
   email: string;
-  password: string;
+  user_type: 'admin' | 'regular';
 }
 
 export interface LoginResponse {
@@ -11,10 +12,11 @@ export interface LoginResponse {
   message: string;
   data: {
     user: {
-      id: number;
+      pid: string;
       first_name: string;
       last_name: string;
       email: string;
+      user_type: 'admin' | 'regular';
     };
     token: string;
     expires_in: number;
