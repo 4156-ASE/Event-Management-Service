@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Invitation Response</title>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Extract memberId and decision from URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const pid = urlParams.get('memberId');
+            const eventId = urlParams.get('eventId');
+            const status = urlParams.get('decision');
+            console.log("pid, status, eventId");
+            console.log(pid, status, eventId)
+
+            // Check if both memberId and decision are present
+            if (!pid || !status || !eventId) {
+                document.getElementById('message').innerText = 'Invalid request. Missing member ID or decision.';
+                return;
+            }
+
+            // Prepare the data to be sent
+            const postData = { pid, status, eventId };
+
+            // Send a POST request to the NestJS endpoint
+            fetch('http://localhost:3000/participants/respond', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postData),
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display a success or error message based on the response code
+                // if the response code is 200, the request was successful
+                // otherwise, the request failed
+                console.log(data)
+
+                
+                if (data.status === 200) {
+                    document.getElementById('message').innerText = `You have successfully ${status === 'accept' ? 'accepted' : 'rejected'} the invitation.`;
+                } else {
+                    document.getElementById('message').innerText = 'Oops, something wrong happened.';
+                }
+            })
+            .catch(error => {
+                // Handle any errors that occur during fetch
+                document.getElementById('message').innerText = 'Error sending request. Please try again later.';
+                console.error('Error:', error);
+            });
+        });
+    </script>
+</head>
+<body>
+    <h1>Invitation Response</h1>
+    <p id="message">Processing your response...</p>
+</body>
+</html>

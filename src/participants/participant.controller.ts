@@ -5,11 +5,14 @@ import {
   Delete,
   Get,
   Param,
+  Res,
   Body,
   NotFoundException,
   InternalServerErrorException,
+  HttpStatus,
 } from '@nestjs/common';
 import { ParticipantsService } from './participant.service';
+import { Response } from 'express';
 
 @Controller('participants')
 export class ParticipantsController {
@@ -91,7 +94,7 @@ export class ParticipantsController {
   }
 
   // List participants of an event
-  @Get(':eventId')
+  @Get('/allParticipants/:eventId')
   async listParticipants(@Param('eventId') eventId: string) {
     try {
       // Fetch the participants using the service method
@@ -120,13 +123,13 @@ export class ParticipantsController {
   async updateParticipantStatus(
     @Body('id') id: number,
     @Body('status') status: string,
+    @Body('eventId') eventId: string,
   ) {
     try {
       // Use the service method to update the participant's status
-      await this.participantsService.updateStatus(id, status);
+      await this.participantsService.updateStatus(pid, eventId, status);
       return {
-        message:
-          'Thank you for your response. We look forward to your participation!',
+        status: HttpStatus.OK,
       };
     } catch (e) {
       // Handle exceptions
@@ -137,4 +140,29 @@ export class ParticipantsController {
       }
     }
   }
+
+  @Get('sendEmailToAllParticipants/:eventId')
+  async sendEmailToAllParticipants(@Param("eventId") eventId: string) {
+    // Use the service method to invite the participant
+    console.log("send email to all participants");
+    console.log("event id: " + eventId);
+    await this.participantsService.sendEmailToAllParticipants(eventId);
+    return { message: 'Invitations sent successfully.' };
+    
+  }
+
+  @Get('redirect')
+  getRedirectPage(
+    @Param('memberId') pid: number,
+    @Param('decision') decision: string,
+    @Param('eventId') eventId: string,
+    @Res() res: Response
+  ) {
+    // Use the service method to update the participant's status
+    const htmlContent = this.participantsService.getRedirectPage();
+    res.set('Content-Type', 'text/html');
+    res.send(htmlContent);
+    
+  }
+
 }
