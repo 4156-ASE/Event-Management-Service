@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEmail } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, IsEnum } from 'class-validator';
 
 export class UpdateUserDTO {
   @IsString()
@@ -27,7 +27,6 @@ export class RegisterUserDTO {
   @IsNotEmpty()
   email: string;
 
-  @IsString()
-  @IsNotEmpty()
-  password: string;
+  @IsEnum(['admin', 'regular'])
+  user_type: 'admin' | 'regular';
 }

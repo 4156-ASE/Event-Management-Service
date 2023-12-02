@@ -1,9 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { EntityNotFoundError, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { UserEntity } from './models/user.entity';
-import { LoginResponse } from './models/user.interface';
 import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +13,7 @@ export class UsersService {
     private userRepository: Repository<UserEntity>,
   ) {}
 
-  async register(user: RegisterUserDTO): Promise<UserEntity | null> {
+  async register(user: RegisterUserDTO, cid: string): Promise<UserEntity> {
     // Check if the user with the provided email already exists
 
     const existUser = await this.userRepository.findOne({
@@ -29,7 +29,9 @@ export class UsersService {
 
     try {
       // Save the new user to the database
-
+      const newUser = this.userRepository.create(user);
+      newUser.cid = cid;
+      newUser.pid = randomBytes(16).toString('hex');
       return await this.userRepository.save(user);
     } catch (error) {
       throw new HttpException(
@@ -39,55 +41,20 @@ export class UsersService {
     }
   }
 
-  async login(email: string, password: string): Promise<LoginResponse | null> {
-    // Find the user with the provided email
-    const user = await this.userRepository.findOne({
-      where: { email },
-    });
-
-    // Check if the user exists and the password matches
-
-    if (!user || user.password !== password) {
-      throw new HttpException(
-        'Invalid email or password',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const { password: _, ...userData } = user;
-    const response: LoginResponse = {
-      status: 'success',
-      message: 'Logged in successfully',
-      data: {
-        user: userData,
-        token: 'alnlgsnsoajg',
-        expires_in: 3600,
-      },
-    };
-
-    return response;
-  }
-
-  async getUser(id: number): Promise<UserEntity | null> {
+  async getUser(pid: string): Promise<UserEntity> {
     try {
-      return await this.userRepository.findOneOrFail({ where: { id } });
+      return await this.userRepository.findOneOrFail({ where: { pid } });
     } catch (error) {
-      if (error instanceof EntityNotFoundError) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
-      throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
   }
 
   async updateUser(
-    id: number,
+    pid: string,
     updatedUser: UpdateUserDTO,
-  ): Promise<UserEntity | null> {
+  ): Promise<UserEntity> {
     // Check if the user with the provided ID exists
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { pid } });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -95,8 +62,8 @@ export class UsersService {
     try {
       // Update the user details in the database
 
-      await this.userRepository.update(id, updatedUser);
-      return this.userRepository.findOne({ where: { id } });
+      await this.userRepository.update(pid, updatedUser);
+      return this.userRepository.findOne({ where: { pid } });
     } catch (error) {
       throw new HttpException(
         'Failed to update user',
@@ -105,10 +72,10 @@ export class UsersService {
     }
   }
 
-  async deleteUser(id: number): Promise<boolean> {
+  async deleteUser(pid: string): Promise<boolean> {
     // Check if the user with the provided ID exists
 
-    const user = await this.userRepository.findOne({ where: { id } });
+    const user = await this.userRepository.findOne({ where: { pid } });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -116,7 +83,7 @@ export class UsersService {
     try {
       // Delete the user from the database
 
-      const result = await this.userRepository.delete(id);
+      const result = await this.userRepository.delete(pid);
       return result.affected > 0;
     } catch (error) {
       throw new HttpException(
