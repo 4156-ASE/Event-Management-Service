@@ -1,9 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryColumn } from 'typeorm';
 import { randomBytes } from 'crypto';
 
 @Entity()
 export class UserEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryColumn()
   pid: string = randomBytes(16).toString('hex');
 
   @Column()

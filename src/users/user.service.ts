@@ -32,7 +32,7 @@ export class UsersService {
       const newUser = this.userRepository.create(user);
       newUser.cid = cid;
       newUser.pid = randomBytes(16).toString('hex');
-      return await this.userRepository.save(user);
+      return await this.userRepository.save(newUser);
     } catch (error) {
       throw new HttpException(
         'Registration failed',
