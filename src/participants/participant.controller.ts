@@ -45,7 +45,7 @@ export class ParticipantsController {
   @Patch(':event_id/:pid')
   async updateParticipantDetails(
     @Param('event_id') eventId: string, // Extract event id from URL
-    @Param('pid') pid: number, // Extract participant id from URL.
+    @Param('pid') pid: string, // Extract participant id from URL.
     @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from request body
   ) {
     try {
@@ -75,7 +75,7 @@ export class ParticipantsController {
 
   // Delete a participant
   @Delete(':pid')
-  async deleteParticipant(@Param('pid') pid: number) {
+  async deleteParticipant(@Param('pid') pid: string) {
     // Extract 'pid' from URL
     try {
       // Use the service method to delete the participant
@@ -121,7 +121,7 @@ export class ParticipantsController {
   // Update the status of a participant
   @Patch('respond')
   async updateParticipantStatus(
-    @Body('pid') pid: number,
+    @Body('id') pid: number,
     @Body('status') status: string,
     @Body('eventId') eventId: string,
   ) {

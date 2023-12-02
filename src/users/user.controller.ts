@@ -6,11 +6,13 @@ import {
   Param,
   Patch,
   Delete,
-  HttpCode,
   HttpStatus,
+  HttpException,
+  Headers,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
+import * as jwt from 'jsonwebtoken';
 
 @Controller('users')
 export class UserController {
@@ -19,30 +21,25 @@ export class UserController {
 
   // User registration
   @Post('register')
-  async register(@Body() user: RegisterUserDTO) {
-    await this.usersService.register(user);
-    return { message: 'User registered successfully' };
-  }
-
-  // User login
-  @Post('login')
-  @HttpCode(HttpStatus.OK)
-  async login(@Body() data: { email: string; password: string }) {
-    const result = await this.usersService.login(data.email, data.password);
-    return result;
+  async register(
+    @Body() user: RegisterUserDTO,
+    @Headers('authorization') clientToken: string,
+  ) {
+    const cid = this.extractCidFromToken(clientToken);
+    const newUser = await this.usersService.register(user, cid);
+    return { pid: newUser.pid, message: 'User registered successfully' };
   }
 
   // Retrieve user details by their ID
   @Get(':pid')
-  async getUser(@Param('pid') pid: number) {
+  async getUser(@Param('pid') pid: string) {
     const user = await this.usersService.getUser(pid);
-    const { password: _, ...result } = user;
-    return result;
+    return user;
   }
 
   // Update user details by their ID
   @Patch(':pid')
-  async updateUser(@Param('pid') pid: number, @Body() user: UpdateUserDTO) {
+  async updateUser(@Param('pid') pid: string, @Body() user: UpdateUserDTO) {
     await this.usersService.updateUser(pid, user);
     return {
       status: HttpStatus.OK,
@@ -52,8 +49,17 @@ export class UserController {
 
   // Delete a user by their ID.
   @Delete(':pid')
-  async deleteUser(@Param('pid') pid: number) {
+  async deleteUser(@Param('pid') pid: string) {
     await this.usersService.deleteUser(pid);
     return { status: HttpStatus.OK, message: 'User deleted successfully' };
+  }
+
+  private extractCidFromToken(token: string): string {
+    try {
+      const decoded = jwt.verify(token, 'secretKey');
+      return decoded.cid;
+    } catch (error) {
+      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
+    }
   }
 }

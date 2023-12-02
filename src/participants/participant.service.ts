@@ -84,7 +84,7 @@ export class ParticipantsService {
   // Update details of an existing participant
   async updateParticipant(
     eventId: string,
-    pid: number,
+    pid: string,
     user: { first_name: string; last_name: string; email: string },
   ): Promise<UserEntity> {
     // Retrieve the event from the database
@@ -100,7 +100,7 @@ export class ParticipantsService {
     // Check if the user is a participant of the given event
     const participant = await this.participantRepository.findOne({
       where: {
-        user: { id: pid },
+        user: { pid: pid },
         event: { id: eventId },
       },
     });
@@ -111,7 +111,9 @@ export class ParticipantsService {
     }
 
     // Retrieve the user from the database using the participant ID
-    const foundUser = await this.userRepository.findOne({ where: { id: pid } });
+    const foundUser = await this.userRepository.findOne({
+      where: { pid: pid },
+    });
 
     // Throw an exception if the user is not found
     if (!foundUser) {
@@ -128,7 +130,7 @@ export class ParticipantsService {
   }
 
   // Delete a participant
-  async deleteParticipant(pid: number): Promise<void> {
+  async deleteParticipant(pid: string): Promise<void> {
     const result = await this.participantRepository.delete(pid);
     // Throw an exception if no rows were affected
     if (result.affected === 0) {
