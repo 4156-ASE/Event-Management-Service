@@ -35,7 +35,7 @@ export class EventsService {
    */
   async insertEvent(event: CreateEventDTO): Promise<EventInterface> {
     const user = await this.userRepository.findOne({
-      where: { id: event.host },
+      where: { pid: event.host },
     });
 
     if (!user) {
