@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventEntity } from './models/event.entity';
 import { EventInterface } from './models/event.interface';
-import { from, Observable } from 'rxjs';
 import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
 import { UserEntity } from 'src/users/models/user.entity';
 import { ClientEntity } from 'src/users/models/client.entity';
@@ -49,12 +48,9 @@ export class EventsService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
-    
+
     // check if host exists
     const user = await this.userRepository.findOne({
       where: { pid: event.host },
@@ -98,10 +94,7 @@ export class EventsService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     return await this.eventRepository.find({
@@ -115,7 +108,6 @@ export class EventsService {
    * @returns {Promise<EventEntity>} The information of the target event from database.
    */
   async getEvent(headers, eventID: string): Promise<EventEntity> {
-
     const event = await this.eventRepository.findOne({
       where: {
         eid: eventID,
@@ -137,10 +129,7 @@ export class EventsService {
       where: { client_token: clientToken },
     });
     if (!client || client.cid !== event.client.cid) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
     return event;
   }
@@ -163,10 +152,7 @@ export class EventsService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     const event = await this.eventRepository.findOne({
@@ -178,10 +164,7 @@ export class EventsService {
       throw new NotFoundException(`Event Not Found.`);
     }
     if (event.client.cid !== client.cid) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     const protectList = ['eid'];
@@ -210,10 +193,7 @@ export class EventsService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
     const event = await this.eventRepository.findOne({
       where: {
@@ -224,12 +204,10 @@ export class EventsService {
       throw new NotFoundException(`Event Not Found.`);
     }
     if (event.client.cid !== client.cid) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
-    const result = await this.eventRepository.delete(eventID);
+    // TODO: @Haorui <hs3374@columbia.edu>
+    const _result = await this.eventRepository.delete(eventID);
   }
 }

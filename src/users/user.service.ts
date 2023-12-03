@@ -16,16 +16,16 @@ export class UsersService {
     private clientRepository: Repository<ClientEntity>,
   ) {}
 
-  async register(user: RegisterUserDTO, clientToken: string): Promise<UserEntity> {
+  async register(
+    user: RegisterUserDTO,
+    clientToken: string,
+  ): Promise<UserEntity> {
     // check authorization of the header
     const client = await this.clientRepository.findOne({
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     // Check if the user with the provided email already exists
@@ -60,14 +60,11 @@ export class UsersService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
     try {
-      return await this.userRepository.findOneOrFail({ 
-        where: { pid: pid, client: {cid: client.cid} },
+      return await this.userRepository.findOneOrFail({
+        where: { pid: pid, client: { cid: client.cid } },
       });
     } catch (error) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -84,14 +81,11 @@ export class UsersService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
     // Check if the user with the provided ID exists
-    const user = await this.userRepository.findOne({ 
-      where: { pid, client: {cid: client.cid} } 
+    const user = await this.userRepository.findOne({
+      where: { pid, client: { cid: client.cid } },
     });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -116,16 +110,13 @@ export class UsersService {
       where: { client_token: client_token },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     // Check if the user with the provided ID exists
 
-    const user = await this.userRepository.findOne({ 
-      where: { pid , client: {cid: client.cid} }
+    const user = await this.userRepository.findOne({
+      where: { pid, client: { cid: client.cid } },
     });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
