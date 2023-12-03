@@ -34,7 +34,7 @@ export class ParticipantsService {
   ): Promise<void> {
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { id: eventId },
+      where: { eid: eventId },
     });
 
     // Throw an exception if the event is not found
@@ -89,7 +89,7 @@ export class ParticipantsService {
   ): Promise<UserEntity> {
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { id: eventId },
+      where: { eid: eventId },
     });
 
     // Throw an exception if the event is not found
@@ -101,7 +101,7 @@ export class ParticipantsService {
     const participant = await this.participantRepository.findOne({
       where: {
         user: { pid: pid },
-        event: { id: eventId },
+        event: { eid: eventId },
       },
     });
 
@@ -142,18 +142,18 @@ export class ParticipantsService {
   async listParticipants(eventId: string): Promise<ParticipantEntity[]> {
     // Find all participants associated with the event and return them along with their user details
     return await this.participantRepository.find({
-      where: { event: { id: eventId } },
+      where: { event: { eid: eventId } },
       relations: ['user'],
     });
   }
 
   // Update a participant's response status
-  async updateStatus(pid: number, eventId: string, status: string): Promise<void> {
+  async updateStatus(pid: string, eventId: string, status: string): Promise<void> {
     // Retrieve the participant from the database
     const participant = await this.participantRepository.findOne({
       where: {
-        user: { id: pid },
-        event: { id: eventId },
+        user: { pid: pid },
+        event: { eid: eventId },
       }
     });
 
@@ -172,7 +172,7 @@ export class ParticipantsService {
   async sendEmailToAllParticipants(eventId: string): Promise<void> {
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { id: eventId },
+      where: { eid: eventId },
     });
 
     // Throw an exception if the event is not found
@@ -182,7 +182,7 @@ export class ParticipantsService {
 
     // Retrieve all participants for the event
     const participants = await this.participantRepository.find({
-      where: { event: { id: eventId } },
+      where: { event: { eid: eventId } },
       relations: ['user'],
     });
 
@@ -191,18 +191,18 @@ export class ParticipantsService {
       // Check if the participant is invited
       if (participant.status === 'pending') {
         // Send an email to the participant
-        await this.sendEmail(participant.user.id, eventId);
+        await this.sendEmail(participant.user.pid, eventId);
       }
     }
   }
 
-  async sendEmail(pid: number, eventId: string): Promise<void> {
+  async sendEmail(pid: string, eventId: string): Promise<void> {
     // Check if the receiver is a valid email address
     const receiver = await this.userRepository.findOne({
-      where: { id: pid },
+      where: { pid: pid },
     });
     const event = await this.eventRepository.findOne({
-      where: { id: eventId },
+      where: { eid: eventId },
     });
     if (!receiver.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       throw new InternalServerErrorException('Invalid email address');

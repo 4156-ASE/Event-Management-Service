@@ -7,6 +7,7 @@ import {
   Patch,
   Delete,
   HttpStatus,
+  Headers,
 } from '@nestjs/common';
 import { from, Observable } from 'rxjs';
 import { EventsService } from './events.service';
@@ -26,27 +27,27 @@ export class EventsController {
    * @returns {Promise<EventInterface>} Return the content of the event object.
    */
   @Post()
-  async createEvent(@Body() event: CreateEventDTO): Promise<EventInterface> {
-    return this.eventsService.insertEvent(event);
+  async createEvent( @Headers() headers: any, @Body() event: CreateEventDTO): Promise<EventInterface> {
+    return this.eventsService.insertEvent(headers, event);
   }
 
   /**
    * Get all the events.
-   * @returns {Observable<EventInterface[]>} The information of all the events.
+   * @returns {Promise<EventInterface[]>} The information of all the events.
    */
   @Get()
-  getAllEvents(): Observable<EventInterface[]> {
-    return this.eventsService.getEvents();
+  async getAllEvents( @Headers() headers): Promise<EventInterface[]> {
+    return await this.eventsService.getEvents(headers);
   }
 
   /**
    * Get a event by EventID.
    * @param {string} eventId The event ID.
-   * @returns {Observable<EventInterface>} The information of the target event.
+   * @returns {Promise<EventInterface>} The information of the target event.
    */
   @Get(':id')
-  getEvent(@Param('id') eventId: string): Observable<EventInterface> {
-    return from(this.eventsService.getEvent(eventId));
+  async getEvent(@Headers() headers, @Param('id') eventId: string): Promise<EventInterface> {
+    return await this.eventsService.getEvent(headers, eventId);
   }
 
   /**
@@ -57,10 +58,11 @@ export class EventsController {
    */
   @Patch(':eventId')
   async updateEvent(
+    @Headers() headers,
     @Param('eventId') eventId: string,
     @Body() event: UpdateEventDTO,
   ) {
-    await this.eventsService.updateEvent(eventId, event);
+    await this.eventsService.updateEvent(headers, eventId, event);
     return {
       status: HttpStatus.OK,
       message: 'Event updated successfully',
@@ -73,8 +75,8 @@ export class EventsController {
    * @returns {Object} Return status of the event delete.
    */
   @Delete(':id')
-  async removeEvent(@Param('id') eventId: string) {
-    await this.eventsService.deleteEvent(eventId);
+  async removeEvent(@Headers() headers, @Param('id') eventId: string) {
+    await this.eventsService.deleteEvent(headers, eventId);
     return {
       status: HttpStatus.OK,
       message: 'Event deleted successfully',

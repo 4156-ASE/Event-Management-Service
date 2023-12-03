@@ -121,7 +121,7 @@ export class ParticipantsController {
   // Update the status of a participant
   @Patch('respond')
   async updateParticipantStatus(
-    @Body('id') id: number,
+    @Body('id') pid: string,
     @Body('status') status: string,
     @Body('eventId') eventId: string,
   ) {
