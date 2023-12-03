@@ -247,10 +247,28 @@ export class ParticipantsService {
     await this.participantRepository.save(participant);
   }
 
-  async sendEmailToAllParticipants(eventId: string): Promise<void> {
+  async sendEmailToAllParticipants(headers, eventId: string): Promise<void> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { eid: eventId },
+      where: { eid: eventId, client: {cid: client.cid} },
     });
 
     // Throw an exception if the event is not found
@@ -260,7 +278,7 @@ export class ParticipantsService {
 
     // Retrieve all participants for the event
     const participants = await this.participantRepository.find({
-      where: { event: { eid: eventId } },
+      where: { event: { eid: eventId }, user: {client: {cid: client.cid} } },
       relations: ['user'],
     });
 

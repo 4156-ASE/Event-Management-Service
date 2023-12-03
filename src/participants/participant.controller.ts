@@ -106,7 +106,7 @@ export class ParticipantsController {
         await this.participantsService.listParticipants(headers, eventId);
       // Map over the results to shape the response
       return participants.map((p) => ({
-        pid: p.id,
+        pid: p.user.pid,
         first_name: p.user.first_name,
         last_name: p.user.last_name,
         email: p.user.email,
@@ -120,6 +120,16 @@ export class ParticipantsController {
         throw new InternalServerErrorException('Failed to fetch participants');
       }
     }
+  }
+  
+  @Get('sendEmailToAllParticipants/:eventId')
+  async sendEmailToAllParticipants(@Headers() headers, @Param("eventId") eventId: string) {
+    // Use the service method to invite the participant
+    console.log("send email to all participants");
+    console.log("event id: " + eventId);
+    await this.participantsService.sendEmailToAllParticipants(headers, eventId);
+    return { message: 'Invitations sent successfully.' };
+    
   }
 
   // Functions below are not for client, so the client token is not needed
@@ -144,16 +154,6 @@ export class ParticipantsController {
         throw new InternalServerErrorException('Failed to update the status');
       }
     }
-  }
-
-  @Get('sendEmailToAllParticipants/:eventId')
-  async sendEmailToAllParticipants(@Param("eventId") eventId: string) {
-    // Use the service method to invite the participant
-    console.log("send email to all participants");
-    console.log("event id: " + eventId);
-    await this.participantsService.sendEmailToAllParticipants(eventId);
-    return { message: 'Invitations sent successfully.' };
-    
   }
 
   @Get('redirect')
