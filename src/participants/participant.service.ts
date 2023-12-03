@@ -3,6 +3,8 @@ import {
   NotFoundException,
   InternalServerErrorException,
   ConflictException,
+  HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -10,6 +12,7 @@ import { ParticipantEntity } from './models/participant.entity';
 
 import { EventEntity } from 'src/events/models/event.entity';
 import { UserEntity } from 'src/users/models/user.entity';
+import { ClientEntity } from 'src/users/models/client.entity';
 import { createTransport } from 'nodemailer';
 import * as path from 'path';
 import * as handlebars from 'handlebars';
@@ -25,16 +28,31 @@ export class ParticipantsService {
     private userRepository: Repository<UserEntity>,
     @InjectRepository(EventEntity)
     private readonly eventRepository: Repository<EventEntity>,
+    @InjectRepository(ClientEntity)
+    private readonly clientRepository: Repository<ClientEntity>,
   ) {}
 
   // Invite a participant to a given event.
   async inviteParticipant(
+    headers,
     eventId: string,
     user: { first_name: string; last_name: string; email: string },
   ): Promise<void> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { eid: eventId },
+      where: { eid: eventId, client: {cid: client.cid} },
     });
 
     // Throw an exception if the event is not found
@@ -44,7 +62,7 @@ export class ParticipantsService {
 
     // Check if the user with the provided email exists
     const foundUser = await this.userRepository.findOne({
-      where: { email: user.email },
+      where: { email: user.email, client: {cid: client.cid} },
     });
 
     // Throw an exception if the user is not found
@@ -69,7 +87,7 @@ export class ParticipantsService {
     const newParticipant = new ParticipantEntity();
     newParticipant.event = event;
     newParticipant.user = foundUser;
-    newParticipant.status = 'invited';
+    newParticipant.status = 'pending';
 
     // Save the new participant to the database
     try {
@@ -83,13 +101,32 @@ export class ParticipantsService {
 
   // Update details of an existing participant
   async updateParticipant(
+    headers,
     eventId: string,
     pid: string,
     user: { first_name: string; last_name: string; email: string },
   ): Promise<UserEntity> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { eid: eventId },
+      where: { eid: eventId , client: {cid: client.cid} },
     });
 
     // Throw an exception if the event is not found
@@ -100,7 +137,7 @@ export class ParticipantsService {
     // Check if the user is a participant of the given event
     const participant = await this.participantRepository.findOne({
       where: {
-        user: { pid: pid },
+        user: { pid: pid, client: {cid: client.cid} },
         event: { eid: eventId },
       },
     });
@@ -112,7 +149,7 @@ export class ParticipantsService {
 
     // Retrieve the user from the database using the participant ID
     const foundUser = await this.userRepository.findOne({
-      where: { pid: pid },
+      where: { pid: pid, client: {cid: client.cid} },
     });
 
     // Throw an exception if the user is not found
@@ -130,8 +167,31 @@ export class ParticipantsService {
   }
 
   // Delete a participant
-  async deleteParticipant(pid: string): Promise<void> {
-    const result = await this.participantRepository.delete(pid);
+  async deleteParticipant(headers, pid: string): Promise<void> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const participant = await this.participantRepository.findOne({
+      where: {
+        user: { pid: pid, client: {cid: client.cid} },
+      },
+    });
+    const result = await this.participantRepository.delete(participant);
     // Throw an exception if no rows were affected
     if (result.affected === 0) {
       throw new NotFoundException('Participant not found');
@@ -139,10 +199,28 @@ export class ParticipantsService {
   }
 
   // Retrieve a list of participants for a given event
-  async listParticipants(eventId: string): Promise<ParticipantEntity[]> {
+  async listParticipants(headers, eventId: string): Promise<ParticipantEntity[]> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     // Find all participants associated with the event and return them along with their user details
     return await this.participantRepository.find({
-      where: { event: { eid: eventId } },
+      where: { event: { eid: eventId, client: {cid: client.cid} } },
       relations: ['user'],
     });
   }
@@ -163,7 +241,7 @@ export class ParticipantsService {
     }
 
     // Update the participant's status
-    participant.status = status;
+    participant.status = status as "pending" | "accept" | "reject";
 
     // Save the updated status to the database
     await this.participantRepository.save(participant);
