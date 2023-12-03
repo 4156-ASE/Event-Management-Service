@@ -1,5 +1,4 @@
-import { ClientEntity } from "src/users/models/client.entity";
-import { UserEntity } from "src/users/models/user.entity";
+import { UserEntity } from 'src/users/models/user.entity';
 
 /**
  * Event Interface which is used to describe the structure of a event object.

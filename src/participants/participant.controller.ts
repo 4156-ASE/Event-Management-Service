@@ -99,11 +99,16 @@ export class ParticipantsController {
 
   // List participants of an event
   @Get('/allParticipants/:eventId')
-  async listParticipants(@Headers() headers, @Param('eventId') eventId: string) {
+  async listParticipants(
+    @Headers() headers,
+    @Param('eventId') eventId: string,
+  ) {
     try {
       // Fetch the participants using the service method
-      const participants =
-        await this.participantsService.listParticipants(headers, eventId);
+      const participants = await this.participantsService.listParticipants(
+        headers,
+        eventId,
+      );
       // Map over the results to shape the response
       return participants.map((p) => ({
         pid: p.user.pid,
@@ -161,13 +166,11 @@ export class ParticipantsController {
     @Param('memberId') pid: number,
     @Param('decision') decision: string,
     @Param('eventId') eventId: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     // Use the service method to update the participant's status
     const htmlContent = this.participantsService.getRedirectPage();
     res.set('Content-Type', 'text/html');
     res.send(htmlContent);
-    
   }
-
 }
