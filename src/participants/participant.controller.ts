@@ -99,11 +99,16 @@ export class ParticipantsController {
 
   // List participants of an event
   @Get('/allParticipants/:eventId')
-  async listParticipants(@Headers() headers, @Param('eventId') eventId: string) {
+  async listParticipants(
+    @Headers() headers,
+    @Param('eventId') eventId: string,
+  ) {
     try {
       // Fetch the participants using the service method
-      const participants =
-        await this.participantsService.listParticipants(headers, eventId);
+      const participants = await this.participantsService.listParticipants(
+        headers,
+        eventId,
+      );
       // Map over the results to shape the response
       return participants.map((p) => ({
         pid: p.id,
@@ -147,13 +152,12 @@ export class ParticipantsController {
   }
 
   @Get('sendEmailToAllParticipants/:eventId')
-  async sendEmailToAllParticipants(@Param("eventId") eventId: string) {
+  async sendEmailToAllParticipants(@Param('eventId') eventId: string) {
     // Use the service method to invite the participant
-    console.log("send email to all participants");
-    console.log("event id: " + eventId);
+    console.log('send email to all participants');
+    console.log('event id: ' + eventId);
     await this.participantsService.sendEmailToAllParticipants(eventId);
     return { message: 'Invitations sent successfully.' };
-    
   }
 
   @Get('redirect')
@@ -161,13 +165,11 @@ export class ParticipantsController {
     @Param('memberId') pid: number,
     @Param('decision') decision: string,
     @Param('eventId') eventId: string,
-    @Res() res: Response
+    @Res() res: Response,
   ) {
     // Use the service method to update the participant's status
     const htmlContent = this.participantsService.getRedirectPage();
     res.set('Content-Type', 'text/html');
     res.send(htmlContent);
-    
   }
-
 }

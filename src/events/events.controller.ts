@@ -26,7 +26,10 @@ export class EventsController {
    * @returns {Promise<EventInterface>} Return the content of the event object.
    */
   @Post()
-  async createEvent( @Headers() headers: any, @Body() event: CreateEventDTO): Promise<EventInterface> {
+  async createEvent(
+    @Headers() headers: any,
+    @Body() event: CreateEventDTO,
+  ): Promise<EventInterface> {
     return this.eventsService.insertEvent(headers, event);
   }
 
@@ -35,7 +38,7 @@ export class EventsController {
    * @returns {Promise<EventInterface[]>} The information of all the events.
    */
   @Get()
-  async getAllEvents( @Headers() headers): Promise<EventInterface[]> {
+  async getAllEvents(@Headers() headers): Promise<EventInterface[]> {
     return await this.eventsService.getEvents(headers);
   }
 
@@ -45,7 +48,10 @@ export class EventsController {
    * @returns {Promise<EventInterface>} The information of the target event.
    */
   @Get(':id')
-  async getEvent(@Headers() headers, @Param('id') eventId: string): Promise<EventInterface> {
+  async getEvent(
+    @Headers() headers,
+    @Param('id') eventId: string,
+  ): Promise<EventInterface> {
     return await this.eventsService.getEvent(headers, eventId);
   }
 

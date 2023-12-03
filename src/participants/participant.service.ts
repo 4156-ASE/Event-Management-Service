@@ -52,7 +52,7 @@ export class ParticipantsService {
 
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { eid: eventId, client: {cid: client.cid} },
+      where: { eid: eventId, client: { cid: client.cid } },
     });
 
     // Throw an exception if the event is not found
@@ -62,7 +62,7 @@ export class ParticipantsService {
 
     // Check if the user with the provided email exists
     const foundUser = await this.userRepository.findOne({
-      where: { email: user.email, client: {cid: client.cid} },
+      where: { email: user.email, client: { cid: client.cid } },
     });
 
     // Throw an exception if the user is not found
@@ -118,15 +118,12 @@ export class ParticipantsService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
-      where: { eid: eventId , client: {cid: client.cid} },
+      where: { eid: eventId, client: { cid: client.cid } },
     });
 
     // Throw an exception if the event is not found
@@ -137,7 +134,7 @@ export class ParticipantsService {
     // Check if the user is a participant of the given event
     const participant = await this.participantRepository.findOne({
       where: {
-        user: { pid: pid, client: {cid: client.cid} },
+        user: { pid: pid, client: { cid: client.cid } },
         event: { eid: eventId },
       },
     });
@@ -149,7 +146,7 @@ export class ParticipantsService {
 
     // Retrieve the user from the database using the participant ID
     const foundUser = await this.userRepository.findOne({
-      where: { pid: pid, client: {cid: client.cid} },
+      where: { pid: pid, client: { cid: client.cid } },
     });
 
     // Throw an exception if the user is not found
@@ -180,15 +177,12 @@ export class ParticipantsService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     const participant = await this.participantRepository.findOne({
       where: {
-        user: { pid: pid, client: {cid: client.cid} },
+        user: { pid: pid, client: { cid: client.cid } },
       },
     });
     const result = await this.participantRepository.delete(participant);
@@ -199,7 +193,10 @@ export class ParticipantsService {
   }
 
   // Retrieve a list of participants for a given event
-  async listParticipants(headers, eventId: string): Promise<ParticipantEntity[]> {
+  async listParticipants(
+    headers,
+    eventId: string,
+  ): Promise<ParticipantEntity[]> {
     // check authorization of the header
     const clientToken = headers.authorization;
     if (!clientToken) {
@@ -212,27 +209,28 @@ export class ParticipantsService {
       where: { client_token: clientToken },
     });
     if (!client) {
-      throw new HttpException(
-        'Client does not match',
-        HttpStatus.UNAUTHORIZED,
-      );
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
     }
 
     // Find all participants associated with the event and return them along with their user details
     return await this.participantRepository.find({
-      where: { event: { eid: eventId, client: {cid: client.cid} } },
+      where: { event: { eid: eventId, client: { cid: client.cid } } },
       relations: ['user'],
     });
   }
 
   // Update a participant's response status
-  async updateStatus(pid: string, eventId: string, status: string): Promise<void> {
+  async updateStatus(
+    pid: string,
+    eventId: string,
+    status: string,
+  ): Promise<void> {
     // Retrieve the participant from the database
     const participant = await this.participantRepository.findOne({
       where: {
         user: { pid: pid },
         event: { eid: eventId },
-      }
+      },
     });
 
     // Throw an exception if the participant is not found
@@ -241,7 +239,7 @@ export class ParticipantsService {
     }
 
     // Update the participant's status
-    participant.status = status as "pending" | "accept" | "reject";
+    participant.status = status as 'pending' | 'accept' | 'reject';
 
     // Save the updated status to the database
     await this.participantRepository.save(participant);
@@ -285,10 +283,10 @@ export class ParticipantsService {
     if (!receiver.email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
       throw new InternalServerErrorException('Invalid email address');
     }
-    
+
     // Retrieve the email web page template
     const __dirname = path.resolve();
-    const filePath = path.join(__dirname, "src/pages/emailPage.html")
+    const filePath = path.join(__dirname, 'src/pages/emailPage.html');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);
     const replacements = {
@@ -304,41 +302,40 @@ export class ParticipantsService {
       location: event.location,
     };
     const htmlToSend = template(replacements);
-    
+
     // Send the email
-    let transporter = createTransport({
-      host: "smtp-mail.outlook.com", // Outlook SMTP server
-      port: 587,                     // SMTP port (587 is typically used for TLS)
-      secure: false,                 // True for 465, false for other ports
+    const transporter = createTransport({
+      host: 'smtp-mail.outlook.com', // Outlook SMTP server
+      port: 587, // SMTP port (587 is typically used for TLS)
+      secure: false, // True for 465, false for other ports
       auth: {
-          user: "event4156@outlook.com", // Your Outlook email address
-          pass: "4156eventmanagement"          // Your Outlook password
+        user: 'event4156@outlook.com', // Your Outlook email address
+        pass: '4156eventmanagement', // Your Outlook password
       },
       tls: {
-          ciphers:'SSLv3'            // Necessary TLS configuration
-      }
+        ciphers: 'SSLv3', // Necessary TLS configuration
+      },
     });
 
-    let info = await transporter.sendMail({
+    // TODO: @Haorui <hs3374@columbia.edu>
+    const _info = await transporter.sendMail({
       from: 'event4156@outlook.com',
       to: receiver.email,
-      subject: "You are invited to join an event!",
-      html: htmlToSend
+      subject: 'You are invited to join an event!',
+      html: htmlToSend,
     });
   }
 
   getRedirectPage(): string {
     // Retrieve the email web page template
-    console.log("get redirect page");
+    console.log('get redirect page');
     const __dirname = path.resolve();
-    const filePath = path.join(__dirname, "src/pages/responsePage.html")
+    const filePath = path.join(__dirname, 'src/pages/responsePage.html');
     const source = fs.readFileSync(filePath, 'utf-8').toString();
     const template = handlebars.compile(source);
-    const replacements = {
-    };
+    const replacements = {};
     const htmlToSend = template(replacements);
 
     return htmlToSend;
   }
-
 }
