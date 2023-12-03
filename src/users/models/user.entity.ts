@@ -1,15 +1,17 @@
-import { Column, Entity, PrimaryColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryColumn } from 'typeorm';
 import { randomBytes } from 'crypto';
+import { ClientEntity } from './client.entity';
 
 @Entity()
 export class UserEntity {
   @PrimaryColumn()
   pid: string = randomBytes(16).toString('hex');
 
-  @Column()
-  cid: string;
+  @ManyToOne(() => ClientEntity)
+  @JoinColumn({ name: 'cid' })
+  client: ClientEntity;
 
-  @Column({ unique: true })
+  @Column()
   email: string;
 
   @Column({

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { UserEntity } from './models/user.entity';
 import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
 import { randomBytes } from 'crypto';
+import { ClientEntity } from './models/client.entity';
 
 @Injectable()
 export class UsersService {
@@ -11,11 +12,23 @@ export class UsersService {
   constructor(
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(ClientEntity)
+    private clientRepository: Repository<ClientEntity>,
   ) {}
 
-  async register(user: RegisterUserDTO, cid: string): Promise<UserEntity> {
-    // Check if the user with the provided email already exists
+  async register(user: RegisterUserDTO, clientToken: string): Promise<UserEntity> {
+    // check authorization of the header
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
 
+    // Check if the user with the provided email already exists
     const existUser = await this.userRepository.findOne({
       where: { email: user.email },
     });
@@ -30,7 +43,7 @@ export class UsersService {
     try {
       // Save the new user to the database
       const newUser = this.userRepository.create(user);
-      newUser.cid = cid;
+      newUser.client = client;
       newUser.pid = randomBytes(16).toString('hex');
       return await this.userRepository.save(newUser);
     } catch (error) {
@@ -41,9 +54,21 @@ export class UsersService {
     }
   }
 
-  async getUser(pid: string): Promise<UserEntity> {
+  async getUser(pid: string, clientToken: string): Promise<UserEntity> {
+    // check authorization of the header
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
     try {
-      return await this.userRepository.findOneOrFail({ where: { pid } });
+      return await this.userRepository.findOneOrFail({ 
+        where: { pid: pid, client: {cid: client.cid} },
+      });
     } catch (error) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -52,9 +77,22 @@ export class UsersService {
   async updateUser(
     pid: string,
     updatedUser: UpdateUserDTO,
+    clientToken: string,
   ): Promise<UserEntity> {
+    // check authorization of the header
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
     // Check if the user with the provided ID exists
-    const user = await this.userRepository.findOne({ where: { pid } });
+    const user = await this.userRepository.findOne({ 
+      where: { pid, client: {cid: client.cid} } 
+    });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
@@ -72,10 +110,23 @@ export class UsersService {
     }
   }
 
-  async deleteUser(pid: string): Promise<boolean> {
+  async deleteUser(pid: string, client_token: string): Promise<boolean> {
+    // check authorization of the header
+    const client = await this.clientRepository.findOne({
+      where: { client_token: client_token },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
     // Check if the user with the provided ID exists
 
-    const user = await this.userRepository.findOne({ where: { pid } });
+    const user = await this.userRepository.findOne({ 
+      where: { pid , client: {cid: client.cid} }
+    });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
