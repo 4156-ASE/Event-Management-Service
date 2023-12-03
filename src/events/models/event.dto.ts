@@ -22,7 +22,6 @@ export class CreateEventDTO {
   location: string;
 
   @IsNotEmpty()
-  @IsNumber()
   host: string;
 }
 

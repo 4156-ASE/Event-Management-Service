@@ -11,6 +11,7 @@ import { EventInterface } from './models/event.interface';
 import { from, Observable } from 'rxjs';
 import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
 import { UserEntity } from 'src/users/models/user.entity';
+import { ClientEntity } from 'src/users/models/client.entity';
 
 /**
  * Event Service which will handle event relevent database operations, can be used by event controller.
@@ -26,14 +27,35 @@ export class EventsService {
     private eventRepository: Repository<EventEntity>,
     @InjectRepository(UserEntity)
     private userRepository: Repository<UserEntity>,
+    @InjectRepository(ClientEntity)
+    private clientRepository: Repository<ClientEntity>,
   ) {}
 
   /**
    * Insert a event into database.
    * @param {CreateEventDTO} event The EventInterface object that need to be inserted into database.
-   * @returns {Observable<EventInterface>} Return the content of the event object.
+   * @returns {Promise<EventInterface>} Return the content of the event object.
    */
-  async insertEvent(event: CreateEventDTO): Promise<EventInterface> {
+  async insertEvent(headers, event: CreateEventDTO): Promise<EventInterface> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    
+    // check if host exists
     const user = await this.userRepository.findOne({
       where: { pid: event.host },
     });
@@ -45,15 +67,46 @@ export class EventsService {
       );
     }
 
-    return this.eventRepository.save(event);
+    // create event entity
+    const save_entity = {
+      title: event.title,
+      desc: event.desc,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      location: event.location,
+      host: user,
+      client: client,
+    };
+
+    return await this.eventRepository.save(save_entity);
   }
 
   /**
-   * Get all the events.
-   * @returns {Observable<EventInterface[]>} The information of all the events from database.
+   * Get all the events of a client based on client token.
+   * @returns {Promise<EventInterface[]>} The information of all the events from database.
    */
-  getEvents(): Observable<EventInterface[]> {
-    return from(this.eventRepository.find());
+  async getEvents(headers): Promise<EventInterface[]> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    return await this.eventRepository.find({
+      where: { client: { cid: client.cid } },
+    });
   }
 
   /**
@@ -61,17 +114,35 @@ export class EventsService {
    * @param {string} eventID The event ID.
    * @returns {Promise<EventEntity>} The information of the target event from database.
    */
-  async getEvent(eventID: string): Promise<EventEntity> {
-    const events = await this.eventRepository.find({
+  async getEvent(headers, eventID: string): Promise<EventEntity> {
+
+    const event = await this.eventRepository.findOne({
       where: {
-        id: eventID,
+        eid: eventID,
       },
     });
-    if (events.length === 0) {
+    if (!event) {
       throw new NotFoundException('Event Not Found.');
     }
 
-    return events[0];
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client || client.cid !== event.client.cid) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    return event;
   }
 
   /**
@@ -79,32 +150,86 @@ export class EventsService {
    * @param {string} eventID The event ID.
    * @param {UpdateEventDTO} updatedEvent The information that need to be modified in an event.
    */
-  async updateEvent(eventID: string, updatedEvent: UpdateEventDTO) {
-    const events = await this.eventRepository.find({
+  async updateEvent(headers, eventID: string, updatedEvent: UpdateEventDTO) {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const event = await this.eventRepository.findOne({
       where: {
-        id: eventID,
+        eid: eventID,
       },
     });
-    if (events.length === 0) {
-      throw new NotFoundException(`Could not find event: ${eventID}.`);
+    if (!event) {
+      throw new NotFoundException(`Event Not Found.`);
     }
-    const protectList = ['id'];
+    if (event.client.cid !== client.cid) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const protectList = ['eid'];
     protectList.forEach((key) => {
       if (key in updatedEvent) {
         delete updatedEvent[key];
       }
     });
-    await this.eventRepository.update({ id: eventID }, updatedEvent);
+    await this.eventRepository.update({ eid: eventID }, updatedEvent);
   }
 
   /**
    * Delete a event by eventID.
    * @param {string} eventID The event ID.
    */
-  async deleteEvent(eventID: string): Promise<void> {
-    const result = await this.eventRepository.delete(eventID);
-    if (result.affected === 0) {
-      throw new NotFoundException(`Event with ID ${eventID} not found.`);
+  async deleteEvent(headers, eventID: string): Promise<void> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
     }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const event = await this.eventRepository.findOne({
+      where: {
+        eid: eventID,
+      },
+    });
+    if (!event) {
+      throw new NotFoundException(`Event Not Found.`);
+    }
+    if (event.client.cid !== client.cid) {
+      throw new HttpException(
+        'Client does not match',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const result = await this.eventRepository.delete(eventID);
   }
 }
