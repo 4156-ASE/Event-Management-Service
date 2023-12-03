@@ -25,22 +25,21 @@ export class UserController {
     @Body() user: RegisterUserDTO,
     @Headers('authorization') clientToken: string,
   ) {
-    const cid = this.extractCidFromToken(clientToken);
-    const newUser = await this.usersService.register(user, cid);
+    const newUser = await this.usersService.register(user, clientToken);
     return { pid: newUser.pid, message: 'User registered successfully' };
   }
 
   // Retrieve user details by their ID
   @Get(':pid')
-  async getUser(@Param('pid') pid: string) {
-    const user = await this.usersService.getUser(pid);
+  async getUser(@Headers('authorization') clientToken: string, @Param('pid') pid: string) {
+    const user = await this.usersService.getUser(pid, clientToken);
     return user;
   }
 
   // Update user details by their ID
   @Patch(':pid')
-  async updateUser(@Param('pid') pid: string, @Body() user: UpdateUserDTO) {
-    await this.usersService.updateUser(pid, user);
+  async updateUser(@Headers('authorization') clientToken: string, @Param('pid') pid: string, @Body() user: UpdateUserDTO) {
+    await this.usersService.updateUser(pid, user, clientToken);
     return {
       status: HttpStatus.OK,
       message: 'User updated successfully',
@@ -49,17 +48,9 @@ export class UserController {
 
   // Delete a user by their ID.
   @Delete(':pid')
-  async deleteUser(@Param('pid') pid: string) {
-    await this.usersService.deleteUser(pid);
+  async deleteUser(@Headers('authorization') clientToken: string, @Param('pid') pid: string) {
+    await this.usersService.deleteUser(pid, clientToken);
     return { status: HttpStatus.OK, message: 'User deleted successfully' };
   }
 
-  private extractCidFromToken(token: string): string {
-    try {
-      const decoded = jwt.verify(token, 'secretKey');
-      return decoded.cid;
-    } catch (error) {
-      throw new HttpException('Invalid token', HttpStatus.UNAUTHORIZED);
-    }
-  }
 }
