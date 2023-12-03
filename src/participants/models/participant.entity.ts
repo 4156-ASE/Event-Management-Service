@@ -21,6 +21,6 @@ export class ParticipantEntity {
   @JoinColumn({ name: 'eid' })
   event: EventEntity;
 
-  @Column({type: 'enum', enum: ['pending', 'accept', 'reject']})
-  status: "pending" | "accept" | "reject";
+  @Column({ type: 'enum', enum: ['pending', 'accept', 'reject'] })
+  status: 'pending' | 'accept' | 'reject';
 }

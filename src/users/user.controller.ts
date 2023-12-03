@@ -7,12 +7,10 @@ import {
   Patch,
   Delete,
   HttpStatus,
-  HttpException,
   Headers,
 } from '@nestjs/common';
 import { UsersService } from './user.service';
 import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
-import * as jwt from 'jsonwebtoken';
 
 @Controller('users')
 export class UserController {
@@ -31,14 +29,21 @@ export class UserController {
 
   // Retrieve user details by their ID
   @Get(':pid')
-  async getUser(@Headers('authorization') clientToken: string, @Param('pid') pid: string) {
+  async getUser(
+    @Headers('authorization') clientToken: string,
+    @Param('pid') pid: string,
+  ) {
     const user = await this.usersService.getUser(pid, clientToken);
     return user;
   }
 
   // Update user details by their ID
   @Patch(':pid')
-  async updateUser(@Headers('authorization') clientToken: string, @Param('pid') pid: string, @Body() user: UpdateUserDTO) {
+  async updateUser(
+    @Headers('authorization') clientToken: string,
+    @Param('pid') pid: string,
+    @Body() user: UpdateUserDTO,
+  ) {
     await this.usersService.updateUser(pid, user, clientToken);
     return {
       status: HttpStatus.OK,
@@ -48,9 +53,11 @@ export class UserController {
 
   // Delete a user by their ID.
   @Delete(':pid')
-  async deleteUser(@Headers('authorization') clientToken: string, @Param('pid') pid: string) {
+  async deleteUser(
+    @Headers('authorization') clientToken: string,
+    @Param('pid') pid: string,
+  ) {
     await this.usersService.deleteUser(pid, clientToken);
     return { status: HttpStatus.OK, message: 'User deleted successfully' };
   }
-
 }
