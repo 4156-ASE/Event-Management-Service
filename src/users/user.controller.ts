@@ -60,5 +60,4 @@ export class UserController {
     await this.usersService.deleteUser(pid, clientToken);
     return { status: HttpStatus.OK, message: 'User deleted successfully' };
   }
-
 }

@@ -9,6 +9,8 @@ export interface EventInterface {
    */
   eid: string;
 
+  cid: string;
+
   /**
    * Event title. Required.
    */

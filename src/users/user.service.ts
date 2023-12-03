@@ -85,7 +85,7 @@ export class UsersService {
     }
     // Check if the user with the provided ID exists
     const user = await this.userRepository.findOne({
-      where: { pid, client: { cid: client.cid } },
+      where: { pid: pid, client: { cid: client.cid } },
     });
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
