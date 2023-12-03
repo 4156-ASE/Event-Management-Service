@@ -18,9 +18,9 @@ export class ParticipantEntity {
   user: UserEntity;
 
   @ManyToOne(() => EventEntity)
-  @JoinColumn({ name: 'event_id' })
+  @JoinColumn({ name: 'eid' })
   event: EventEntity;
 
-  @Column()
-  status: string;
+  @Column({type: 'enum', enum: ['pending', 'accept', 'reject']})
+  status: "pending" | "accept" | "reject";
 }
