@@ -164,7 +164,7 @@ export class ParticipantsService {
   }
 
   // Delete a participant
-  async deleteParticipant(headers, pid: string): Promise<void> {
+  async deleteParticipant(headers, pid: string, eid: string): Promise<void> {
     // check authorization of the header
     const clientToken = headers.authorization;
     if (!clientToken) {
@@ -183,6 +183,7 @@ export class ParticipantsService {
     const participant = await this.participantRepository.findOne({
       where: {
         user: { pid: pid, client: { cid: client.cid } },
+        event: { eid: eid, client: { cid: client.cid } },
       },
     });
     const result = await this.participantRepository.delete(participant);
@@ -342,6 +343,7 @@ export class ParticipantsService {
       subject: 'You are invited to join an event!',
       html: htmlToSend,
     });
+    console.log("receiver email: " + receiver.email);
   }
 
   getRedirectPage(): string {

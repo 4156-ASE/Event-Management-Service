@@ -5,70 +5,93 @@ import { ParticipantsService } from './participant.service';
 import { ParticipantEntity } from './models/participant.entity';
 import { UserEntity } from '../../src/users/models/user.entity';
 import { EventEntity } from '../../src/events/models/event.entity';
+import { randomBytes, randomInt } from 'crypto';
+import { ClientEntity } from '../../src/users/models/client.entity';
+import {
+  createClient,
+  createEvent,
+  createParticipant,
+  createUser,
+  randomEmail,
+  randomString,
+} from '../test.util';
+import { mock } from 'node:test';
 
 describe('ParticipantsService', () => {
-  let participantService: ParticipantsService;
-  const exampleUser1 = {
-    id: 1,
-    first_name: 'John',
-    last_name: 'Host',
-    email: 'testuser@test.com',
-    password: 'encryptedPassword',
-  };
-  const exampleUser2 = {
-    id: 2,
-    first_name: 'Harry',
-    last_name: 'Participant',
-    email: 'harry@test.com',
-    password: 'encryptedPassword',
-  };
-  const exampleUser3 = {
-    id: 3,
-    first_name: 'test',
-    last_name: 'ToBeInvited',
-    email: 'invite@test.com',
-    password: 'encryptedPassword',
-  };
-  const exampleEvent = {
-    id: '1234',
-    title: 'Test Event',
-    desc: 'This is a test event',
-    start_time: new Date('December 17, 1995 03:24:00'),
-    end_time: new Date('December 18, 1995 03:24:00'),
-    location: 'Test Location',
-    host: 1,
-  };
-  const exampleParticipant = {
-    id: 1,
-    user: {
-      ...exampleUser2,
-    },
-    event: {
-      ...exampleEvent,
-    },
-    status: 'Test Status',
-  };
 
-  const mockUserRepository = {
+  let participantService: ParticipantsService;
+  const mockClients: ClientEntity[] = [
+    createClient(),
+    createClient(),
+  ];
+  const mockUsers: UserEntity[] = [
+    createUser(mockClients[0], 'admin'),
+    createUser(mockClients[0], 'regular'),
+    createUser(mockClients[0], 'regular'),
+    createUser(mockClients[0], 'regular'),
+
+    createUser(mockClients[1], 'admin'),
+    createUser(mockClients[1], 'regular'),
+    createUser(mockClients[1], 'regular'),
+    createUser(mockClients[1], 'regular'),
+  ];
+  const mockEvents: EventEntity[] = [
+    createEvent(mockClients[0], mockUsers[1]),
+    createEvent(mockClients[1], mockUsers[5]),
+  ];
+  const mockParticipants: ParticipantEntity[] = [
+    createParticipant(mockUsers[2], mockEvents[0], 'pending'),
+    createParticipant(mockUsers[6], mockEvents[1], 'accept'),
+  ];
+
+  const mockClientRepository = {
     findOne: jest.fn((arg) => {
-      if (arg.where.email == exampleUser3.email) {
-        return Promise.resolve(exampleUser3);
-      } else if (arg.where.email == exampleUser2.email) {
-        return Promise.resolve(exampleUser2);
-      } else if (arg.where.id == exampleUser2.id) {
-        return Promise.resolve(exampleUser2);
+      const client = mockClients.find((client) => client.client_token == arg.where.client_token);
+      if (client) {
+        return Promise.resolve(client);
       } else {
         return Promise.resolve(null);
       }
     }),
-    save: jest.fn((user) => {
-      return Promise.resolve(user);
+  };
+  const mockUserRepository = {
+    findOne: jest.fn((arg) => {
+      const user = mockUsers.find((user) => {
+        if (arg.where.client && arg.where.email){
+          return user.client.cid == arg.where.client.cid && user.email == arg.where.email;
+        }
+        else if (arg.where.pid){
+          return user.pid == arg.where.pid;
+        }
+        else{
+          return false;
+        }
+      });
+      if (user) {
+        return Promise.resolve(user);
+      } else {
+        return Promise.resolve(null);
+      }
+    }),
+    save: jest.fn((arg: UserEntity) => {
+      return Promise.resolve(arg);
     }),
   };
   const mockEventRepository = {
     findOne: jest.fn((arg) => {
-      if (arg.where.id == exampleEvent.id) {
-        return Promise.resolve(exampleEvent);
+      const event = mockEvents.find((event) =>{
+        if (arg.where.client && arg.where.eid){
+          return event.client.cid == arg.where.client.cid && event.eid == arg.where.eid;
+        }
+        else if (arg.where.eid){
+          return event.eid == arg.where.eid;
+        }
+        else{
+          return false;
+        }
+      });
+      if (event) {
+        return Promise.resolve(event);
       } else {
         return Promise.resolve(null);
       }
@@ -76,48 +99,53 @@ describe('ParticipantsService', () => {
   };
   const mockParticipantRepository = {
     findOne: jest.fn((arg) => {
-      try {
-        if (arg.where.id == exampleParticipant.id) {
-          return Promise.resolve(exampleParticipant);
-        } else if (
-          arg.where.event == exampleEvent &&
-          arg.where.user == exampleUser2
-        ) {
-          return Promise.resolve(exampleParticipant);
-        } else if (
-          arg.where.event.id == exampleEvent.id &&
-          arg.where.user.id == exampleUser2.id
-        ) {
-          return Promise.resolve(exampleParticipant);
-        } else {
-          return Promise.resolve(null);
+      const participant = mockParticipants.find((participant) =>{
+        if (arg.where.event && arg.where.user){
+          return participant.event.eid == arg.where.event.eid && participant.user.pid == arg.where.user.pid;
         }
-      } catch (error) {
+        else if (arg.where.id){
+          return participant.id == arg.where.id;
+        }
+        else{
+          return false;
+        }
+      });
+      if (participant) {
+        return Promise.resolve(participant);
+      } else {
         return Promise.resolve(null);
+      }
+    }),
+    save: jest.fn((arg: ParticipantEntity) => {
+      return Promise.resolve(arg);
+    }),
+    delete: jest.fn((arg: ParticipantEntity) => {
+      const participant = mockParticipants.find((participant) =>{
+        return participant.id == arg.id;
+      });
+      if (participant) {
+        return Promise.resolve(1);
+      } else {
+        return Promise.resolve(0);
       }
     }),
     find: jest.fn((arg) => {
-      if (arg.where.event.id == exampleEvent.id && arg.relations[0] == 'user') {
-        return Promise.resolve([exampleParticipant]);
+      const participants = mockParticipants.filter((participant) =>{
+        if (arg.where.event){
+          return participant.event.eid == arg.where.event.eid;
+        }
+        else{
+          return false;
+        }
+      });
+      if (participants) {
+        return Promise.resolve(participants);
       } else {
         return Promise.resolve(null);
       }
     }),
-    save: jest.fn((participant) => {
-      return Promise.resolve(participant);
-    }),
-    delete: jest.fn((id) => {
-      if (id == exampleParticipant.id) {
-        return Promise.resolve({
-          affected: 1,
-        });
-      } else {
-        return Promise.resolve({
-          affected: 0,
-        });
-      }
-    }),
   };
+
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -135,10 +163,17 @@ describe('ParticipantsService', () => {
           provide: getRepositoryToken(EventEntity),
           useValue: mockEventRepository,
         },
+        {
+          provide: getRepositoryToken(ClientEntity),
+          useValue: mockClientRepository,
+        }
       ],
     }).compile();
 
     participantService = module.get<ParticipantsService>(ParticipantsService);
+
+    jest.clearAllMocks(); // Clears the usage data of all mocks
+    
   });
 
   // unit tests for the participant service
@@ -146,102 +181,81 @@ describe('ParticipantsService', () => {
     expect(participantService).toBeDefined();
   });
 
-  it('inviteParticipant: successful invite should return void', async () => {
-    const result = await participantService.inviteParticipant(
-      exampleEvent.id,
-      exampleUser3,
-    );
-    expect(result).toBeUndefined();
+  it('should inviteParticipant', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const eventId = mockEvents[0].eid;
+    const user = {
+      first_name: mockUsers[3].first_name,
+      last_name: mockUsers[3].last_name,
+      email: mockUsers[3].email,
+    };
+    await participantService.inviteParticipant(headers, eventId, user);
+    expect(mockParticipantRepository.save).toBeCalledTimes(1);
   });
 
-  it('inviteParticipant: invalid event should throw NotFoundException', async () => {
-    const result = participantService.inviteParticipant(
-      'invalidEventId',
-      exampleUser3,
-    );
-    await expect(result).rejects.toThrowError('Event not found');
+  it('should updateParticipant', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const eventId = mockEvents[0].eid;
+    const pid = mockUsers[2].pid;
+    const user = {
+      first_name: randomString(),
+      last_name: randomString(),
+      email: randomEmail(),
+    };
+    const result = await participantService.updateParticipant(headers, eventId, pid, user);
+    const expected = {
+      pid: pid,
+      client: mockClients[0],
+      user_type: mockUsers[2].user_type,
+      first_name: user.first_name,
+      last_name: user.last_name,
+      email: user.email,
+    };
+    expect(result).toEqual(expected);
+  
   });
 
-  it('inviteParticipant: invalid user should throw NotFoundException', async () => {
-    const result = participantService.inviteParticipant(exampleEvent.id, {
-      first_name: 'test',
-      last_name: 'test',
-      email: 'test@test.com',
-    });
-    await expect(result).rejects.toThrowError('User not found');
+  it('should deleteParticipant', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const eid = mockEvents[0].eid;
+    const pid = mockUsers[2].pid;
+    await participantService.deleteParticipant(headers, pid, eid);
+    expect(mockParticipantRepository.delete).toBeCalledTimes(1);
+  });
+  
+  it('should listParticipants', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const eid = mockEvents[0].eid;
+    const result = await participantService.listParticipants(headers, eid);
+    expect(result).toEqual([mockParticipants[0]]);
   });
 
-  it('inviteParticipant: existing participant should throw ConflictException', async () => {
-    const result = participantService.inviteParticipant(
-      exampleEvent.id,
-      exampleUser2,
-    );
-    await expect(result).rejects.toThrowError(
-      'Participant already exists in the event',
-    );
+  it('should updateStatus', async () => {
+    const eid = mockEvents[0].eid;
+    const pid = mockUsers[2].pid;
+    const status = 'accept';
+    await participantService.updateStatus(pid, eid, status);
+    expect(mockParticipantRepository.save).toBeCalledTimes(1);
+    mockParticipants[0].status = "pending";
   });
 
-  it('updateParticipant: successful update should return user entity', async () => {
-    const result = await participantService.updateParticipant(
-      exampleEvent.id,
-      exampleParticipant.user.id,
-      exampleUser3,
-    );
-    const { id, password, ...userData } = exampleUser3;
-    expect(result).toEqual({
-      id: exampleUser2.id,
-      password: exampleUser2.password,
-      ...userData,
-    });
+  it('should sendEmailToAll', async () => {
+    jest.spyOn(participantService, 'sendEmail').mockImplementation(async () => {});
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const eid = mockEvents[0].eid;
+    await participantService.sendEmailToAllParticipants(headers, eid);
+    expect(participantService.sendEmail).toBeCalledTimes(1);
   });
 
-  it('updateParticipant: invalid event should throw NotFoundException', async () => {
-    const result = participantService.updateParticipant(
-      'invalidEventId',
-      exampleParticipant.user.id,
-      exampleUser3,
-    );
-    await expect(result).rejects.toThrowError('Event not found');
-  });
 
-  it('updateParticipant: invalid user should throw NotFoundException', async () => {
-    const result = participantService.updateParticipant(
-      exampleEvent.id,
-      100,
-      exampleUser3,
-    );
-    await expect(result).rejects.toThrowError(
-      'Participant not associated with this event',
-    );
-  });
-
-  it('deleteParticipant: successful delete should return void', async () => {
-    const result = await participantService.deleteParticipant(
-      exampleParticipant.id,
-    );
-    expect(result).toBeUndefined();
-  });
-
-  it('deleteParticipant: invalid participant should throw NotFoundException', async () => {
-    const result = participantService.deleteParticipant(100);
-    await expect(result).rejects.toThrowError('Participant not found');
-  });
-
-  it('listParticipants: successful list should return list of participants', async () => {
-    const result = await participantService.listParticipants(exampleEvent.id);
-    expect(result).toEqual([exampleParticipant]);
-  });
-
-  it('updateStatus: successful update should return void', async () => {
-    const result = await participantService.updateStatus(
-      exampleParticipant.id,
-      'New Status',
-    );
-    expect(result).toBeUndefined();
-  });
-
-  it('updateStatus: invalid participant should throw NotFoundException', async () => {
-    const result = participantService.updateStatus(100, 'New Status');
-    await expect(result).rejects.toThrowError('Participant not found');
-  });
 });

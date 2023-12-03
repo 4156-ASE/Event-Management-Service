@@ -47,7 +47,7 @@ export class ParticipantsController {
   @Patch(':event_id/:pid')
   async updateParticipantDetails(
     @Headers() headers: any,
-    @Param('event_id') eventId: string, // Extract event id from URL
+    @Param('eventId') eventId: string, // Extract event id from URL
     @Param('pid') pid: string, // Extract participant id from URL.
     @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from request body
   ) {
@@ -79,11 +79,11 @@ export class ParticipantsController {
 
   // Delete a participant
   @Delete(':pid')
-  async deleteParticipant(@Headers() headers, @Param('pid') pid: string) {
+  async deleteParticipant(@Headers() headers, @Param('pid') pid: string, @Param('eventId') eid: string) {
     // Extract 'pid' from URL
     try {
       // Use the service method to delete the participant
-      await this.participantsService.deleteParticipant(headers, pid);
+      await this.participantsService.deleteParticipant(headers, pid, eid);
       return { message: 'Participant deleted successfully' };
     } catch (e) {
       // Handle exceptions

@@ -151,10 +151,12 @@ describe('ParticipantsController', () => {
       authorization: mockClients[0].client_token,
     };
     const pid = mockParticipants[0].user.pid;
-    await participantController.deleteParticipant(headers, pid);
+    const eid = mockParticipants[0].event.eid;
+    await participantController.deleteParticipant(headers, pid, eid);
     expect(mockParticipantsService.deleteParticipant).toHaveBeenCalledWith(
       headers,
       pid,
+      eid
     );
   });
 
