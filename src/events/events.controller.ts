@@ -9,7 +9,6 @@ import {
   HttpStatus,
   Headers,
 } from '@nestjs/common';
-import { from, Observable } from 'rxjs';
 import { EventsService } from './events.service';
 import { EventInterface } from './models/event.interface';
 import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';

@@ -5,45 +5,53 @@ import { EventEntity } from './models/event.entity';
 import { NotFoundException } from '@nestjs/common';
 import { EventInterface } from './models/event.interface';
 import { UserEntity } from '../../src/users/models/user.entity';
+import { ClientEntity } from 'src/users/models/client.entity';
 
 describe('EventsService', () => {
   let service: EventsService;
+  const mockUsers = [
+    {
+      pid: '1',
+      cid: '1',
+      first_name: 'andrew',
+      last_name: 'rockefeller',
+      email: 'andrew@gmail.com',
+    },
+  ];
   const mockEvents = [
     {
-      id: '1',
+      eid: '1',
+      cid: '1',
       title: 'mock birthday',
       desc: 'mock event for testing',
       start_time: new Date('December 17, 2023 03:24:00'),
       end_time: new Date('December 17, 2023 04:24:00'),
       location: 'columbia',
-      host: 1,
+      host: mockUsers[0],
     },
     {
-      id: '2',
+      eid: '2',
+      cid: '1',
       title: 'mock celebration',
       desc: 'mock event for testing',
       start_time: new Date('October 20, 2023 10:00:00'),
       end_time: new Date('October 20, 2023 12:00:00'),
       location: 'nyu',
-      host: 1,
+      host: mockUsers[0],
     },
   ];
-  const mockUsers = [
-    {
-      id: 1,
-      first_name: 'andrew',
-      last_name: 'rockefeller',
-      email: 'andrew@gmail.com',
-      password: '123456',
-    },
-  ];
+  const mockClient = {
+    cid: '1',
+    client_token: 'token',
+    admin_email: 'admin@example.com',
+  };
   const mockEventsRepository = {
     find: jest.fn().mockImplementation((arg) => {
       if (arg == undefined) {
         return Promise.resolve(mockEvents);
       } else {
         for (const item of mockEvents) {
-          if (item.id == arg.where.id) {
+          if (item.eid == arg.where.id) {
             return Promise.resolve([item]);
           }
         }

@@ -8,7 +8,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventEntity } from './models/event.entity';
 import { EventInterface } from './models/event.interface';
-import { from, Observable } from 'rxjs';
 import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
 import { UserEntity } from 'src/users/models/user.entity';
 import { ClientEntity } from 'src/users/models/client.entity';
@@ -230,6 +229,6 @@ export class EventsService {
       );
     }
 
-    const result = await this.eventRepository.delete(eventID);
+    await this.eventRepository.delete(eventID);
   }
 }

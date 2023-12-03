@@ -8,27 +8,35 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('UsersService', () => {
   let userService: UsersService;
+  const mockClient = {
+    cid: '1',
+    client_token: 'token',
+    admin_email: 'admin@example.com',
+  };
   const mockUsers: UserEntity[] = [
     {
-      id: 1,
+      pid: '1',
+      client: mockClient,
       first_name: 'andrew',
       last_name: 'rockefeller',
       email: 'andrew@gmail.com',
-      password: '123456',
+      user_type: 'admin' as 'admin' | 'regular',
     },
     {
-      id: 2,
+      pid: '2',
+      client: mockClient,
       first_name: 'bob',
       last_name: 'burman',
       email: 'bob@gmail.com',
-      password: '123456',
+      user_type: 'admin' as 'admin' | 'regular',
     },
     {
-      id: 3,
+      pid: '3',
+      client: mockClient,
       first_name: 'charlie',
       last_name: 'chaplin',
       email: 'test3@email.com',
-      password: '123456',
+      user_type: 'admin' as 'admin' | 'regular',
     },
   ];
   const mockUserRepository = {
@@ -42,7 +50,7 @@ describe('UsersService', () => {
         }
       } else if (arg.where.id) {
         for (const item of mockUsers) {
-          if (item.id == arg.where.id) {
+          if (item.pid == arg.where.id) {
             return Promise.resolve(item);
           }
         }
@@ -52,7 +60,7 @@ describe('UsersService', () => {
     save: jest.fn().mockImplementation((user) => {
       if (user.id) {
         for (const item of mockUsers) {
-          if (item.id == user.id) {
+          if (item.pid == user.id) {
             Object.assign(item, user);
             return Promise.resolve(item);
           }
@@ -76,7 +84,7 @@ describe('UsersService', () => {
         }
       } else if (arg.where.id) {
         for (const item of mockUsers) {
-          if (item.id == arg.where.id) {
+          if (item.pid == arg.where.id) {
             return Promise.resolve(item);
           }
         }
@@ -85,7 +93,7 @@ describe('UsersService', () => {
     }),
     update: jest.fn().mockImplementation((id, user) => {
       for (const item of mockUsers) {
-        if (item.id == id) {
+        if (item.pid == id) {
           Object.assign(item, user);
           return Promise.resolve(item);
         }
@@ -94,7 +102,7 @@ describe('UsersService', () => {
     }),
     delete: jest.fn().mockImplementation((id) => {
       for (let i = 0; i < mockUsers.length; i++) {
-        if (mockUsers[i].id === id) {
+        if (mockUsers[i].pid === id) {
           mockUsers.splice(i, 1);
           return Promise.resolve({ raw: [], affected: 1 });
         }
@@ -125,17 +133,16 @@ describe('UsersService', () => {
       first_name: 'test',
       last_name: 'test',
       email: 'new@email.com',
-      password: '123456',
+      user_type: 'admin' as 'admin' | 'regular',
     };
-    await expect(userService.register(newUser)).resolves.toEqual({
-      id: mockUsers.length + 1,
+    await expect(userService.register(newUser, 'token')).resolves.toContain({
       ...newUser,
     });
   });
 
   it('register: existing user', async () => {
-    const { id, ...user } = mockUsers[0];
-    await expect(userService.register(user)).rejects.toThrow(
+    const { pid, ...user } = mockUsers[0];
+    await expect(userService.register(user, 'token')).rejects.toThrow(
       new HttpException(
         'User with this email already exists',
         HttpStatus.CONFLICT,
@@ -143,82 +150,52 @@ describe('UsersService', () => {
     );
   });
 
-  it('login: correct email and password', async () => {
-    const { password, ...user } = mockUsers[0];
-    await expect(userService.login(user.email, password)).resolves.toEqual({
-      status: 'success',
-      message: 'Logged in successfully',
-      data: {
-        user: user,
-        token: 'alnlgsnsoajg',
-        expires_in: 3600,
-      },
-    });
-  });
-
-  it('login: incorrect email', async () => {
-    const { password, ...user } = mockUsers[0];
-    await expect(
-      userService.login('incorrect@email.com', password),
-    ).rejects.toThrow(
-      new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED),
-    );
-  });
-
-  it('login: incorrect password', async () => {
-    const { password, ...user } = mockUsers[0];
-    await expect(
-      userService.login(user.email, 'incorrectpassword'),
-    ).rejects.toThrow(
-      new HttpException('Invalid email or password', HttpStatus.UNAUTHORIZED),
-    );
-  });
-
   it('getUser: existing user', async () => {
-    const { password, ...user } = mockUsers[0];
-    await expect(userService.getUser(user.id)).resolves.toEqual(mockUsers[0]);
+    await expect(
+      userService.getUser(mockUsers[0].pid, 'token'),
+    ).resolves.toEqual(mockUsers[0]);
   });
 
   it('getUser: non-existing user', async () => {
-    await expect(userService.getUser(100)).rejects.toThrow(
+    await expect(userService.getUser('100', 'token')).rejects.toThrow(
       new HttpException('User not found', HttpStatus.NOT_FOUND),
     );
   });
 
   it('updateUser: existing user', async () => {
-    const { id, ...user } = mockUsers[0];
     const updatedUser = {
       first_name: 'updated',
       last_name: 'updated',
       email: 'new@email.com',
-      password: '123456',
     };
-    await expect(userService.updateUser(id, updatedUser)).resolves.toEqual({
-      id: id,
+    await expect(
+      userService.updateUser(mockUsers[0].pid, updatedUser, 'token'),
+    ).resolves.toContain({
       ...updatedUser,
     });
   });
 
   it('updateUser: non-existing user', async () => {
-    const { id, ...user } = mockUsers[0];
     const updatedUser = {
       first_name: 'updated',
       last_name: 'updated',
       email: 'new@email.com',
-      password: '123456',
     };
-    await expect(userService.updateUser(10, updatedUser)).rejects.toThrow(
+    await expect(
+      userService.updateUser('100', updatedUser, 'token'),
+    ).rejects.toThrow(
       new HttpException('User not found', HttpStatus.NOT_FOUND),
     );
   });
 
   it('deleteUser: existing user', async () => {
-    const { id, ...user } = mockUsers[0];
-    await expect(userService.deleteUser(id)).resolves.toEqual(true);
+    await expect(
+      userService.deleteUser(mockUsers[0].pid, 'token'),
+    ).resolves.toEqual(true);
   });
 
   it('deleteUser: non-existing user', async () => {
-    await expect(userService.deleteUser(10)).rejects.toThrow(
+    await expect(userService.deleteUser('100', 'token')).rejects.toThrow(
       new HttpException('User not found', HttpStatus.NOT_FOUND),
     );
   });
