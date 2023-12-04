@@ -53,7 +53,7 @@ export class AuthService {
       throw new ConflictException('Existed access id');
     }
 
-    client = await this.clientsService.create({
+    client = await this.clientsService.save({
       access_id: values.access_id,
       access_secret: values.access_secret,
     });

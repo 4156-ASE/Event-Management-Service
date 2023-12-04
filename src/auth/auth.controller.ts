@@ -14,7 +14,7 @@ export class AuthController {
   }
 
   @Public()
-  @Post('signup')
+  @Post('register')
   async signUp(@Body() values: SignUpDTO) {
     return this.authService.signUp(values);
   }

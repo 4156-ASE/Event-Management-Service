@@ -24,7 +24,7 @@ export class ClientsService {
   }
 
   /** create a client */
-  async create(values: ClientCreateProps) {
+  async save(values: ClientCreateProps) {
     const hash = await bcrypt.hash(values.access_secret, saltOrRounds);
 
     const client = await this.clientRepository.findOne({
@@ -37,7 +37,7 @@ export class ClientsService {
       throw new BadRequestException('Exist a client with same access id');
     }
 
-    return this.clientRepository.create({
+    return await this.clientRepository.save({
       access_id: values.access_id,
       access_secret: hash,
     });
