@@ -61,6 +61,7 @@ describe('ParticipantsController', () => {
     ),
     updateParticipant: jest.fn(
       (
+        headers: any,
         eventId: string,
         pid: number,
         user: { first_name: string; last_name: string; email: string },
@@ -80,7 +81,7 @@ describe('ParticipantsController', () => {
         ]);
       },
     ),
-    updateStatus: jest.fn((pid: number, status: string): Promise<void> => {
+    updateStatus: jest.fn((pid: number, eventID: string, status: string): Promise<void> => {
       return Promise.resolve();
     }),
     sendEmailToAllParticipants: jest.fn((eventId: string): Promise<void> => {
@@ -205,7 +206,8 @@ describe('ParticipantsController', () => {
     );
   });
 
-  it('should throw an error if not found', async () => {
+  // Error handling
+  it('inviteParticipant: should throw an error if not found', async () => {
     const headers = {
       authorization: mockClients[0].client_token,
     };
@@ -225,7 +227,7 @@ describe('ParticipantsController', () => {
     ).rejects.toThrow(new NotFoundException('Event not found'));
   });
 
-  it('should throw an error if failed to invite', async () => {
+  it('inviteParticipant: should throw an error if failed to invite', async () => {
     const headers = {
       authorization: mockClients[0].client_token,
     };
@@ -246,5 +248,157 @@ describe('ParticipantsController', () => {
       new InternalServerErrorException('Failed to invite the participant'),
     );
   });
+
+  it('updateParticipantDetails: should throw an error if not found', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const pid = mockParticipants[0].user.pid;
+    const eventId = mockParticipants[0].event.eid;
+    const user = {
+      first_name: mockUsers[0].first_name,
+      last_name: mockUsers[0].last_name,
+      email: mockUsers[0].email,
+    };
+    mockParticipantsService.updateParticipant = jest.fn(
+      (
+        headers: any,
+        eventId: string,
+        pid: number,
+        user: { first_name: string; last_name: string; email: string },
+      ): Promise<UserEntity> => {
+        throw new NotFoundException(`Participant not found`);
+      },
+    );
+    await expect(
+      participantController.updateParticipantDetails(headers, eventId, pid, user),
+    ).rejects.toThrow(new NotFoundException('Participant not found'));
+  });
+
+  it('updateParticipantDetails: should throw an error if failed to update', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const pid = mockParticipants[0].user.pid;
+    const eventId = mockParticipants[0].event.eid;
+    const user = {
+      first_name: mockUsers[0].first_name,
+      last_name: mockUsers[0].last_name,
+      email: mockUsers[0].email,
+    };
+    mockParticipantsService.updateParticipant = jest.fn(
+      (
+        headers: any,
+        eventId: string,
+        pid: number,
+        user: { first_name: string; last_name: string; email: string },
+      ): Promise<UserEntity> => {
+        throw new ConflictException('Participant already exists in the event')
+      },
+    );
+    await expect(
+      participantController.updateParticipantDetails(headers, eventId, pid, user),
+    ).rejects.toThrow(
+      new InternalServerErrorException('Failed to update the participant'),
+    );
+  });
+
+  it('deleteParticipant: should throw an error if not found', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const pid = mockParticipants[0].user.pid;
+    const eventId = mockParticipants[0].event.eid;
+    mockParticipantsService.deleteParticipant = jest.fn(
+      (headers: any, pid: number): Promise<void> => {
+        throw new NotFoundException(`Participant not found`);
+      },
+    );
+    await expect(
+      participantController.deleteParticipant(headers, pid, eventId),
+    ).rejects.toThrow(new NotFoundException('Participant not found'));
+  });
+
+  it('deleteParticipant: should throw an error if failed to delete', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const pid = mockParticipants[0].user.pid;
+    const eventId = mockParticipants[0].event.eid;
+    mockParticipantsService.deleteParticipant = jest.fn(
+      (headers: any, pid: number): Promise<void> => {
+        throw new ConflictException('Participant already exists in the event')
+      },
+    );
+    await expect(
+      participantController.deleteParticipant(headers, pid, eventId),
+    ).rejects.toThrow(
+      new InternalServerErrorException('Failed to delete the participant'),
+    );
+  });
+
+  it('listParticipants: should throw an error if not found', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const eventId = mockEvents[0].eid;
+    mockParticipantsService.listParticipants = jest.fn(
+      (headers:any, eventId: string): Promise<ParticipantEntity[]> => {
+        throw new NotFoundException(`Event not found`);
+      },
+    );
+    await expect(
+      participantController.listParticipants(headers, eventId),
+    ).rejects.toThrow(new NotFoundException('Event not found'));
+  });
+
+  it('listParticipants: should throw an error if failed to list', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const eventId = mockEvents[0].eid;
+    mockParticipantsService.listParticipants = jest.fn(
+      (headers:any, eventId: string): Promise<ParticipantEntity[]> => {
+        throw new ConflictException('Participant already exists in the event')
+      },
+    );
+    await expect(
+      participantController.listParticipants(headers, eventId),
+    ).rejects.toThrow(
+      new InternalServerErrorException('Failed to fetch participants'),
+    );
+  });
+
+  it('updateParticipantStatus: should throw an error if not found', async () => {
+    const pid = mockParticipants[0].user.pid;
+    const eventId = mockParticipants[0].event.eid;
+    const status = 'accept';
+    mockParticipantsService.updateStatus = jest.fn(
+      (pid: number, eventId: string, status: string): Promise<void> => {
+        throw new NotFoundException(`Participant not found`);
+      },
+    );
+    await expect(
+      participantController.updateParticipantStatus(pid, status, eventId),
+    ).rejects.toThrow(new NotFoundException('Participant not found'));
+  });
+
+  it('updateParticipantStatus: should throw an error if failed to update', async () => {
+    const pid = mockParticipants[0].user.pid;
+    const eventId = mockParticipants[0].event.eid;
+    const status = 'accept';
+    mockParticipantsService.updateStatus = jest.fn(
+      (pid: number, eventId: string, status: string): Promise<void> => {
+        throw new ConflictException('Participant already exists in the event')
+      },
+    );
+    await expect(
+      participantController.updateParticipantStatus(pid, status, eventId),
+    ).rejects.toThrow(
+      new InternalServerErrorException('Failed to update the status'),
+    );
+  });
+
+
   
 });

@@ -50,6 +50,10 @@ export class ParticipantsService {
       where: { client_token: clientToken },
     });
 
+    if (!client) {
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
+    }
+
     // Retrieve the event from the database
     const event = await this.eventRepository.findOne({
       where: { eid: eventId, client: { cid: client.cid } },
@@ -150,9 +154,9 @@ export class ParticipantsService {
     });
 
     // Throw an exception if the user is not found
-    if (!foundUser) {
-      throw new NotFoundException('User not found');
-    }
+    // if (!foundUser) {
+    //   throw new NotFoundException('User not found');
+    // }
 
     // Update the user's details
     foundUser.first_name = user.first_name;
@@ -186,11 +190,12 @@ export class ParticipantsService {
         event: { eid: eid, client: { cid: client.cid } },
       },
     });
-    const result = await this.participantRepository.delete(participant);
+    await this.participantRepository.delete(participant);
     // Throw an exception if no rows were affected
-    if (result.affected === 0) {
-      throw new NotFoundException('Participant not found');
-    }
+    // console.log("delete:", result.affected);
+    // if (result.affected === 0) {
+    //   throw new NotFoundException('Participant not found');
+    // }
   }
 
   // Retrieve a list of participants for a given event
