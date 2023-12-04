@@ -353,8 +353,7 @@ describe('ParticipantController (e2e)', () => {
         email: 'alison@gmail.com',
       })
       .expect('Content-Type', /json/)
-      .expect(200)
-      .expect({});
+      .expect(404);
   });
   it('/participants/:id (PATCH) update fail cannot find event', () => {
     return request(app.getHttpServer())
@@ -385,7 +384,7 @@ describe('ParticipantController (e2e)', () => {
       .expect('Content-Type', /json/)
       .expect(404)
       .expect({
-        message: 'Participant not associated with this event',
+        message: 'Event not found',
         error: 'Not Found',
         statusCode: 404,
       });
@@ -402,7 +401,7 @@ describe('ParticipantController (e2e)', () => {
       .expect('Content-Type', /json/)
       .expect(404)
       .expect({
-        message: 'Participant not associated with this event',
+        message: 'Event not found',
         error: 'Not Found',
         statusCode: 404,
       });

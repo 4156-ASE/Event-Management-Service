@@ -231,11 +231,11 @@ describe('EventsController (e2e)', () => {
         host: '100',
       })
       .expect('Content-Type', /json/)
-      .expect(400)
+      .expect(404)
       .then((response) => {
         expect(response.body).toEqual({
           message: 'Host not found in user database',
-          statusCode: 400,
+          statusCode: 404,
         });
       });
   });
