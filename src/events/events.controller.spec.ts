@@ -67,7 +67,7 @@ describe('EventsController', () => {
   });
 
   it('should get all events', () => {
-    expect(eventsController.getAllEvents()).toStrictEqual({
+    expect(eventsController.getEvents()).toStrictEqual({
       message: 'all events listed',
     });
   });

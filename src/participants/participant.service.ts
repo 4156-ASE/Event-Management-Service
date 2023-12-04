@@ -34,52 +34,52 @@ export class ParticipantsService {
     user: { first_name: string; last_name: string; email: string },
   ): Promise<void> {
     // Retrieve the event from the database
-    const event = await this.eventRepository.findOne({
-      where: { eid: eventId, client: { cid } },
-    });
+    // const event = await this.eventRepository.findOne({
+    //   where: { eid: eventId, client: { cid } },
+    // });
 
-    // Throw an exception if the event is not found
-    if (!event) {
-      throw new NotFoundException(`Event not found`);
-    }
+    // // Throw an exception if the event is not found
+    // if (!event) {
+    //   throw new NotFoundException(`Event not found`);
+    // }
 
-    // Check if the user with the provided email exists
-    const foundUser = await this.userRepository.findOne({
-      where: { email: user.email, client: { cid } },
-    });
+    // // Check if the user with the provided email exists
+    // const foundUser = await this.userRepository.findOne({
+    //   where: { email: user.email, client: { cid } },
+    // });
 
-    // Throw an exception if the user is not found
-    if (!foundUser) {
-      throw new NotFoundException('User not found');
-    }
+    // // Throw an exception if the user is not found
+    // if (!foundUser) {
+    //   throw new NotFoundException('User not found');
+    // }
 
-    // Check if the user is already a participant for the event
-    const existingParticipant = await this.participantRepository.findOne({
-      where: {
-        event: event,
-        user: foundUser,
-      },
-    });
+    // // Check if the user is already a participant for the event
+    // const existingParticipant = await this.participantRepository.findOne({
+    //   where: {
+    //     event: event,
+    //     user: foundUser,
+    //   },
+    // });
 
-    // Throw a conflict exception if the user is already a participant
-    if (existingParticipant) {
-      throw new ConflictException('Participant already exists in the event');
-    }
+    // // Throw a conflict exception if the user is already a participant
+    // if (existingParticipant) {
+    //   throw new ConflictException('Participant already exists in the event');
+    // }
 
-    // Create a new participant and associate it with the user and event
-    const newParticipant = new ParticipantEntity();
-    newParticipant.event = event;
-    newParticipant.user = foundUser;
-    newParticipant.status = 'pending';
+    // // Create a new participant and associate it with the user and event
+    // const newParticipant = new ParticipantEntity();
+    // newParticipant.event = event;
+    // newParticipant.user = foundUser;
+    // newParticipant.status = 'pending';
 
-    // Save the new participant to the database
-    try {
-      await this.participantRepository.save(newParticipant);
-    } catch (e) {
-      throw new InternalServerErrorException(
-        'Failed to invite the participant',
-      );
-    }
+    // // Save the new participant to the database
+    // try {
+    //   await this.participantRepository.save(newParticipant);
+    // } catch (e) {
+    //   throw new InternalServerErrorException(
+    //     'Failed to invite the participant',
+    //   );
+    // }
   }
 
   // Update details of an existing participant
@@ -133,16 +133,16 @@ export class ParticipantsService {
 
   // Delete a participant
   async deleteParticipant(cid: string, pid: string): Promise<void> {
-    const participant = await this.participantRepository.findOne({
-      where: {
-        user: { pid: pid, client: { cid } },
-      },
-    });
-    const result = await this.participantRepository.delete(participant);
-    // Throw an exception if no rows were affected
-    if (result.affected === 0) {
-      throw new NotFoundException('Participant not found');
-    }
+    // const participant = await this.participantRepository.findOne({
+    //   where: {
+    //     user: { pid: pid, client: { cid } },
+    //   },
+    // });
+    // const result = await this.participantRepository.delete(participant);
+    // // Throw an exception if no rows were affected
+    // if (result.affected === 0) {
+    //   throw new NotFoundException('Participant not found');
+    // }
   }
 
   // Retrieve a list of participants for a given event

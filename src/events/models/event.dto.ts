@@ -41,6 +41,8 @@ export class EventDetail {
 
   host: string;
 
+  participants: string[];
+
   /** client cid */
   cid: string;
 }
