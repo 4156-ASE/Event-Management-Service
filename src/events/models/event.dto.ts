@@ -1,6 +1,6 @@
 import { IsNotEmpty, IsString, IsDateString } from 'class-validator';
 
-export class CreateEventDTO {
+export class EventCreateReq {
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -11,11 +11,11 @@ export class CreateEventDTO {
 
   @IsNotEmpty()
   @IsDateString()
-  start_time: Date;
+  start_time: string;
 
   @IsNotEmpty()
   @IsDateString()
-  end_time: Date;
+  end_time: string;
 
   @IsNotEmpty()
   @IsString()
@@ -23,6 +23,26 @@ export class CreateEventDTO {
 
   @IsNotEmpty()
   host: string;
+}
+
+/** Event detail for backend */
+export class EventDetail {
+  id: string;
+
+  title: string;
+
+  desc: string;
+
+  start_time: string;
+
+  end_time: string;
+
+  location: string;
+
+  host: string;
+
+  /** client cid */
+  cid: string;
 }
 
 export class UpdateEventDTO {

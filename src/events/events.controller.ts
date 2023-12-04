@@ -8,10 +8,12 @@ import {
   Delete,
   HttpStatus,
   Headers,
+  Req,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { EventInterface } from './models/event.interface';
-import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
+import { EventCreateReq, EventDetail, UpdateEventDTO } from './models/event.dto';
+import { Request } from 'express';
 
 /**
  * The event controller which will handle the event relevant operations.
@@ -22,38 +24,36 @@ export class EventsController {
 
   /**
    * Create a event.
-   * @param {CreateEventDTO} event The information of the event that need to be created.
-   * @returns {Promise<EventInterface>} Return the content of the event object.
    */
   @Post()
   async createEvent(
-    @Headers() headers: any,
-    @Body() event: CreateEventDTO,
-  ): Promise<EventInterface> {
-    return this.eventsService.insertEvent(headers, event);
+    @Req() req: Request,
+    @Body() body: EventCreateReq,
+  ): Promise<EventDetail> {
+    return await this.eventsService.insertEvent(req.client.cid, body);
   }
 
   /**
    * Get all the events.
    * @returns {Promise<EventInterface[]>} The information of all the events.
    */
-  @Get()
-  async getAllEvents(@Headers() headers): Promise<EventInterface[]> {
-    return await this.eventsService.getEvents(headers);
-  }
+  // @Get()
+  // async getAllEvents(@Headers() headers): Promise<EventInterface[]> {
+  //   return await this.eventsService.getEvents(headers);
+  // }
 
   /**
    * Get a event by EventID.
    * @param {string} eventId The event ID.
    * @returns {Promise<EventInterface>} The information of the target event.
    */
-  @Get(':id')
-  async getEvent(
-    @Headers() headers,
-    @Param('id') eventId: string,
-  ): Promise<EventInterface> {
-    return await this.eventsService.getEvent(headers, eventId);
-  }
+  // @Get(':id')
+  // async getEvent(
+  //   @Headers() headers,
+  //   @Param('id') eventId: string,
+  // ): Promise<EventInterface> {
+  //   return await this.eventsService.getEvent(headers, eventId);
+  // }
 
   /**
    * Update Event by EventID.

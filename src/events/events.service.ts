@@ -8,7 +8,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { EventEntity } from './models/event.entity';
 import { EventInterface } from './models/event.interface';
-import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
+import { EventCreateReq, EventDetail, UpdateEventDTO } from './models/event.dto';
 import { UserEntity } from 'src/users/models/user.entity';
 
 /**
@@ -30,37 +30,39 @@ export class EventsService {
   /**
    * Insert a event into database.
    */
-  async insertEvent(cid: string, event: CreateEventDTO) {
-    // check if host exists
-    const user = await this.userRepository.findOne({
-      where: { pid: event.host },
+  async insertEvent(cid: string, data: EventCreateReq): Promise<EventDetail> {
+    const event = await this.eventRepository.save({
+      title: data.title,
+      desc: data.desc,
+      start_time: data.start_time,
+      end_time: data.end_time,
+      location: data.location,
+      host: data.host,
+      client: {
+        cid: cid,
+      },
     });
 
-    if (!user) {
-      throw new BadRequestException('Host not found in user database');
-    }
-
-    return await this.eventRepository.create({
+    return {
+      id: event.eid,
       title: event.title,
       desc: event.desc,
       start_time: event.start_time,
       end_time: event.end_time,
       location: event.location,
-      host: user,
-      client: {
-        cid: cid,
-      },
-    });
+      host: event.host,
+      cid: event.client.cid,
+    };
   }
 
   /**
    * Get all the events of a client based on client cid.
    */
-  async getEvents(cid: string): Promise<EventInterface[]> {
-    return await this.eventRepository.find({
-      where: { client: { cid } },
-    });
-  }
+  // async getEvents(cid: string): Promise<EventInterface[]> {
+  //   return await this.eventRepository.find({
+  //     where: { client: { cid } },
+  //   });
+  // }
 
   /**
    * Get a event by eventID.
