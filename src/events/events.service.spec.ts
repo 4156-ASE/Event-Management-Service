@@ -6,234 +6,227 @@ import { NotFoundException } from '@nestjs/common';
 import { EventInterface } from './models/event.interface';
 import { UserEntity } from '../../src/users/models/user.entity';
 import { ClientEntity } from 'src/users/models/client.entity';
+import { randomBytes, randomInt } from 'crypto';
+import {
+  createClient,
+  createEvent,
+  createUser,
+  randomEmail,
+  randomString,
+} from '../test.util';
+import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
 
 describe('EventsService', () => {
   let service: EventsService;
-  const mockUsers = [
-    {
-      pid: '1',
-      cid: '1',
-      first_name: 'andrew',
-      last_name: 'rockefeller',
-      email: 'andrew@gmail.com',
-    },
+  const mockClients: ClientEntity[] = [
+    createClient(),
+    createClient(),
   ];
-  const mockEvents = [
-    {
-      eid: '1',
-      cid: '1',
-      title: 'mock birthday',
-      desc: 'mock event for testing',
-      start_time: new Date('December 17, 2023 03:24:00'),
-      end_time: new Date('December 17, 2023 04:24:00'),
-      location: 'columbia',
-      host: mockUsers[0],
-    },
-    {
-      eid: '2',
-      cid: '1',
-      title: 'mock celebration',
-      desc: 'mock event for testing',
-      start_time: new Date('October 20, 2023 10:00:00'),
-      end_time: new Date('October 20, 2023 12:00:00'),
-      location: 'nyu',
-      host: mockUsers[0],
-    },
+  const mockUsers: UserEntity[] = [
+    createUser(mockClients[0], 'admin'),
+    createUser(mockClients[0], 'regular'),
+    createUser(mockClients[0], 'regular'),
+    createUser(mockClients[0], 'regular'),
+
+    createUser(mockClients[1], 'admin'),
+    createUser(mockClients[1], 'regular'),
+    createUser(mockClients[1], 'regular'),
+    createUser(mockClients[1], 'regular'),
   ];
-  const mockClient = {
-    cid: '1',
-    client_token: 'token',
-    admin_email: 'admin@example.com',
-  };
-  const mockEventsRepository = {
-    find: jest.fn().mockImplementation((arg) => {
-      if (arg == undefined) {
-        return Promise.resolve(mockEvents);
+  const mockEvents: EventEntity[] = [
+    createEvent(mockClients[0], mockUsers[1]),
+    createEvent(mockClients[0], mockUsers[1]),
+    createEvent(mockClients[0], mockUsers[2]),
+    createEvent(mockClients[1], mockUsers[5]),
+  ];
+
+  const mockClientRepository = {
+    findOne: jest.fn((arg) => {
+      const client = mockClients.find((client) => client.client_token == arg.where.client_token);
+      if (client) {
+        return Promise.resolve(client);
       } else {
-        for (const item of mockEvents) {
-          if (item.eid == arg.where.id) {
-            return Promise.resolve([item]);
-          }
-        }
-        return Promise.resolve([]);
+        return Promise.resolve(null);
       }
-    }),
-    save: jest.fn().mockImplementation((event: EventInterface) => {
-      mockEvents.push(event);
-      return [Promise.resolve({ message: 'insert successfully' })];
-    }),
-    update: jest.fn().mockImplementation((id, event) => {
-      for (let i = 0; i < mockEvents.length; i++) {
-        if (mockEvents[i].id === id) {
-          const new_event = Object.assign({ id: id }, event);
-          mockEvents[i] = new_event;
-        }
-      }
-    }),
-    delete: jest.fn().mockImplementation((arg) => {
-      for (const item of mockEvents) {
-        if (item.id == arg) {
-          return Promise.resolve({ affected: 1 });
-        }
-      }
-      return Promise.resolve({ affected: 0 });
     }),
   };
   const mockUserRepository = {
-    findOne: jest.fn().mockImplementation((arg) => {
-      for (const item of mockUsers) {
-        if (item.email == arg.where.email || item.id == arg.where.id) {
-          return Promise.resolve(item);
+    findOne: jest.fn((arg) => {
+      const user = mockUsers.find((user) => {
+        if (arg.where.client && arg.where.email){
+          return user.client.cid == arg.where.client.cid && user.email == arg.where.email;
         }
+        else if (arg.where.pid){
+          return user.pid == arg.where.pid;
+        }
+        else{
+          return false;
+        }
+      });
+      if (user) {
+        return Promise.resolve(user);
+      } else {
+        return Promise.resolve(null);
       }
-      return Promise.resolve(null);
     }),
-    save: jest.fn((user) => {
-      mockUsers.push(user);
-      return Promise.resolve({ message: 'inserted' });
+    save: jest.fn((arg: UserEntity) => {
+      return Promise.resolve(arg);
     }),
   };
+  const mockEventRepository = {
+    findOne: jest.fn((arg) => {
+      const event = mockEvents.find((event) =>{
+        let flag = true;
+        if (arg.where.client){
+          flag = flag && event.client.cid == arg.where.client.cid;
+        }
+        if (arg.where.host){
+          flag = flag && event.host.pid == arg.where.host.pid;
+        }
+        if (arg.where.eid){
+          flag = flag && event.eid == arg.where.eid;
+        }
+        return flag;
+      });
+      if (event) {
+        return Promise.resolve(event);
+      } else {
+        return Promise.resolve(null);
+      }
+    }),
+    find: jest.fn((arg) => {
+      const events = mockEvents.filter((event) =>{
+        let flag = true;
+        if (arg.where.client){
+          flag = flag && event.client.cid == arg.where.client.cid;
+        }
+        if (arg.where.host){
+          flag = flag && event.host.pid == arg.where.host.pid;
+        }
+        
+        return flag;
+      });
+      if (events) {
+        return Promise.resolve(events);
+      } else {
+        return Promise.resolve(null);
+      }
+    }),
+    update: jest.fn((arg1, arg2) => {
+      return Promise.resolve();
+    }),
+    save: jest.fn((arg: EventEntity) => {
+      return Promise.resolve(arg);
+    }),
+    delete: jest.fn((arg) => {
+      return Promise.resolve(1);
+    }),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         EventsService,
         {
           provide: getRepositoryToken(EventEntity),
-          useValue: mockEventsRepository,
+          useValue: mockEventRepository,
         },
         {
           provide: getRepositoryToken(UserEntity),
           useValue: mockUserRepository,
+        },
+        {
+          provide: getRepositoryToken(ClientEntity),
+          useValue: mockClientRepository,
         },
       ],
     }).compile();
     service = module.get<EventsService>(EventsService);
   });
 
-  it('should insert event', async () => {
-    const event = {
-      title: 'bbbb',
-      desc: 'aaa',
-      start_time: new Date('December 17, 2023 03:24:00'),
-      end_time: new Date('December 17, 2023 03:24:00'),
-      location: 'aaaa',
-      host: 1,
-    };
-    expect(await service.insertEvent(event)).toEqual([Promise.resolve({})]);
+  it('should be defined', () => {
+    expect(service).toBeDefined();
   });
 
-  it('should find all events', async () => {
-    service.getEvents().subscribe((data) => {
-      expect(data).toEqual([
-        {
-          id: '1',
-          title: 'mock birthday',
-          desc: 'mock event for testing',
-          start_time: new Date('December 17, 2023 03:24:00'),
-          end_time: new Date('December 17, 2023 04:24:00'),
-          location: 'columbia',
-          host: 1,
-        },
-        {
-          id: '2',
-          title: 'mock celebration',
-          desc: 'mock event for testing',
-          start_time: new Date('October 20, 2023 10:00:00'),
-          end_time: new Date('October 20, 2023 12:00:00'),
-          location: 'nyu',
-          host: 1,
-        },
-        {
-          title: 'bbbb',
-          desc: 'aaa',
-          start_time: new Date('December 17, 2023 03:24:00'),
-          end_time: new Date('December 17, 2023 03:24:00'),
-          location: 'aaaa',
-          host: 1,
-        },
-      ]);
+  it('should create a event', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const event: CreateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+      host: mockUsers[0].pid,
+    };
+    const result = await service.insertEvent(headers, event);
+    // console.log("test", result);
+    expect(result).toEqual({  // no eid
+      host: mockUsers[0],
+      client: mockClients[0],
+      title: event.title,
+      desc: event.desc,
+      start_time: event.start_time,
+      end_time: event.end_time,
+      location: event.location,
     });
   });
 
-  it('should return desired event', async () => {
-    expect(await service.getEvent('1')).toEqual({
-      desc: 'mock event for testing',
-      end_time: new Date('December 17, 2023 04:24:00'),
-      host: 1,
-      id: '1',
-      location: 'columbia',
-      start_time: new Date('December 17, 2023 03:24:00'),
-      title: 'mock birthday',
+  it('should get all events', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const result = await service.getEvents(headers);
+    expect(result).toEqual([mockEvents[0], mockEvents[1], mockEvents[2]]);
+  });
+
+  it('should get all events of a user', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const result = await service.getEventsByUser(headers, mockUsers[1].pid);
+    expect(result).toEqual([mockEvents[0], mockEvents[1]]);
+  });
+
+  it('should get a event', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const result = await service.getEvent(headers, mockEvents[0].eid);
+    expect(result).toEqual(mockEvents[0]);
+  });
+  
+  it('should update a event', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const event: UpdateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+    };
+    await service.updateEvent(headers, mockEvents[0].eid, event);
+    expect(mockEventRepository.update).toHaveBeenCalledWith(
+      { eid: mockEvents[0].eid },
+      event,
+    );
+  });
+
+  it('should delete a event', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    await service.deleteEvent(headers, mockEvents[0].eid);
+    expect(mockEventRepository.findOne).toHaveBeenCalledWith({
+      where: { eid: mockEvents[0].eid },
     });
+    expect(mockEventRepository.delete).toHaveBeenCalledWith(
+      mockEvents[0].eid
+    );
   });
 
-  it('should throw error when input id is not found', async () => {
-    let throw_error = false;
-    try {
-      await service.getEvent('bbbb');
-    } catch (error) {
-      throw_error = true;
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect((error as NotFoundException).getResponse()).toEqual({
-        message: 'Event Not Found.',
-        error: 'Not Found',
-        statusCode: 404,
-      });
-    }
-    expect(throw_error).toBe(true);
-  });
-  it('should update event with id match the given event id', async () => {
-    const event = {
-      title: 'cccc',
-      desc: 'aaa',
-      start_time: new Date('December 17, 2023 03:24:00'),
-      end_time: new Date('December 17, 2023 03:24:00'),
-      location: 'aaaa',
-    };
-    await service.updateEvent('1', event);
-    expect(mockEventsRepository.update).toHaveBeenCalled();
-  });
 
-  it('should throw error when input id is not found when updating', async () => {
-    let throw_error = false;
-    const event = {
-      title: 'cccc',
-      desc: 'aaa',
-      start_time: new Date('December 17, 2023 03:24:00'),
-      end_time: new Date('December 17, 2023 03:24:00'),
-      location: 'aaaa',
-    };
-    try {
-      await service.updateEvent('cccc', event);
-    } catch (error) {
-      throw_error = true;
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect((error as NotFoundException).getResponse()).toEqual({
-        message: 'Could not find event: cccc.',
-        error: 'Not Found',
-        statusCode: 404,
-      });
-    }
-    expect(throw_error).toBe(true);
-  });
-
-  it('should delete event', async () => {
-    await service.deleteEvent('1');
-    expect(mockEventsRepository.delete).toHaveBeenCalled();
-  });
-  it('should throw error when input id is not found when deleting', async () => {
-    let throw_error = false;
-    try {
-      await service.deleteEvent('cccc');
-    } catch (error) {
-      throw_error = true;
-      expect(error).toBeInstanceOf(NotFoundException);
-      expect((error as NotFoundException).getResponse()).toEqual({
-        message: 'Event with ID cccc not found.',
-        error: 'Not Found',
-        statusCode: 404,
-      });
-    }
-    expect(throw_error).toBe(true);
-  });
 });

@@ -53,7 +53,7 @@ export class EventsService {
 
     // check if host exists
     const user = await this.userRepository.findOne({
-      where: { pid: event.host },
+      where: { pid: event.host, client: { cid: client.cid } },
     });
 
     if (!user) {
@@ -74,7 +74,9 @@ export class EventsService {
       client: client,
     };
 
-    return await this.eventRepository.save(save_entity);
+    const result = await this.eventRepository.save(save_entity);
+    console.log(result);
+    return result;
   }
 
   /**
@@ -99,6 +101,39 @@ export class EventsService {
 
     return await this.eventRepository.find({
       where: { client: { cid: client.cid } },
+    });
+  }
+
+  /**
+   * Get all the events of a user based on user ID.
+   * @param {string} pid The user ID.
+   * @returns {Promise<EventInterface[]>} The information of all the events from database.
+   */
+  async getEventsByUser(headers, pid: string): Promise<EventInterface[]> {
+    // check authorization of the header
+    const clientToken = headers.authorization;
+    if (!clientToken) {
+      throw new HttpException(
+        'No authorization token found',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+    const client = await this.clientRepository.findOne({
+      where: { client_token: clientToken },
+    });
+    if (!client) {
+      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
+    }
+
+    const user = await this.userRepository.findOne({
+      where: { pid: pid, client: { cid: client.cid } },
+    });
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    return await this.eventRepository.find({
+      where: { host: { pid: pid }, client: { cid: client.cid } },
     });
   }
 
@@ -158,6 +193,7 @@ export class EventsService {
     const event = await this.eventRepository.findOne({
       where: {
         eid: eventID,
+        client: { cid: client.cid },
       },
     });
     if (!event) {

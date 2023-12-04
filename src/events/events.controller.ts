@@ -43,6 +43,16 @@ export class EventsController {
   }
 
   /**
+   * Get all the events of a user.
+   * @param {string} pid The user ID.
+   * @returns {Promise<EventInterface[]>} The information of all the events.
+   */
+  @Get('user/:pid')
+  async getEventsByUser(@Headers() headers, @Param('pid') pid: string): Promise<EventInterface[]> {
+    return await this.eventsService.getEventsByUser(headers, pid);
+  }
+
+  /**
    * Get a event by EventID.
    * @param {string} eventId The event ID.
    * @returns {Promise<EventInterface>} The information of the target event.
