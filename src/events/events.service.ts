@@ -21,7 +21,7 @@ function eventEntity2EventDetail(cid: string, event: EventEntity): EventDetail {
     location: event.location,
     desc: event.desc,
     host: event.host,
-    participants: [],
+    participants: event.participants,
     start_time: event.start_time.toISOString(),
     end_time: event.end_time.toISOString(),
   };
@@ -52,7 +52,7 @@ export class EventsService {
       end_time: new Date(data.end_time),
       location: data.location,
       host: data.host,
-      participants: [],
+      participants: data.participants,
       client: {
         cid: cid,
       },
@@ -126,25 +126,29 @@ export class EventsService {
     eventID: string,
     updatedEvent: UpdateEventDTO,
   ) {
-    const event = await this.eventRepository.findOne({
-      where: {
-        eid: eventID,
-      },
-    });
-    if (!event) {
-      throw new NotFoundException(`Event Not Found.`);
-    }
-    if (event.client.cid !== cid) {
-      throw new UnauthorizedException('Client does not match');
-    }
-
     const protectList = ['eid'];
     protectList.forEach((key) => {
       if (key in updatedEvent) {
         delete updatedEvent[key];
       }
     });
-    await this.eventRepository.update({ eid: eventID }, updatedEvent);
+    const result = await this.eventRepository.update(
+      {
+        eid: eventID,
+        client: {
+          cid,
+        },
+      },
+      updatedEvent,
+    );
+
+    if (result.affected !== 1) {
+      throw new NotFoundException('Not found event');
+    }
+
+    const event = await this.getEvent(cid, eventID);
+
+    return event;
   }
 
   /**
