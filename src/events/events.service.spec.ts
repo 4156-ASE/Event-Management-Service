@@ -2,7 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsService } from './events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventEntity } from './models/event.entity';
-import { NotFoundException } from '@nestjs/common';
+import { HttpException, NotFoundException } from '@nestjs/common';
 import { EventInterface } from './models/event.interface';
 import { UserEntity } from '../../src/users/models/user.entity';
 import { ClientEntity } from 'src/users/models/client.entity';
@@ -228,5 +228,210 @@ describe('EventsService', () => {
     );
   });
 
+  // error handling
+  it('insertEvent: should throw unauthorized error when no authorization token found', async () => {
+    const headers = {
+      
+    };
+    const event: CreateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+      host: mockUsers[0].pid,
+    };
+    const result = service.insertEvent(headers, event);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('insertEvent: should throw unauthorized error when client does not match', async () => {
+    const headers = {
+      authorization: randomString(),
+    };
+    const event: CreateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+      host: mockUsers[0].pid,
+    };
+    const result = service.insertEvent(headers, event);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('insertEvent: should throw bad request error when host not found in user database', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const event: CreateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+      host: randomString(),
+    };
+    const result = service.insertEvent(headers, event);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEvents: should throw unauthorized error when no authorization token found', async () => {
+    const headers = {
+      
+    };
+    const result = service.getEvents(headers);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEvents: should throw unauthorized error when client does not match', async () => {
+    const headers = {
+      authorization: randomString(),
+    };
+    const result = service.getEvents(headers);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEventsByUser: should throw unauthorized error when no authorization token found', async () => {
+    const headers = {
+      
+    };
+    const result = service.getEventsByUser(headers, mockUsers[1].pid);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEventsByUser: should throw unauthorized error when client does not match', async () => {
+    const headers = {
+      authorization: randomString(),
+    };
+    const result = service.getEventsByUser(headers, mockUsers[1].pid);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEventsByUser: should throw bad request error when user not found in user database', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const result = service.getEventsByUser(headers, randomString());
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEvent: should throw unauthorized error when no authorization token found', async () => {
+    const headers = {
+      
+    };
+    const result = service.getEvent(headers, mockEvents[0].eid);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEvent: should throw unauthorized error when client does not match', async () => {
+    const headers = {
+      authorization: randomString(),
+    };
+    const result = service.getEvent(headers, mockEvents[0].eid);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('getEvent: should throw not found error when event not found in event database', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const result = service.getEvent(headers, randomString());
+    // any string info is ok
+    expect(result).rejects.toThrow(NotFoundException);
+  });
+
+  it('updateEvent: should throw unauthorized error when no authorization token found', async () => {
+    const headers = {
+      
+    };
+    const event: UpdateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+    };
+    const result = service.updateEvent(headers, mockEvents[0].eid, event);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('updateEvent: should throw unauthorized error when client does not match', async () => {
+    const headers = {
+      authorization: randomString(),
+    };
+    const event: UpdateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+    };
+    const result = service.updateEvent(headers, mockEvents[0].eid, event);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('updateEvent: should throw not found error when event not found in event database', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const event: UpdateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+    };
+    const result = service.updateEvent(headers, randomString(), event);
+    expect(result).rejects.toThrow(NotFoundException);
+  });
+
+  it('updateEvent: should throw unauthorized error when event client does not match', async () => {
+    const headers = {
+      authorization: mockClients[1].client_token,
+    };
+    const event: UpdateEventDTO = {
+      title: randomString(),
+      desc: randomString(),
+      start_time: new Date(),
+      end_time: new Date(),
+      location: randomString(),
+    };
+    const result = service.updateEvent(headers, mockEvents[0].eid, event);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('deleteEvent: should throw unauthorized error when no authorization token found', async () => {
+    const headers = {
+      
+    };
+    const result = service.deleteEvent(headers, mockEvents[0].eid);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('deleteEvent: should throw unauthorized error when client does not match', async () => {
+    const headers = {
+      authorization: randomString(),
+    };
+    const result = service.deleteEvent(headers, mockEvents[0].eid);
+    expect(result).rejects.toThrow(HttpException);
+  });
+
+  it('deleteEvent: should throw not found error when event not found in event database', async () => {
+    const headers = {
+      authorization: mockClients[0].client_token,
+    };
+    const result = service.deleteEvent(headers, randomString());
+    expect(result).rejects.toThrow(NotFoundException);
+  });
+
+  it('deleteEvent: should throw unauthorized error when event client does not match', async () => {
+    const headers = {
+      authorization: mockClients[1].client_token,
+    };
+    const result = service.deleteEvent(headers, mockEvents[0].eid);
+    expect(result).rejects.toThrow(HttpException);
+  });
 
 });

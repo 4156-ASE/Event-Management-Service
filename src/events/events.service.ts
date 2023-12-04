@@ -59,7 +59,7 @@ export class EventsService {
     if (!user) {
       throw new HttpException(
         'Host not found in user database',
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.NOT_FOUND,
       );
     }
 
@@ -75,7 +75,7 @@ export class EventsService {
     };
 
     const result = await this.eventRepository.save(save_entity);
-    console.log(result);
+    // console.log(result);
     return result;
   }
 
@@ -199,16 +199,13 @@ export class EventsService {
     if (!event) {
       throw new NotFoundException(`Event Not Found.`);
     }
-    if (event.client.cid !== client.cid) {
-      throw new HttpException('Client does not match', HttpStatus.UNAUTHORIZED);
-    }
 
-    const protectList = ['eid'];
-    protectList.forEach((key) => {
-      if (key in updatedEvent) {
-        delete updatedEvent[key];
-      }
-    });
+    // const protectList = ['eid'];
+    // protectList.forEach((key) => {
+    //   if (key in updatedEvent) {
+    //     delete updatedEvent[key];
+    //   }
+    // });
     await this.eventRepository.update({ eid: eventID }, updatedEvent);
   }
 
