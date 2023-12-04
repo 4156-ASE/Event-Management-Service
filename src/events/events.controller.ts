@@ -5,8 +5,6 @@ import {
   Param,
   Patch,
   Delete,
-  HttpStatus,
-  Headers,
   Req,
   Get,
   Query,
@@ -15,7 +13,7 @@ import { EventsService } from './events.service';
 import {
   EventCreateReq,
   EventDetail,
-  UpdateEventDTO,
+  EventUpdateReq,
 } from './models/event.dto';
 import { Request } from 'express';
 
@@ -27,7 +25,7 @@ export class EventsController {
   constructor(private eventsService: EventsService) {}
 
   /**
-   * Create a event.
+   * Create an event.
    */
   @Post()
   async createEvent(
@@ -38,7 +36,7 @@ export class EventsController {
   }
 
   /**
-   * Get all the events.
+   * Get user's events.
    */
   @Get()
   async getEvents(
@@ -52,7 +50,7 @@ export class EventsController {
   }
 
   /**
-   * Get a event by EventID.
+   * Get an event by EventID.
    */
   @Get(':id')
   async getEvent(
@@ -63,13 +61,13 @@ export class EventsController {
   }
 
   /**
-   * Update Event by EventID.
+   * Update an Event by EventID.
    */
   @Patch(':id')
   async updateEvent(
     @Req() req: Request,
     @Param('id') eventId: string,
-    @Body() body: UpdateEventDTO,
+    @Body() body: EventUpdateReq,
   ) {
     const event = await this.eventsService.updateEvent(
       req.client.cid,
@@ -80,16 +78,12 @@ export class EventsController {
   }
 
   /**
-   * Remove Event by EventID.
+   * Remove an Event by EventID.
    * @param {string} eventId The event ID.
    * @returns {Object} Return status of the event delete.
    */
   @Delete(':id')
-  async removeEvent(@Headers() headers, @Param('id') eventId: string) {
-    await this.eventsService.deleteEvent(headers, eventId);
-    return {
-      status: HttpStatus.OK,
-      message: 'Event deleted successfully',
-    };
+  async removeEvent(@Req() req: Request, @Param('id') eventId: string) {
+    return await this.eventsService.deleteEvent(req.client.cid, eventId);
   }
 }

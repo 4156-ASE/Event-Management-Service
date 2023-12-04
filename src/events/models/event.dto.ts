@@ -59,7 +59,7 @@ export class EventDetail {
   cid: string;
 }
 
-export class UpdateEventDTO {
+export class EventUpdateReq {
   @IsString()
   @IsOptional()
   title?: string;
@@ -87,5 +87,5 @@ export class UpdateEventDTO {
   @IsArray()
   @IsString({ each: true })
   @IsOptional({ each: true })
-  participants: string[];
+  participants?: string[];
 }
