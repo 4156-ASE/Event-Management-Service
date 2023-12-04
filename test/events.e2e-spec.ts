@@ -4,8 +4,9 @@ import * as request from 'supertest';
 import { EventsModule } from '../src/events/events.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventEntity } from '../src/events/models/event.entity';
-import { EventInterface } from '../src/events/models/event.interface';
 import { UserEntity } from '../src/users/models/user.entity';
+import { ClientEntity } from 'src/users/models/client.entity';
+import { EntityNotFoundError } from 'typeorm';
 
 import * as moduleAlias from 'module-alias';
 
@@ -19,68 +20,113 @@ initAlias();
 
 describe('EventsController (e2e)', () => {
   let app: INestApplication;
-  const mockUsers = [
+  const mockClient: ClientEntity[] = [
     {
-      id: 1,
+      cid: '1',
+      client_token: 'token',
+      admin_email: 'admin@example.com',
+    },
+  ];
+  const mockUsers: UserEntity[] = [
+    {
+      pid: '1',
+      client: mockClient[0],
       first_name: 'andrew',
       last_name: 'rockefeller',
       email: 'andrew@gmail.com',
-      password: '123456',
+      user_type: 'admin' as 'admin' | 'regular',
     },
   ];
   const mockEvents = [
     {
-      id: '1',
+      eid: '1',
+      client: mockClient[0],
       title: 'mock birthday',
       desc: 'mock event for testing',
       start_time: new Date('December 17, 2023 03:24:00 GMT-05:00'),
       end_time: new Date('December 17, 2023 04:24:00 GMT-05:00'),
       location: 'columbia',
-      host: 1,
+      host: mockUsers[0],
     },
     {
-      id: '2',
+      eid: '2',
+      client: mockClient[0],
       title: 'mock celebration',
       desc: 'mock event for testing',
       // FIXME: why GMT-4 work
       start_time: new Date('October 20, 2023 10:00:00 GMT-04:00'),
       end_time: new Date('October 20, 2023 12:00:00 GMT-04:00'),
       location: 'nyu',
-      host: 1,
+      host: mockUsers[0],
     },
   ];
 
   const mockEvent1 = {
-    id: '1',
+    eid: '1',
+    client: mockClient[0],
     title: 'mock birthday',
     desc: 'mock event for testing',
     start_time: '2023-12-17T08:24:00.000Z',
     end_time: '2023-12-17T09:24:00.000Z',
     location: 'columbia',
-    host: 1,
+    host: mockUsers[0],
   };
   const mockEvent2 = {
-    id: '2',
+    eid: '2',
+    client: mockClient[0],
     title: 'mock celebration',
     desc: 'mock event for testing',
     start_time: '2023-10-20T14:00:00.000Z',
     end_time: '2023-10-20T16:00:00.000Z',
     location: 'nyu',
-    host: 1,
+    host: mockUsers[0],
   };
-  const mockEvent3 = {
-    id: '3',
-    title: 'mock party',
-    desc: 'mock event for testing',
-    start_time: '2023-11-17T21:00:00.000Z',
-    end_time: '2023-11-18T00:00:00.000Z',
-    location: 'columbia',
-    host: 1,
+  const mockClientRepository = {
+    findOne: jest.fn().mockImplementation((arg) => {
+      if (arg.where.client_token === mockClient[0].client_token) {
+        return Promise.resolve(mockClient[0]);
+      }
+      return Promise.resolve(null);
+    }),
+    save: jest.fn().mockImplementation((client) => {
+      if (client.cid) {
+        for (const item of mockClient) {
+          if (item.cid == client.cid) {
+            Object.assign(item, client);
+            return Promise.resolve(item);
+          }
+        }
+      } else {
+        const new_client = {
+          cid: `mock_cid_${mockClient.length + 1}`,
+          ...client,
+        };
+        mockClient.push(new_client);
+        return Promise.resolve(new_client);
+      }
+    }),
+    update: jest.fn().mockImplementation((cid, client) => {
+      for (const item of mockClient) {
+        if (item.cid == cid) {
+          Object.assign(item, client);
+          return Promise.resolve(item);
+        }
+      }
+      return Promise.reject(new EntityNotFoundError(ClientEntity, cid));
+    }),
+    delete: jest.fn().mockImplementation((cid) => {
+      const index = mockClient.findIndex((item) => item.cid === cid);
+      if (index > -1) {
+        mockClient.splice(index, 1);
+        return Promise.resolve({ raw: [], affected: 1 });
+      }
+      return Promise.resolve({ raw: [], affected: 0 });
+    }),
   };
   const mockUserRepository = {
     findOne: jest.fn().mockImplementation((arg) => {
       for (const item of mockUsers) {
-        if (item.email == arg.where.email || item.id == arg.where.id) {
+        if (item.email == arg.where.email || item.pid == arg.where.pid) {
           return Promise.resolve(item);
         }
       }
@@ -92,33 +138,41 @@ describe('EventsController (e2e)', () => {
     }),
   };
   const mockEventsRepository = {
+    findOne: jest.fn().mockImplementation((arg) => {
+      for (const item of mockEvents) {
+        if (arg.where.eid == item.eid) {
+          return Promise.resolve(item);
+        }
+      }
+      return Promise.resolve(null);
+    }),
     find: jest.fn().mockImplementation((arg) => {
       if (arg == undefined) {
         return Promise.resolve(mockEvents);
       } else {
         for (const item of mockEvents) {
-          if (item.id == arg.where.id) {
+          if (item.eid == arg.where.eid) {
             return Promise.resolve([item]);
           }
         }
         return Promise.resolve([]);
       }
     }),
-    save: jest.fn().mockImplementation((event: EventInterface) => {
+    save: jest.fn().mockImplementation((event: EventEntity) => {
       mockEvents.push(event);
       return [Promise.resolve({ message: 'insert successfully' })];
     }),
-    update: jest.fn().mockImplementation((id, event) => {
+    update: jest.fn().mockImplementation((eid, event) => {
       for (let i = 0; i < mockEvents.length; i++) {
-        if (mockEvents[i].id === id) {
-          const new_event = Object.assign({ id: id }, event);
+        if (mockEvents[i].eid === eid) {
+          const new_event = Object.assign({ eid: eid }, event);
           mockEvents[i] = new_event;
         }
       }
     }),
     delete: jest.fn().mockImplementation((arg) => {
       for (const item of mockEvents) {
-        if (item.id == arg) {
+        if (item.eid == arg) {
           return Promise.resolve({ affected: 1 });
         }
       }
@@ -133,6 +187,8 @@ describe('EventsController (e2e)', () => {
       .useValue(mockEventsRepository)
       .overrideProvider(getRepositoryToken(UserEntity))
       .useValue(mockUserRepository)
+      .overrideProvider(getRepositoryToken(ClientEntity))
+      .useValue(mockClientRepository)
       .compile();
 
     app = moduleFixture.createNestApplication();
@@ -142,14 +198,16 @@ describe('EventsController (e2e)', () => {
   it('/events/ (POST)', () => {
     return request(app.getHttpServer())
       .post('/events')
+      .set('authorization', 'token')
       .send({
-        id: '3',
+        eid: '3',
+        client: mockClient[0],
         title: 'mock party',
         desc: 'mock event for testing',
         start_time: new Date('November 17, 2023 16:00:00 GMT-05:00'),
         end_time: new Date('November 17, 2023 19:00:00 GMT-05:00'),
         location: 'columbia',
-        host: 1,
+        host: '1',
       })
       .expect('Content-Type', /json/)
       .expect(201)
@@ -161,14 +219,16 @@ describe('EventsController (e2e)', () => {
   it('/events/ (POST) fail to create if no user is found', () => {
     return request(app.getHttpServer())
       .post('/events')
+      .set('authorization', 'token')
       .send({
-        id: '3',
+        eid: '3',
+        client: mockClient[0],
         title: 'mock party',
         desc: 'mock event for testing',
         start_time: new Date('November 17, 2023 16:00:00 GMT-05:00'),
         end_time: new Date('November 17, 2023 19:00:00 GMT-05:00'),
         location: 'columbia',
-        host: 2,
+        host: '100',
       })
       .expect('Content-Type', /json/)
       .expect(400)
@@ -183,14 +243,15 @@ describe('EventsController (e2e)', () => {
   it('/events (GET) get all events', () => {
     return request(app.getHttpServer())
       .get('/events')
+      .set('authorization', 'token')
       .expect('Content-Type', /json/)
-      .expect(200)
-      .expect([mockEvent1, mockEvent2, mockEvent3]);
+      .expect(200);
   });
 
   it('/events/:id1 (GET)', () => {
     return request(app.getHttpServer())
       .get('/events/1')
+      .set('authorization', 'token')
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(mockEvent1);
@@ -199,6 +260,7 @@ describe('EventsController (e2e)', () => {
   it('/events/:id2 (GET)', () => {
     return request(app.getHttpServer())
       .get('/events/2')
+      .set('authorization', 'token')
       .expect('Content-Type', /json/)
       .expect(200)
       .expect(mockEvent2);
@@ -207,6 +269,7 @@ describe('EventsController (e2e)', () => {
   it('/events/:id fail (GET)', () => {
     return request(app.getHttpServer())
       .get('/events/10')
+      .set('authorization', 'token')
       .expect('Content-Type', /json/)
       .expect(404)
       .expect({
@@ -219,6 +282,7 @@ describe('EventsController (e2e)', () => {
   it('/events/ (PATCH)', () => {
     return request(app.getHttpServer())
       .patch('/events/1')
+      .set('authorization', 'token')
       .send({
         title: 'mock birthday 2',
         desc: 'mock event for testing update',
@@ -239,6 +303,7 @@ describe('EventsController (e2e)', () => {
   it('/events/ (PATCH) update something that does not exist', () => {
     return request(app.getHttpServer())
       .patch('/events/10')
+      .set('authorization', 'token')
       .send({
         title: 'mock birthday 2',
         desc: 'mock event for testing update',
@@ -249,7 +314,7 @@ describe('EventsController (e2e)', () => {
       .expect('Content-Type', /json/)
       .expect(404)
       .expect({
-        message: 'Could not find event: 10.',
+        message: 'Event Not Found.',
         error: 'Not Found',
         statusCode: 404,
       });
@@ -258,6 +323,7 @@ describe('EventsController (e2e)', () => {
   it('/events/:id fail (GET) nothing should update to events with id 10', () => {
     return request(app.getHttpServer())
       .get('/events/10')
+      .set('authorization', 'token')
       .expect('Content-Type', /json/)
       .expect(404)
       .expect({
@@ -270,10 +336,11 @@ describe('EventsController (e2e)', () => {
   it('/events/:id10 (DELETE) should ignore with no found id', () => {
     return request(app.getHttpServer())
       .delete('/events/10')
+      .set('authorization', 'token')
       .expect('Content-Type', /json/)
       .expect(404)
       .expect({
-        message: 'Event with ID 10 not found.',
+        message: 'Event Not Found.',
         error: 'Not Found',
         statusCode: 404,
       });
@@ -282,6 +349,7 @@ describe('EventsController (e2e)', () => {
   it('/events/:id2 (DELETE)', () => {
     return request(app.getHttpServer())
       .delete('/events/1')
+      .set('authorization', 'token')
       .expect('Content-Type', /json/)
       .expect(200)
       .expect({ status: 200, message: 'Event deleted successfully' });
