@@ -5,9 +5,11 @@ export class ClientEntity {
   @PrimaryGeneratedColumn()
   cid: string;
 
-  @Column()
-  client_token: string;
+  /** accessID for a firm customer */
+  @Column({ unique: true })
+  access_id: string;
 
+  /** hashed access secret for a firm customer */
   @Column()
-  admin_email: string;
+  access_secret: string;
 }
