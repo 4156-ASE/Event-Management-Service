@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsString, IsDateString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  IsDateString,
+  IsOptional,
+  IsArray,
+} from 'class-validator';
 
 export class EventCreateReq {
   @IsNotEmpty()
@@ -22,7 +28,13 @@ export class EventCreateReq {
   location: string;
 
   @IsNotEmpty()
+  @IsString()
   host: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  participants: string[];
 }
 
 /** Event detail for backend */
@@ -48,23 +60,32 @@ export class EventDetail {
 }
 
 export class UpdateEventDTO {
-  @IsNotEmpty()
   @IsString()
-  title: string;
+  @IsOptional()
+  title?: string;
 
-  @IsNotEmpty()
   @IsString()
-  desc: string;
+  @IsOptional()
+  desc?: string;
 
-  @IsNotEmpty()
   @IsDateString()
-  start_time: Date;
+  @IsOptional()
+  start_time?: string;
 
-  @IsNotEmpty()
   @IsDateString()
-  end_time: Date;
+  @IsOptional()
+  end_time?: string;
 
-  @IsNotEmpty()
   @IsString()
-  location: string;
+  @IsOptional()
+  location?: string;
+
+  @IsString()
+  @IsOptional()
+  host?: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  participants: string[];
 }

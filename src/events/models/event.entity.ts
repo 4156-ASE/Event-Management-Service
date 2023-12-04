@@ -2,15 +2,10 @@ import {
   Column,
   Entity,
   JoinColumn,
-  JoinTable,
   ManyToOne,
-  OneToMany,
-  OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserEntity } from 'src/users/models/user.entity';
 import { ClientEntity } from 'src/users/models/client.entity';
-import { ParticipantEntity } from 'src/participants/models/participant.entity';
 
 /**
  * Event entity which is used to store event information in database.

@@ -64,21 +64,19 @@ export class EventsController {
 
   /**
    * Update Event by EventID.
-   * @param {string} eventId The event ID.
-   * @param {UpdateEventDTO} event The information that need to be modified in an event.
-   * @returns {Object} Return status of the event update.
    */
-  @Patch(':eventId')
+  @Patch(':id')
   async updateEvent(
-    @Headers() headers,
-    @Param('eventId') eventId: string,
-    @Body() event: UpdateEventDTO,
+    @Req() req: Request,
+    @Param('id') eventId: string,
+    @Body() body: UpdateEventDTO,
   ) {
-    await this.eventsService.updateEvent(headers, eventId, event);
-    return {
-      status: HttpStatus.OK,
-      message: 'Event updated successfully',
-    };
+    const event = await this.eventsService.updateEvent(
+      req.client.cid,
+      eventId,
+      body,
+    );
+    return event;
   }
 
   /**
