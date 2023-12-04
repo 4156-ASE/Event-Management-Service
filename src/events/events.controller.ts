@@ -2,17 +2,21 @@ import {
   Body,
   Controller,
   Post,
-  Get,
   Param,
   Patch,
   Delete,
   HttpStatus,
   Headers,
   Req,
+  Get,
+  Query,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { EventInterface } from './models/event.interface';
-import { EventCreateReq, EventDetail, UpdateEventDTO } from './models/event.dto';
+import {
+  EventCreateReq,
+  EventDetail,
+  UpdateEventDTO,
+} from './models/event.dto';
 import { Request } from 'express';
 
 /**
@@ -35,25 +39,28 @@ export class EventsController {
 
   /**
    * Get all the events.
-   * @returns {Promise<EventInterface[]>} The information of all the events.
    */
-  // @Get()
-  // async getAllEvents(@Headers() headers): Promise<EventInterface[]> {
-  //   return await this.eventsService.getEvents(headers);
-  // }
+  @Get()
+  async getEvents(
+    @Query() query: { pid: string },
+    @Req() req: Request,
+  ): Promise<EventDetail[]> {
+    return await this.eventsService.getEvents({
+      cid: req.client.cid,
+      pid: query.pid,
+    });
+  }
 
   /**
    * Get a event by EventID.
-   * @param {string} eventId The event ID.
-   * @returns {Promise<EventInterface>} The information of the target event.
    */
-  // @Get(':id')
-  // async getEvent(
-  //   @Headers() headers,
-  //   @Param('id') eventId: string,
-  // ): Promise<EventInterface> {
-  //   return await this.eventsService.getEvent(headers, eventId);
-  // }
+  @Get(':id')
+  async getEvent(
+    @Param('id') eventId: string,
+    @Req() req: Request,
+  ): Promise<EventDetail> {
+    return await this.eventsService.getEvent(req.client.cid, eventId);
+  }
 
   /**
    * Update Event by EventID.
