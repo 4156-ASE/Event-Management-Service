@@ -1,16 +1,11 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { EventEntity } from './models/event.entity';
 import {
   EventCreateReq,
   EventDetail,
-  UpdateEventDTO,
+  EventUpdateReq,
 } from './models/event.dto';
 
 function eventEntity2EventDetail(cid: string, event: EventEntity): EventDetail {
@@ -124,7 +119,7 @@ export class EventsService {
   async updateEvent(
     cid: string,
     eventID: string,
-    updatedEvent: UpdateEventDTO,
+    updatedEvent: EventUpdateReq,
   ) {
     const protectList = ['eid'];
     protectList.forEach((key) => {
@@ -156,16 +151,9 @@ export class EventsService {
    * @param {string} eventID The event ID.
    */
   async deleteEvent(cid: string, eventID: string): Promise<boolean> {
-    const event = await this.eventRepository.findOne({
-      where: {
-        eid: eventID,
-      },
-    });
+    const event = await this.getEvent(cid, eventID);
     if (!event) {
       throw new NotFoundException(`Event Not Found.`);
-    }
-    if (event.client.cid !== cid) {
-      throw new UnauthorizedException('Client does not match');
     }
 
     const result = await this.eventRepository.delete(eventID);

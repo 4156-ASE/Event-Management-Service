@@ -2,7 +2,6 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
-  ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -27,32 +26,30 @@ export class ParticipantsService {
     private readonly eventRepository: Repository<EventEntity>,
   ) {}
 
+  // TODO: remove
   // Invite a participant to a given event.
   async inviteParticipant(
     cid: string,
     eventId: string,
     user: { first_name: string; last_name: string; email: string },
   ): Promise<void> {
+    console.log(cid, eventId, user);
     // Retrieve the event from the database
     // const event = await this.eventRepository.findOne({
     //   where: { eid: eventId, client: { cid } },
     // });
-
     // // Throw an exception if the event is not found
     // if (!event) {
     //   throw new NotFoundException(`Event not found`);
     // }
-
     // // Check if the user with the provided email exists
     // const foundUser = await this.userRepository.findOne({
     //   where: { email: user.email, client: { cid } },
     // });
-
     // // Throw an exception if the user is not found
     // if (!foundUser) {
     //   throw new NotFoundException('User not found');
     // }
-
     // // Check if the user is already a participant for the event
     // const existingParticipant = await this.participantRepository.findOne({
     //   where: {
@@ -60,18 +57,15 @@ export class ParticipantsService {
     //     user: foundUser,
     //   },
     // });
-
     // // Throw a conflict exception if the user is already a participant
     // if (existingParticipant) {
     //   throw new ConflictException('Participant already exists in the event');
     // }
-
     // // Create a new participant and associate it with the user and event
     // const newParticipant = new ParticipantEntity();
     // newParticipant.event = event;
     // newParticipant.user = foundUser;
     // newParticipant.status = 'pending';
-
     // // Save the new participant to the database
     // try {
     //   await this.participantRepository.save(newParticipant);
@@ -131,8 +125,10 @@ export class ParticipantsService {
     return await this.userRepository.save(foundUser);
   }
 
+  // TODO: remove
   // Delete a participant
   async deleteParticipant(cid: string, pid: string): Promise<void> {
+    console.log(cid, pid);
     // const participant = await this.participantRepository.findOne({
     //   where: {
     //     user: { pid: pid, client: { cid } },
