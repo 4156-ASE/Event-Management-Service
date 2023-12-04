@@ -1,12 +1,13 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique } from 'typeorm';
 
 @Entity()
+@Unique(['access_id'])
 export class ClientEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   cid: string;
 
   /** accessID for a firm customer */
-  @Column({ unique: true })
+  @Column()
   access_id: string;
 
   /** hashed access secret for a firm customer */
