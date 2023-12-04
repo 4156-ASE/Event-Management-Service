@@ -59,7 +59,6 @@ export class EventEntity {
   /**
    * Event host. Required.
    */
-  @ManyToOne(() => UserEntity)
-  @JoinColumn({ name: 'host' })
-  host: UserEntity;
+  @Column()
+  host: string;
 }
