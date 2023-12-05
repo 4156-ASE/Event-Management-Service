@@ -5,6 +5,7 @@
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
   },
+  "testRegex": "spec.ts$",
   "collectCoverageFrom": [
     "**/*.ts",
     "!**/node_modules/**"

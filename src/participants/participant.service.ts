@@ -112,9 +112,9 @@ export class ParticipantsService {
     });
 
     // Throw an exception if the user is not found
-    if (!foundUser) {
-      throw new NotFoundException('User not found');
-    }
+    // if (!foundUser) {
+    //   throw new NotFoundException('User not found');
+    // }
 
     // Update the user's details
     foundUser.first_name = user.first_name;
@@ -179,32 +179,50 @@ export class ParticipantsService {
     await this.participantRepository.save(participant);
   }
 
-  async sendEmailToAllParticipants(eventId: string): Promise<void> {
-    // Retrieve the event from the database
-    const event = await this.eventRepository.findOne({
-      where: { eid: eventId },
-    });
+  // async sendEmailToAllParticipants(headers, eventId: string): Promise<void> {
+  //   // check authorization of the header
+  //   const clientToken = headers.authorization;
+  //   if (!clientToken) {
+  //     throw new HttpException(
+  //       'No authorization token found',
+  //       HttpStatus.UNAUTHORIZED,
+  //     );
+  //   }
+  //   const client = await this.clientRepository.findOne({
+  //     where: { client_token: clientToken },
+  //   });
+  //   if (!client) {
+  //     throw new HttpException(
+  //       'Client does not match',
+  //       HttpStatus.UNAUTHORIZED,
+  //     );
+  //   }
 
-    // Throw an exception if the event is not found
-    if (!event) {
-      throw new NotFoundException(`Event not found`);
-    }
+  //   // Retrieve the event from the database
+  //   const event = await this.eventRepository.findOne({
+  //     where: { eid: eventId, client: {cid: client.cid} },
+  //   });
 
-    // Retrieve all participants for the event
-    const participants = await this.participantRepository.find({
-      where: { event: { eid: eventId } },
-      relations: ['user'],
-    });
+  //   // Throw an exception if the event is not found
+  //   if (!event) {
+  //     throw new NotFoundException(`Event not found`);
+  //   }
 
-    // Send email to each participant
-    for (const participant of participants) {
-      // Check if the participant is invited
-      if (participant.status === 'pending') {
-        // Send an email to the participant
-        await this.sendEmail(participant.user.pid, eventId);
-      }
-    }
-  }
+  //   // Retrieve all participants for the event
+  //   const participants = await this.participantRepository.find({
+  //     where: { event: { eid: eventId }, user: {client: {cid: client.cid} } },
+  //     relations: ['user'],
+  //   });
+
+  //   // Send email to each participant
+  //   for (const participant of participants) {
+  //     // Check if the participant is invited
+  //     if (participant.status === 'pending') {
+  //       // Send an email to the participant
+  //       await this.sendEmail(participant.user.pid, eventId);
+  //     }
+  //   }
+  // }
 
   async sendEmail(pid: string, eventId: string): Promise<void> {
     // Check if the receiver is a valid email address
@@ -258,6 +276,7 @@ export class ParticipantsService {
       subject: 'You are invited to join an event!',
       html: htmlToSend,
     });
+    console.log("receiver email: " + receiver.email);
   }
 
   getRedirectPage(): string {
