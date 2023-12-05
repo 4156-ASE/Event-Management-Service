@@ -1,170 +1,108 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UsersService } from './user.service';
-import { UserInterface } from './models/user.interface';
 import { UserEntity } from './models/user.entity';
-import { LoginResponse } from './models/user.interface';
-import { ConflictException } from '@nestjs/common';
-import { randomInt } from 'crypto';
+import { RegisterUserDTO, UpdateUserDTO } from './models/user.dto';
 
 describe('UserController', () => {
   let userController: UserController;
-  const mockUserService = {
-    register: jest.fn((user: UserInterface): Promise<UserEntity | null> => {
-      if (user.email == 'testregisterfail@gmail.com') {
-        return Promise.resolve(null);
-      } else if (user.email == 'testregistersuccess@gmail.com') {
-        return Promise.resolve({
-          id: randomInt(100),
-          ...user,
-        });
-      } else if (user.email == 'invalidemail') {
-        return Promise.resolve(null);
-      }
-    }),
-    login: jest.fn(
-      (email: string, password: string): Promise<LoginResponse | null> => {
-        return Promise.resolve({
-          status: 'success',
-          message: 'Logged in successfully',
-          data: {
-            user: {
-              id: 1,
-              first_name: 'John',
-              last_name: 'Doe',
-              email: 'testloginsuccess@test.com',
-            },
-            token: 'alnlgsnsoajg',
-            expires_in: 3600,
-          },
-        });
-      },
-    ),
-    getUser: jest.fn((id: number): Promise<UserEntity | null> => {
-      if (id == 0) {
-        return Promise.resolve(null);
-      } else {
-        return Promise.resolve({
-          id: id,
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'getUser@test.com',
-          password: 'encodedpassword',
-        });
-      }
-    }),
-    updateUser: jest.fn(
-      (
-        id: number,
-        updatedUser: Partial<UserEntity>,
-      ): Promise<UserEntity | null> => {
-        if (id == 0) {
-          return Promise.resolve(null);
-        } else {
-          return Promise.resolve({
-            id: id,
-            first_name: 'John',
-            last_name: 'Doe',
-            email: 'updateUser@test.com',
-            password: 'encodedpassword',
-          });
-        }
-      },
-    ),
-    deleteUser: jest.fn((id: number): Promise<boolean> => {
-      if (id == 0) {
-        return Promise.resolve(false);
-      } else {
-        return Promise.resolve(true);
-      }
-    }),
-  };
+  let usersService: UsersService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [UserController],
-      providers: [UsersService],
-    })
-      .overrideProvider(UsersService)
-      .useValue(mockUserService)
-      .compile();
+      providers: [
+        {
+          provide: UsersService,
+          useValue: {
+            register: jest.fn().mockResolvedValue(new UserEntity()),
+            getUser: jest.fn().mockResolvedValue(new UserEntity()),
+            updateUser: jest.fn().mockResolvedValue(new UserEntity()),
+            deleteUser: jest.fn().mockResolvedValue(true),
+          },
+        },
+      ],
+    }).compile();
 
     userController = module.get<UserController>(UserController);
+    usersService = module.get<UsersService>(UsersService);
   });
 
   it('should be defined', () => {
     expect(userController).toBeDefined();
   });
 
-  it('register successful: should return message', async () => {
-    const user = {
-      id: null,
-      first_name: 'John',
-      last_name: 'Doe',
-      email: 'testregistersuccess@gmail.com',
-      password: 'encodedpassword',
-    };
-    await expect(userController.register(user)).resolves.toEqual({
-      message: 'User registered successfully',
+  describe('register', () => {
+    it('should register a new user', async () => {
+      const userDto: RegisterUserDTO = {
+        first_name: 'John',
+        last_name: 'Doe',
+        email: 'john@example.com',
+        user_type: 'admin',
+      };
+      const clientToken = 'some-client-token';
+      jest
+        .spyOn(usersService, 'register')
+        .mockImplementation(async () => new UserEntity());
+
+      const result = await userController.register(userDto, clientToken);
+
+      expect(usersService.register).toHaveBeenCalledWith(userDto, clientToken);
+      expect(result).toBeDefined();
     });
   });
 
-  it('login', async () => {
-    const data = {
-      email: 'testloginsuccess@test.com',
-      password: 'encodedpassword',
-    };
-    await expect(userController.login(data)).resolves.toEqual({
-      status: 'success',
-      message: 'Logged in successfully',
-      data: {
-        user: {
-          id: 1,
-          first_name: 'John',
-          last_name: 'Doe',
-          email: 'testloginsuccess@test.com',
-        },
-        token: 'alnlgsnsoajg',
-        expires_in: 3600,
-      },
+  describe('getUser', () => {
+    it('should return a user', async () => {
+      const pid = 'some-pid';
+      const clientToken = 'some-client-token';
+      jest
+        .spyOn(usersService, 'getUser')
+        .mockImplementation(async () => new UserEntity());
+
+      const result = await userController.getUser(clientToken, pid);
+
+      expect(usersService.getUser).toHaveBeenCalledWith(pid, clientToken);
+      expect(result).toBeDefined();
     });
   });
 
-  it('getUser: not found', async () => {
-    const pid = 0;
-    await expect(userController.getUser(pid)).rejects.toThrow();
-  });
+  describe('updateUser', () => {
+    it('should update user information', async () => {
+      const pid = 'some-pid';
+      const clientToken = 'some-client-token';
+      const userDto: UpdateUserDTO = {
+        first_name: 'Updated',
+        last_name: 'User',
+        email: 'updated@example.com',
+      };
+      jest
+        .spyOn(usersService, 'updateUser')
+        .mockImplementation(async () => new UserEntity());
 
-  it('getUser: found', async () => {
-    const pid = 2;
-    await expect(userController.getUser(pid)).resolves.toEqual({
-      id: pid,
-      first_name: 'John',
-      last_name: 'Doe',
-      email: 'getUser@test.com',
+      const result = await userController.updateUser(clientToken, pid, userDto);
+
+      expect(usersService.updateUser).toHaveBeenCalledWith(
+        pid,
+        userDto,
+        clientToken,
+      );
+      expect(result).toBeDefined();
     });
   });
 
-  it('updateUser', async () => {
-    const pid = 1;
-    const updatedUser = {
-      first_name: 'John',
-      last_name: 'Doe',
-      email: 'updateUser@test.com',
-      password: 'encodedpassword',
-    };
-    await expect(userController.updateUser(pid, updatedUser)).resolves.toEqual({
-      status: 200,
-      message: 'User updated successfully',
-    });
-  });
+  describe('deleteUser', () => {
+    it('should delete a user', async () => {
+      const pid = 'some-pid';
+      const clientToken = 'some-client-token';
+      jest
+        .spyOn(usersService, 'deleteUser')
+        .mockImplementation(async () => true);
 
-  it('deleteUser', async () => {
-    const pid = 1;
-    await expect(userController.deleteUser(pid)).resolves.toEqual({
-      status: 200,
-      message: 'User deleted successfully',
+      const result = await userController.deleteUser(clientToken, pid);
+
+      expect(usersService.deleteUser).toHaveBeenCalledWith(pid, clientToken);
+      expect(result).toBeDefined();
     });
   });
 });

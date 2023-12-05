@@ -47,7 +47,7 @@ export class ParticipantsController {
   @Patch(':event_id/:pid')
   async updateParticipantDetails(
     @Headers() headers: any,
-    @Param('event_id') eventId: string, // Extract event id from URL
+    @Param('eventId') eventId: string, // Extract event id from URL
     @Param('pid') pid: string, // Extract participant id from URL.
     @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from request body
   ) {
@@ -78,24 +78,24 @@ export class ParticipantsController {
   }
 
   // Delete a participant
-  @Delete(':pid')
-  async deleteParticipant(@Headers() headers, @Param('pid') pid: string) {
-    // Extract 'pid' from URL
-    try {
-      // Use the service method to delete the participant
-      await this.participantsService.deleteParticipant(headers, pid);
-      return { message: 'Participant deleted successfully' };
-    } catch (e) {
-      // Handle exceptions
-      if (e instanceof NotFoundException) {
-        throw new NotFoundException(e.message);
-      } else {
-        throw new InternalServerErrorException(
-          'Failed to delete the participant',
-        );
-      }
-    }
-  }
+  // @Delete(':pid')
+  // async deleteParticipant(@Headers() headers, @Param('pid') pid: string, @Param('eventId') eid: string) {
+  //   // Extract 'pid' from URL
+  //   try {
+  //     // Use the service method to delete the participant
+  //     await this.participantsService.deleteParticipant(headers, pid, eid);
+  //     return { message: 'Participant deleted successfully' };
+  //   } catch (e) {
+  //     // Handle exceptions
+  //     if (e instanceof NotFoundException) {
+  //       throw new NotFoundException(e.message);
+  //     } else {
+  //       throw new InternalServerErrorException(
+  //         'Failed to delete the participant',
+  //       );
+  //     }
+  //   }
+  // }
 
   // List participants of an event
   @Get('/allParticipants/:eventId')
@@ -111,7 +111,7 @@ export class ParticipantsController {
       );
       // Map over the results to shape the response
       return participants.map((p) => ({
-        pid: p.id,
+        pid: p.user.pid,
         first_name: p.user.first_name,
         last_name: p.user.last_name,
         email: p.user.email,
@@ -126,6 +126,16 @@ export class ParticipantsController {
       }
     }
   }
+
+  // @Get('sendEmailToAllParticipants/:eventId')
+  // async sendEmailToAllParticipants(@Headers() headers, @Param("eventId") eventId: string) {
+  //   // Use the service method to invite the participant
+  //   console.log("send email to all participants");
+  //   console.log("event id: " + eventId);
+  //   await this.participantsService.sendEmailToAllParticipants(headers, eventId);
+  //   return { message: 'Invitations sent successfully.' };
+
+  // }
 
   // Functions below are not for client, so the client token is not needed
   // Update the status of a participant
@@ -149,15 +159,6 @@ export class ParticipantsController {
         throw new InternalServerErrorException('Failed to update the status');
       }
     }
-  }
-
-  @Get('sendEmailToAllParticipants/:eventId')
-  async sendEmailToAllParticipants(@Param('eventId') eventId: string) {
-    // Use the service method to invite the participant
-    console.log('send email to all participants');
-    console.log('event id: ' + eventId);
-    await this.participantsService.sendEmailToAllParticipants(eventId);
-    return { message: 'Invitations sent successfully.' };
   }
 
   @Get('redirect')
