@@ -20,62 +20,62 @@ export class ParticipantsController {
   // Injecting ParticipantsService
   constructor(private readonly participantsService: ParticipantsService) {}
 
-  // Invite a participant to an event
-  @Post(':eventId')
-  async inviteParticipant(
-    @Headers() headers: any,
-    @Param('eventId') eventId: string, // Extract the 'eventId' parameter from the URL
-    @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from the request body
-  ) {
-    try {
-      // Use the service method to invite the participant
-      await this.participantsService.inviteParticipant(headers, eventId, user);
-      return { message: 'Invitations sent successfully.' };
-    } catch (e) {
-      // Handle specific exceptions and re-throw them
-      if (e instanceof NotFoundException) {
-        throw new NotFoundException(e.message);
-      } else {
-        throw new InternalServerErrorException(
-          'Failed to invite the participant',
-        );
-      }
-    }
-  }
+  // // Invite a participant to an event
+  // @Post(':eventId')
+  // async inviteParticipant(
+  //   @Headers() headers: any,
+  //   @Param('eventId') eventId: string, // Extract the 'eventId' parameter from the URL
+  //   @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from the request body
+  // ) {
+  //   try {
+  //     // Use the service method to invite the participant
+  //     await this.participantsService.inviteParticipant(headers, eventId, user);
+  //     return { message: 'Invitations sent successfully.' };
+  //   } catch (e) {
+  //     // Handle specific exceptions and re-throw them
+  //     if (e instanceof NotFoundException) {
+  //       throw new NotFoundException(e.message);
+  //     } else {
+  //       throw new InternalServerErrorException(
+  //         'Failed to invite the participant',
+  //       );
+  //     }
+  //   }
+  // }
 
-  // Update the details of a participant in an event
-  @Patch(':event_id/:pid')
-  async updateParticipantDetails(
-    @Headers() headers: any,
-    @Param('eventId') eventId: string, // Extract event id from URL
-    @Param('pid') pid: string, // Extract participant id from URL.
-    @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from request body
-  ) {
-    try {
-      // Use the service method to update participant details
-      const updatedUser = await this.participantsService.updateParticipant(
-        headers,
-        eventId,
-        pid,
-        user,
-      );
-      // Return the updated details
-      return {
-        first_name: updatedUser.first_name,
-        last_name: updatedUser.last_name,
-        email: updatedUser.email,
-      };
-    } catch (e) {
-      // Handle specific exceptions
-      if (e instanceof NotFoundException) {
-        throw new NotFoundException(e.message);
-      } else {
-        throw new InternalServerErrorException(
-          'Failed to update the participant',
-        );
-      }
-    }
-  }
+  // // Update the details of a participant in an event
+  // @Patch(':event_id/:pid')
+  // async updateParticipantDetails(
+  //   @Headers() headers: any,
+  //   @Param('eventId') eventId: string, // Extract event id from URL
+  //   @Param('pid') pid: string, // Extract participant id from URL.
+  //   @Body() user: { first_name: string; last_name: string; email: string }, // Extract user details from request body
+  // ) {
+  //   try {
+  //     // Use the service method to update participant details
+  //     const updatedUser = await this.participantsService.updateParticipant(
+  //       headers,
+  //       eventId,
+  //       pid,
+  //       user,
+  //     );
+  //     // Return the updated details
+  //     return {
+  //       first_name: updatedUser.first_name,
+  //       last_name: updatedUser.last_name,
+  //       email: updatedUser.email,
+  //     };
+  //   } catch (e) {
+  //     // Handle specific exceptions
+  //     if (e instanceof NotFoundException) {
+  //       throw new NotFoundException(e.message);
+  //     } else {
+  //       throw new InternalServerErrorException(
+  //         'Failed to update the participant',
+  //       );
+  //     }
+  //   }
+  // }
 
   // Delete a participant
   // @Delete(':pid')
@@ -97,35 +97,35 @@ export class ParticipantsController {
   //   }
   // }
 
-  // List participants of an event
-  @Get('/allParticipants/:eventId')
-  async listParticipants(
-    @Headers() headers,
-    @Param('eventId') eventId: string,
-  ) {
-    try {
-      // Fetch the participants using the service method
-      const participants = await this.participantsService.listParticipants(
-        headers,
-        eventId,
-      );
-      // Map over the results to shape the response
-      return participants.map((p) => ({
-        pid: p.user.pid,
-        first_name: p.user.first_name,
-        last_name: p.user.last_name,
-        email: p.user.email,
-        status: p.status,
-      }));
-    } catch (e) {
-      // Handle exceptions
-      if (e instanceof NotFoundException) {
-        throw new NotFoundException(e.message);
-      } else {
-        throw new InternalServerErrorException('Failed to fetch participants');
-      }
-    }
-  }
+  // // List participants of an event
+  // @Get('/allParticipants/:eventId')
+  // async listParticipants(
+  //   @Headers() headers,
+  //   @Param('eventId') eventId: string,
+  // ) {
+  //   try {
+  //     // Fetch the participants using the service method
+  //     const participants = await this.participantsService.listParticipants(
+  //       headers,
+  //       eventId,
+  //     );
+  //     // Map over the results to shape the response
+  //     return participants.map((p) => ({
+  //       pid: p.user.pid,
+  //       first_name: p.user.first_name,
+  //       last_name: p.user.last_name,
+  //       email: p.user.email,
+  //       status: p.status,
+  //     }));
+  //   } catch (e) {
+  //     // Handle exceptions
+  //     if (e instanceof NotFoundException) {
+  //       throw new NotFoundException(e.message);
+  //     } else {
+  //       throw new InternalServerErrorException('Failed to fetch participants');
+  //     }
+  //   }
+  // }
 
   // @Get('sendEmailToAllParticipants/:eventId')
   // async sendEmailToAllParticipants(@Headers() headers, @Param("eventId") eventId: string) {
@@ -139,38 +139,38 @@ export class ParticipantsController {
 
   // Functions below are not for client, so the client token is not needed
   // Update the status of a participant
-  @Patch('respond')
-  async updateParticipantStatus(
-    @Body('pid') pid: string,
-    @Body('status') status: string,
-    @Body('eventId') eventId: string,
-  ) {
-    try {
-      // Use the service method to update the participant's status
-      await this.participantsService.updateStatus(pid, eventId, status);
-      return {
-        status: HttpStatus.OK,
-      };
-    } catch (e) {
-      // Handle exceptions
-      if (e instanceof NotFoundException) {
-        throw new NotFoundException(e.message);
-      } else {
-        throw new InternalServerErrorException('Failed to update the status');
-      }
-    }
-  }
+  // @Patch('respond')
+  // async updateParticipantStatus(
+  //   @Body('pid') pid: string,
+  //   @Body('status') status: string,
+  //   @Body('eventId') eventId: string,
+  // ) {
+  //   try {
+  //     // Use the service method to update the participant's status
+  //     await this.participantsService.updateStatus(pid, eventId, status);
+  //     return {
+  //       status: HttpStatus.OK,
+  //     };
+  //   } catch (e) {
+  //     // Handle exceptions
+  //     if (e instanceof NotFoundException) {
+  //       throw new NotFoundException(e.message);
+  //     } else {
+  //       throw new InternalServerErrorException('Failed to update the status');
+  //     }
+  //   }
+  // }
 
-  @Get('redirect')
-  getRedirectPage(
-    @Param('memberId') pid: number,
-    @Param('decision') decision: string,
-    @Param('eventId') eventId: string,
-    @Res() res: Response,
-  ) {
-    // Use the service method to update the participant's status
-    const htmlContent = this.participantsService.getRedirectPage();
-    res.set('Content-Type', 'text/html');
-    res.send(htmlContent);
-  }
+  // @Get('redirect')
+  // getRedirectPage(
+  //   @Param('memberId') pid: number,
+  //   @Param('decision') decision: string,
+  //   @Param('eventId') eventId: string,
+  //   @Res() res: Response,
+  // ) {
+  //   // Use the service method to update the participant's status
+  //   const htmlContent = this.participantsService.getRedirectPage();
+  //   res.set('Content-Type', 'text/html');
+  //   res.send(htmlContent);
+  // }
 }
