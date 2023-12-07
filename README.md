@@ -3,6 +3,10 @@
 
 A a backend service for event management that facilitates the creation, management, and eventual automatic deletion of events.
 
+The frontend client part is: https://github.com/4156-ASE/Event-Management-Frontend.
+
+The backend service uses this event management service and supply APIs to front client is: https://github.com/4156-ASE/Event-Management-Backend
+\``
 ## Start Docker
 We use docker for our service, you can use docker-compose to start the service in dev module without installing the dependencies.
 
@@ -10,6 +14,7 @@ We use docker for our service, you can use docker-compose to start the service i
 $ sudo docker-compose up --build
 
 ```
+
 
 ## API Documentation
 
@@ -25,9 +30,6 @@ $ pnpm install
 
 ```bash
 # development
-$ pnpm run start
-
-# watch mode
 $ pnpm run start:dev
 
 # production mode
