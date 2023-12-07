@@ -2,8 +2,6 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
-import { UserModule } from './users/user.module';
-import { ParticipantsModule } from './participants/participant.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ClientsModule } from './clients/clients.module';
@@ -14,8 +12,6 @@ import { AuthGuard } from './auth/auth.guard';
 @Module({
   imports: [
     EventsModule,
-    UserModule,
-    ParticipantsModule,
     ClientsModule,
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),

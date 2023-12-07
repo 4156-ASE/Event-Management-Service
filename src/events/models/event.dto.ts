@@ -35,6 +35,24 @@ export class EventCreateReq {
   @IsString({ each: true })
   @IsOptional({ each: true })
   participants: string[];
+
+  @IsOptional()
+  @IsString()
+  host_email: string;
+
+  @IsOptional()
+  @IsString()
+  host_name: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  participants_email: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  participants_name: string[];
 }
 
 /** Event detail for backend */
@@ -88,4 +106,22 @@ export class EventUpdateReq {
   @IsString({ each: true })
   @IsOptional({ each: true })
   participants?: string[];
+
+  @IsOptional()
+  @IsString()
+  host_email: string;
+
+  @IsOptional()
+  @IsString()
+  host_name: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  participants_email: string[];
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional({ each: true })
+  participants_name: string[];
 }

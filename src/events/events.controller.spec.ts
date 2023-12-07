@@ -1,180 +1,107 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventsController } from './events.controller';
 import { EventsService } from './events.service';
-import { EventEntity } from './models/event.entity';
-import { EventInterface } from './models/event.interface';
-import { CreateEventDTO, UpdateEventDTO } from './models/event.dto';
-import { of } from 'rxjs';
-import { ClientEntity } from 'src/users/models/client.entity';
-import { UserEntity } from 'src/users/models/user.entity';
-import { ParticipantEntity } from 'src/participants/models/participant.entity';
-import { randomBytes, randomInt } from 'crypto';
-import {
-  createClient,
-  createEvent,
-  createParticipant,
-  createUser,
-  randomEmail,
-  randomString,
-} from '../test.util';
-import { mock } from 'node:test';
+import { Request } from 'express';
+import { EventCreateReq } from './models/event.dto';
 
 describe('EventsController', () => {
-  let eventsController: EventsController;
-  const mockClients: ClientEntity[] = [
-    createClient(),
-    createClient(),
-  ];
-  const mockUsers: UserEntity[] = [
-    createUser(mockClients[0], 'admin'),
-    createUser(mockClients[0], 'regular'),
-    createUser(mockClients[0], 'regular'),
-    createUser(mockClients[0], 'regular'),
-
-    createUser(mockClients[1], 'admin'),
-    createUser(mockClients[1], 'regular'),
-    createUser(mockClients[1], 'regular'),
-    createUser(mockClients[1], 'regular'),
-  ];
-  const mockEvents: EventEntity[] = [
-    createEvent(mockClients[0], mockUsers[1]),
-    createEvent(mockClients[1], mockUsers[5]),
-  ];
-  const mockParticipants: ParticipantEntity[] = [
-    createParticipant(mockUsers[2], mockEvents[0], 'pending'),
-    createParticipant(mockUsers[6], mockEvents[1], 'accept'),
-  ];
+  let controller: EventsController;
+  const sampleEvent = {
+    title: 'test',
+    desc: 'test',
+    start_time: '2021-01-01T00:00:00.000Z',
+    end_time: '2021-01-01T00:00:00.000Z',
+    location: 'test',
+    host: 'test',
+    participants: ['test'],
+    id: 'test',
+    cid: 'test',
+  };
 
   const mockEventsService = {
-    insertEvent: jest.fn((event) => {
-      return {
-        eid: '1',
-        ...event,
-      };
-    }),
-    getEvent: jest.fn((eventID) => {
-      return of([
-        {
-          id: eventID,
-          message: 'event found',
-        },
-      ]);
-    }),
-    getEvents: jest.fn(() => {
-      return {
-        message: 'all events listed',
-      };
-    }),
-    getEventsByUser: jest.fn((headers, userPID) => {
-      return [];
-    }),
-    updateEvent: jest.fn().mockImplementation((eventId, event) => ({
-      eventId,
-      ...event,
-    })),
-    deleteEvent: jest.fn().mockImplementation((eventId) => ({
-      eventId,
-    })),
+    insertEvent: jest.fn(),
+    getEvents: jest.fn(),
+    getEvent: jest.fn(),
+    updateEvent: jest.fn(),
+    deleteEvent: jest.fn(),
   };
 
   beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
+    const module: TestingModule = await Test.createTestingModule({
       controllers: [EventsController],
-      providers: [EventsService],
-    })
-      .overrideProvider(EventsService)
-      .useValue(mockEventsService)
-      .compile();
+      providers: [{ provide: EventsService, useValue: mockEventsService }],
+    }).compile();
 
-    eventsController = app.get<EventsController>(EventsController);
+    controller = module.get<EventsController>(EventsController);
   });
 
   it('should be defined', () => {
-    expect(eventsController).toBeDefined();
+    expect(controller).toBeDefined();
   });
 
-  it('should create a event', async () => {
-    // check client token
-    const headers = {
-      authorization: mockClients[0].client_token,
+  it('should create an event', async () => {
+    const req = { client: { cid: 'test' } } as Request;
+    const body: EventCreateReq = {
+      title: 'test',
+      desc: 'test',
+      start_time: '2021-01-01T00:00:00.000Z',
+      end_time: '2021-01-01T00:00:00.000Z',
+      location: 'test',
+      host: 'test',
+      participants: ['test'],
+      host_email: undefined,
+      participants_email: undefined,
+      host_name: undefined,
+      participants_name: undefined,
     };
-    const event: CreateEventDTO = {
-      title: randomString(),
-      desc: randomString(),
-      start_time: new Date("December 17, 2023 03:24:00"),
-      end_time: new Date("December 17, 2023 04:24:00"),
-      location: randomString(),
-      host: mockUsers[0].pid,
-    };
-    const result = await eventsController.createEvent(headers, event);
-    expect(mockEventsService.insertEvent).toHaveBeenCalledWith(headers, event);
+    const result = { ...body, id: 'test', cid: 'test' };
+    mockEventsService.insertEvent.mockResolvedValue(result);
+
+    expect(await controller.createEvent(req, body)).toBe(result);
   });
 
-  it('should get all events', async () => {
-    const headers = {
-      authorization: mockClients[0].client_token,
-    };
-    const result = await eventsController.getAllEvents(headers);
-    expect(mockEventsService.getEvents).toHaveBeenCalledWith(headers);
+  it('should get events', async () => {
+    const req = { client: { cid: 'test' } } as Request;
+    const result = [sampleEvent];
+    mockEventsService.getEvents.mockResolvedValue(result);
+
+    expect(await controller.getEvents({ pid: 'test' }, req)).toBe(result);
   });
 
-  it('should get all events of a user', async () => {
-    const headers = {
-      authorization: mockClients[0].client_token,
-    };
-    const result = await eventsController.getEventsByUser(
-      headers,
-      mockUsers[1].pid,
-    );
-    expect(mockEventsService.getEventsByUser).toHaveBeenCalledWith(headers, mockUsers[1].pid);
+  it('should get an event', async () => {
+    const req = { client: { cid: 'test' } } as Request;
+    const result = sampleEvent;
+    mockEventsService.getEvent.mockResolvedValue(result);
+
+    expect(await controller.getEvent('test', req)).toBe(result);
   });
 
-  it('should get a event', async () => {
-    const headers = {
-      authorization: mockClients[0].client_token,
+  it('should update an event', async () => {
+    const req = { client: { cid: 'test' } } as Request;
+    const body: EventCreateReq = {
+      title: 'test',
+      desc: 'test',
+      start_time: '2021-01-01T00:00:00.000Z',
+      end_time: '2021-01-01T00:00:00.000Z',
+      location: 'test',
+      host: 'test',
+      participants: ['test'],
+      host_email: undefined,
+      participants_email: undefined,
+      host_name: undefined,
+      participants_name: undefined,
     };
-    const result = await eventsController.getEvent(headers, mockEvents[0].eid);
-    expect(mockEventsService.getEvent).toHaveBeenCalledWith(
-      headers,
-      mockEvents[0].eid,
-    );
+    const result = sampleEvent;
+    mockEventsService.updateEvent.mockResolvedValue(result);
+
+    expect(await controller.updateEvent(req, 'test', body)).toBe(result);
   });
 
-  it('should update a event', async () => {
-    const headers = {
-      authorization: mockClients[0].client_token,
-    };
-    const event: UpdateEventDTO = {
-      title: randomString(),
-      desc: randomString(),
-      start_time: new Date("December 17, 2023 03:24:00"),
-      end_time: new Date("December 17, 2023 04:24:00"),
-      location: randomString(),
-    };
-    const result = await eventsController.updateEvent(
-      headers,
-      mockEvents[0].eid,
-      event,
-    );
-    expect(mockEventsService.updateEvent).toHaveBeenCalledWith(
-      headers,
-      mockEvents[0].eid,
-      event,
-    );
-  });
+  it('should remove an event', async () => {
+    const req = { client: { cid: 'test' } } as Request;
+    const result = sampleEvent;
+    mockEventsService.deleteEvent.mockResolvedValue(result);
 
-  it('should delete a event', async () => {
-    const headers = {
-      authorization: mockClients[0].client_token,
-    };
-    const result = await eventsController.removeEvent(
-      headers,
-      mockEvents[0].eid,
-    );
-    expect(mockEventsService.deleteEvent).toHaveBeenCalledWith(
-      headers,
-      mockEvents[0].eid,
-    );
+    expect(await controller.removeEvent(req, 'test')).toBe(result);
   });
-
 });

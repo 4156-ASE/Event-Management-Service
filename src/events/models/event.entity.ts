@@ -5,7 +5,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ClientEntity } from 'src/users/models/client.entity';
+import { ClientEntity } from 'src/clients/models/client.entity';
 
 /**
  * Event entity which is used to store event information in database.
