@@ -75,6 +75,10 @@ export class EventsService {
       data.participants_name &&
       data.participants_email.length === data.participants_name.length
     ) {
+      if (!(data.participants_email instanceof Array)) {
+        // Prevents DoS.
+        return;
+      }
       for (let i = 0; i < data.participants_email.length; i++) {
         if (
           this.isValidEmail(data.participants_email[i]) &&
@@ -207,6 +211,10 @@ export class EventsService {
       updatedEvent.participants_email.length ===
         updatedEvent.participants_name.length
     ) {
+      if (!(updatedEvent.participants_email instanceof Array)) {
+        // Prevents DoS.
+        return [];
+      }
       for (let i = 0; i < updatedEvent.participants_email.length; i++) {
         if (
           this.isValidEmail(updatedEvent.participants_email[i]) &&

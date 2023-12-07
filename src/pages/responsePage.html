@@ -10,8 +10,7 @@
             const pid = urlParams.get('memberId');
             const eventId = urlParams.get('eventId');
             const status = urlParams.get('decision');
-            console.log("pid, status, eventId");
-            console.log(pid, status, eventId)
+            console.log("pid: %s, status: %s, eventId: %s", pid, status, eventId);
 
             // Check if both memberId and decision are present
             if (!pid || !status || !eventId) {
