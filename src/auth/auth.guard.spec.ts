@@ -34,7 +34,9 @@ describe('AuthGuard', () => {
     jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(false);
 
     const context = createMockExecutionContext(false);
-    await expect(authGuard.canActivate(context)).rejects.toThrow(UnauthorizedException);
+    await expect(authGuard.canActivate(context)).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('should throw UnauthorizedException if token is invalid', async () => {
@@ -42,7 +44,9 @@ describe('AuthGuard', () => {
     jest.spyOn(jwtService, 'verifyAsync').mockRejectedValue(new Error());
 
     const context = createMockExecutionContext();
-    await expect(authGuard.canActivate(context)).rejects.toThrow(UnauthorizedException);
+    await expect(authGuard.canActivate(context)).rejects.toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('should return true if token is valid', async () => {
@@ -55,14 +59,18 @@ describe('AuthGuard', () => {
 
   it('extractTokenFromHeader should return token', () => {
     const context = createMockExecutionContext();
-    const token = authGuard['extractTokenFromHeader'](context.switchToHttp().getRequest());
+    const token = authGuard['extractTokenFromHeader'](
+      context.switchToHttp().getRequest(),
+    );
 
     expect(token).toBe('someToken');
   });
 
   it('extractTokenFromHeader should return undefined', () => {
     const context = createMockExecutionContext(false);
-    const token = authGuard['extractTokenFromHeader'](context.switchToHttp().getRequest());
+    const token = authGuard['extractTokenFromHeader'](
+      context.switchToHttp().getRequest(),
+    );
 
     expect(token).toBeUndefined();
   });
@@ -76,7 +84,9 @@ describe('AuthGuard', () => {
     expect(token).toBeUndefined();
   });
 
-  function createMockExecutionContext(hasToken: boolean = true): ExecutionContext {
+  function createMockExecutionContext(
+    hasToken: boolean = true,
+  ): ExecutionContext {
     return {
       switchToHttp: () => ({
         getRequest: () => ({
@@ -85,8 +95,8 @@ describe('AuthGuard', () => {
           },
         }),
       }),
-      getHandler: () => { },
-      getClass: () => { },
+      getHandler: () => {},
+      getClass: () => {},
     } as unknown as ExecutionContext;
   }
 });

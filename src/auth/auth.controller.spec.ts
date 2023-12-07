@@ -6,8 +6,8 @@ import { SignInDTO, SignUpDTO } from './auth.dto';
 describe('AuthController', () => {
   let controller: AuthController;
   const mockAuthService = {
-    signIn: jest.fn((access_id, access_secret) => ("token")),
-    signUp: jest.fn((access_id, access_secret) => ("token")),
+    signIn: jest.fn(() => 'token'),
+    signUp: jest.fn(() => 'token'),
   };
 
   beforeEach(async () => {
@@ -22,25 +22,23 @@ describe('AuthController', () => {
     controller = module.get<AuthController>(AuthController);
   });
 
-
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
   it('should sign in', async () => {
     const values: SignInDTO = {
-      access_id: "access_id",
-      access_secret: "access_secret",
+      access_id: 'access_id',
+      access_secret: 'access_secret',
     };
-    expect(await controller.signIn(values)).toBe("token");
+    expect(await controller.signIn(values)).toBe('token');
   });
 
   it('should sign up', async () => {
     const values: SignUpDTO = {
-      access_id: "access_id",
-      access_secret: "access_secret",
+      access_id: 'access_id',
+      access_secret: 'access_secret',
     };
-    expect(await controller.signUp(values)).toBe("token");
+    expect(await controller.signUp(values)).toBe('token');
   });
-
 });

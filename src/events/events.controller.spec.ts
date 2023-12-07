@@ -6,7 +6,7 @@ import { EventCreateReq } from './models/event.dto';
 
 describe('EventsController', () => {
   let controller: EventsController;
-  let sampleEvent = {
+  const sampleEvent = {
     title: 'test',
     desc: 'test',
     start_time: '2021-01-01T00:00:00.000Z',
@@ -29,9 +29,7 @@ describe('EventsController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [EventsController],
-      providers: [
-        { provide: EventsService, useValue: mockEventsService },
-      ],
+      providers: [{ provide: EventsService, useValue: mockEventsService }],
     }).compile();
 
     controller = module.get<EventsController>(EventsController);
@@ -106,5 +104,4 @@ describe('EventsController', () => {
 
     expect(await controller.removeEvent(req, 'test')).toBe(result);
   });
-
 });

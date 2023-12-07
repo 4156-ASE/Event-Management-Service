@@ -8,7 +8,6 @@ import {
   EventUpdateReq,
 } from './models/event.dto';
 
-
 /**
  * Event Service which will handle event relevent database operations, can be used by event controller.
  */

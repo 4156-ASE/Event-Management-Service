@@ -3,14 +3,30 @@ import { EventsService } from './events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventEntity } from './models/event.entity';
 import { NotFoundException } from '@nestjs/common';
-import { EventCreateReq, EventDetail, EventUpdateReq } from './models/event.dto';
+import {
+  EventCreateReq,
+  EventDetail,
+  EventUpdateReq,
+} from './models/event.dto';
 
 describe('EventsService', () => {
   let service: EventsService;
-  let repositoryMock: { save: jest.Mock, find: jest.Mock, findOne: jest.Mock, update: jest.Mock, delete: jest.Mock };
+  let repositoryMock: {
+    save: jest.Mock;
+    find: jest.Mock;
+    findOne: jest.Mock;
+    update: jest.Mock;
+    delete: jest.Mock;
+  };
 
   beforeEach(async () => {
-    repositoryMock = { save: jest.fn(), find: jest.fn(), findOne: jest.fn(), update: jest.fn(), delete: jest.fn() };
+    repositoryMock = {
+      save: jest.fn(),
+      find: jest.fn(),
+      findOne: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -34,8 +50,8 @@ describe('EventsService', () => {
     const event: EventCreateReq = {
       title: 'test',
       desc: 'test',
-      start_time: "2021-04-01T00:00:00.000Z",
-      end_time: "2021-04-01T00:00:00.000Z",
+      start_time: '2021-04-01T00:00:00.000Z',
+      end_time: '2021-04-01T00:00:00.000Z',
       location: 'test',
       host: 'test',
       participants: [],
@@ -45,7 +61,9 @@ describe('EventsService', () => {
       participants_name: [],
     };
     repositoryMock.save.mockResolvedValue(event);
-    jest.spyOn(service, 'eventEntity2EventDetail').mockReturnValue(new EventDetail());
+    jest
+      .spyOn(service, 'eventEntity2EventDetail')
+      .mockReturnValue(new EventDetail());
     await service.insertEvent('test', event);
     expect(service.eventEntity2EventDetail).toBeCalledTimes(1);
   });
@@ -64,20 +82,24 @@ describe('EventsService', () => {
 
   it('should get an event', async () => {
     repositoryMock.findOne.mockResolvedValue(undefined);
-    await expect(service.getEvent('test', 'test')).rejects.toThrow(NotFoundException);
+    await expect(service.getEvent('test', 'test')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 
   it('should update an event', async () => {
     repositoryMock.update.mockResolvedValue({ affected: 1 });
     jest.spyOn(service, 'getEvent').mockResolvedValue(new EventDetail());
-    const result = await service.updateEvent('test', 'test', new EventUpdateReq());
+    await service.updateEvent('test', 'test', new EventUpdateReq());
     expect(service.getEvent).toBeCalledTimes(1);
   });
 
   it('should throw NotFoundException if update failed', async () => {
     repositoryMock.update.mockResolvedValue({ affected: 0 });
     jest.spyOn(service, 'getEvent').mockResolvedValue(new EventDetail());
-    await expect(service.updateEvent('test', 'test', new EventUpdateReq())).rejects.toThrow(NotFoundException);
+    await expect(
+      service.updateEvent('test', 'test', new EventUpdateReq()),
+    ).rejects.toThrow(NotFoundException);
   });
 
   it('should delete an event', async () => {
@@ -90,6 +112,8 @@ describe('EventsService', () => {
   it('should throw NotFoundException if delete failed', async () => {
     repositoryMock.delete.mockResolvedValue({ affected: 0 });
     jest.spyOn(service, 'getEvent').mockResolvedValue(undefined);
-    await expect(service.deleteEvent('test', 'test')).rejects.toThrow(NotFoundException);
+    await expect(service.deleteEvent('test', 'test')).rejects.toThrow(
+      NotFoundException,
+    );
   });
 });

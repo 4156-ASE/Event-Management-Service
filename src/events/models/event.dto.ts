@@ -53,7 +53,6 @@ export class EventCreateReq {
   @IsString({ each: true })
   @IsOptional({ each: true })
   participants_name: string[];
-
 }
 
 /** Event detail for backend */

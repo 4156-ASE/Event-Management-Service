@@ -9,7 +9,7 @@ jest.mock('bcrypt');
 
 describe('ClientsService', () => {
   let service: ClientsService;
-  let repositoryMock: { findOne: jest.Mock, save: jest.Mock };
+  let repositoryMock: { findOne: jest.Mock; save: jest.Mock };
 
   beforeEach(async () => {
     repositoryMock = { findOne: jest.fn(), save: jest.fn() };
@@ -49,15 +49,21 @@ describe('ClientsService', () => {
     it('should throw BadRequestException if a client with the same access_id exists', async () => {
       repositoryMock.findOne.mockResolvedValue({});
 
-      await expect(service.save({ access_id: 'test', access_secret: 'secret' }))
-        .rejects.toThrow(BadRequestException);
+      await expect(
+        service.save({ access_id: 'test', access_secret: 'secret' }),
+      ).rejects.toThrow(BadRequestException);
     });
 
     it('should save and return a client if access_id is unique', async () => {
       repositoryMock.findOne.mockResolvedValue(null);
-      repositoryMock.save.mockImplementation(client => Promise.resolve(client));
+      repositoryMock.save.mockImplementation((client) =>
+        Promise.resolve(client),
+      );
 
-      const result = await service.save({ access_id: 'test', access_secret: 'secret' });
+      const result = await service.save({
+        access_id: 'test',
+        access_secret: 'secret',
+      });
 
       expect(repositoryMock.save).toHaveBeenCalledWith({
         access_id: 'test',
