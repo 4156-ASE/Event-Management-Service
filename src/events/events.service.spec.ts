@@ -40,7 +40,9 @@ describe('EventsService', () => {
 
     service = module.get<EventsService>(EventsService);
     jest.clearAllMocks();
-    jest.spyOn(service, 'sendEmail').mockImplementation(() => Promise.resolve());
+    jest
+      .spyOn(service, 'sendEmail')
+      .mockImplementation(() => Promise.resolve());
   });
 
   it('should be defined', () => {
@@ -77,7 +79,7 @@ describe('EventsService', () => {
       end_time: '2021-04-01T00:00:00.000Z',
       location: 'test',
       host: 'test',
-      participants: ["test", "test"],
+      participants: ['test', 'test'],
       host_email: 'test@test.edu',
       host_name: 'test',
       participants_email: ['test@test.com', 'test@test.com'],
@@ -125,7 +127,7 @@ describe('EventsService', () => {
       end_time: '2021-04-01T00:00:00.000Z',
       location: 'test',
       host: 'test',
-      participants: ["test", "test"],
+      participants: ['test', 'test'],
       host_email: 'test@test.com',
       host_name: 'test',
       participants_email: ['test1@test.com', 'test2@test.com'],

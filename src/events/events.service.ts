@@ -65,14 +65,21 @@ export class EventsService {
         endTime: data.end_time,
         location: data.location,
         host: data.host_name,
-        message: 'You have created an event.'
+        message: 'You have created an event.',
       };
       const content = this.loadHTMLContent(replacements);
       await this.sendEmail([data.host_email], 'Event Created', content);
     }
-    if (data.participants_email && data.participants_name && data.participants_email.length === data.participants_name.length) {
+    if (
+      data.participants_email &&
+      data.participants_name &&
+      data.participants_email.length === data.participants_name.length
+    ) {
       for (let i = 0; i < data.participants_email.length; i++) {
-        if (this.isValidEmail(data.participants_email[i]) && data.participants_name[i]) {
+        if (
+          this.isValidEmail(data.participants_email[i]) &&
+          data.participants_name[i]
+        ) {
           const replacements = {
             name: data.participants_name[i],
             title: data.title,
@@ -81,10 +88,14 @@ export class EventsService {
             endTime: data.end_time,
             location: data.location,
             host: data.host_name,
-            message: 'You have been invited to an event.'
+            message: 'You have been invited to an event.',
           };
           const content = this.loadHTMLContent(replacements);
-          await this.sendEmail([data.participants_email[i]], 'Event Invitation', content);
+          await this.sendEmail(
+            [data.participants_email[i]],
+            'Event Invitation',
+            content,
+          );
         }
       }
     }
@@ -185,14 +196,22 @@ export class EventsService {
         endTime: updatedEvent.end_time,
         location: updatedEvent.location,
         host: updatedEvent.host_name,
-        message: 'You have updated an event.'
+        message: 'You have updated an event.',
       };
       const content = this.loadHTMLContent(replacements);
       await this.sendEmail([updatedEvent.host_email], 'Event Updated', content);
     }
-    if (updatedEvent.participants_email && updatedEvent.participants_name && updatedEvent.participants_email.length === updatedEvent.participants_name.length) {
+    if (
+      updatedEvent.participants_email &&
+      updatedEvent.participants_name &&
+      updatedEvent.participants_email.length ===
+        updatedEvent.participants_name.length
+    ) {
       for (let i = 0; i < updatedEvent.participants_email.length; i++) {
-        if (this.isValidEmail(updatedEvent.participants_email[i]) && updatedEvent.participants_name[i]) {
+        if (
+          this.isValidEmail(updatedEvent.participants_email[i]) &&
+          updatedEvent.participants_name[i]
+        ) {
           const replacements = {
             name: updatedEvent.participants_name[i],
             title: updatedEvent.title,
@@ -201,10 +220,14 @@ export class EventsService {
             endTime: updatedEvent.end_time,
             location: updatedEvent.location,
             host: updatedEvent.host_name,
-            message: 'You have been invited to an event.'
+            message: 'You have been invited to an event.',
           };
           const content = this.loadHTMLContent(replacements);
-          await this.sendEmail([updatedEvent.participants_email[i]], 'Event Invitation', content);
+          await this.sendEmail(
+            [updatedEvent.participants_email[i]],
+            'Event Invitation',
+            content,
+          );
         }
       }
     }
@@ -235,24 +258,24 @@ export class EventsService {
    * @param {string} subject The email subject.
    * @param {string} content The email content.
    */
-  async sendEmail(receivers: string[], subject: string, content: string){
+  async sendEmail(receivers: string[], subject: string, content: string) {
     const transporter = nodemailer.createTransport({
       host: 'smtp-mail.outlook.com',
       port: 587,
       secure: false,
       auth: {
         user: 'event4156-2@outlook.com',
-        pass: '4156eventmanagement'
+        pass: '4156eventmanagement',
       },
       tls: {
-        ciphers: 'SSLv3'
-      }
+        ciphers: 'SSLv3',
+      },
     });
     await transporter.sendMail({
       from: 'event4156-2@outlook.com',
       to: receivers,
       subject: subject,
-      html: content
+      html: content,
     });
   }
 
@@ -275,6 +298,4 @@ export class EventsService {
     const template = handlebars.compile(source);
     return template(replacements);
   }
-
-
 }
