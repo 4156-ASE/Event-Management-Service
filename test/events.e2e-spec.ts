@@ -4,7 +4,6 @@ import * as request from 'supertest';
 import { EventsModule } from '../src/events/events.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventEntity } from '../src/events/models/event.entity';
-import { EntityNotFoundError } from 'typeorm';
 
 import * as moduleAlias from 'module-alias';
 
@@ -41,5 +40,4 @@ describe('EventsController (e2e)', () => {
     mockEventsRepository.find.mockResolvedValue([]);
     return request(app.getHttpServer()).get('/events').expect(200).expect([]);
   });
-
 });
