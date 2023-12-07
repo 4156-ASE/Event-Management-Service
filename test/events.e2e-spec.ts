@@ -4,6 +4,7 @@ import * as request from 'supertest';
 import { EventsModule } from '../src/events/events.module';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventEntity } from '../src/events/models/event.entity';
+import { EventsService } from '../src/events/events.service';
 
 import * as moduleAlias from 'module-alias';
 
@@ -34,6 +35,10 @@ describe('EventsController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     await app.init();
+    const eventsService = moduleFixture.get<EventsService>(EventsService);
+    jest
+      .spyOn(eventsService, 'sendEmail')
+      .mockImplementation(() => Promise.resolve());
   });
 
   it('/events (GET)', () => {

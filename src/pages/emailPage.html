@@ -1,29 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Invitation</title>
+    <title>{{title}}</title>
 </head>
 <body>
-    <h1>You're Invited!</h1>
-    <p>Hi, {{firstname}} {{lastname}}
+    <p>Hi, {{name}}
     <br>
-    You have been invited to join the event hosted by {{host}}.
+    {{message}}
     <br>
     The event details are as follows:
     <br>
     Event Title: {{title}}
     <br>
-    Event Description: {{description}}
+    Event Description: {{desc}}
     <br>
     Start Date: {{startTime}}
     <br>
     End Date: {{endTime}}
     <br>
+    Host: {{host}}
+    <br>
     Location: {{location}}
     </p>
-    <p>Please click one of the following links to respond to the invitation:</p>
-    <a href="http://localhost:3000/participants/redirect?memberId={{memberId}}&eventId={{eventId}}&decision=accept">Accept Invitation</a>
-    <br>
-    <a href="http://localhost:3000/participants/redirect?memberId={{memberId}}&eventId={{eventId}}&decision=reject">Reject Invitation</a>
 </body>
 </html>
