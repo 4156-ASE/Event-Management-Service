@@ -8,19 +8,6 @@ import {
   EventUpdateReq,
 } from './models/event.dto';
 
-function eventEntity2EventDetail(cid: string, event: EventEntity): EventDetail {
-  return {
-    id: event.eid,
-    cid,
-    title: event.title,
-    location: event.location,
-    desc: event.desc,
-    host: event.host,
-    participants: event.participants,
-    start_time: event.start_time.toISOString(),
-    end_time: event.end_time.toISOString(),
-  };
-}
 
 /**
  * Event Service which will handle event relevent database operations, can be used by event controller.
@@ -35,6 +22,20 @@ export class EventsService {
     @InjectRepository(EventEntity)
     private eventRepository: Repository<EventEntity>,
   ) {}
+
+  eventEntity2EventDetail(cid: string, event: EventEntity): EventDetail {
+    return {
+      id: event.eid,
+      cid,
+      title: event.title,
+      location: event.location,
+      desc: event.desc,
+      host: event.host,
+      participants: event.participants,
+      start_time: event.start_time.toISOString(),
+      end_time: event.end_time.toISOString(),
+    };
+  }
 
   /**
    * Insert an event into database.
@@ -53,7 +54,7 @@ export class EventsService {
       },
     });
 
-    return eventEntity2EventDetail(cid, event);
+    return this.eventEntity2EventDetail(cid, event);
   }
 
   /**
@@ -91,7 +92,7 @@ export class EventsService {
       where: where,
     });
 
-    return events.map((val) => eventEntity2EventDetail(query.cid, val));
+    return events.map((val) => this.eventEntity2EventDetail(query.cid, val));
   }
 
   /**
@@ -110,7 +111,7 @@ export class EventsService {
       throw new NotFoundException('Event Not Found.');
     }
 
-    return eventEntity2EventDetail(cid, event);
+    return this.eventEntity2EventDetail(cid, event);
   }
 
   /**
@@ -121,12 +122,12 @@ export class EventsService {
     eventID: string,
     updatedEvent: EventUpdateReq,
   ) {
-    const protectList = ['eid'];
-    protectList.forEach((key) => {
-      if (key in updatedEvent) {
-        delete updatedEvent[key];
-      }
-    });
+    // const protectList = ['eid'];
+    // protectList.forEach((key) => {
+    //   if (key in updatedEvent) {
+    //     delete updatedEvent[key];
+    //   }
+    // });
     const result = await this.eventRepository.update(
       {
         eid: eventID,

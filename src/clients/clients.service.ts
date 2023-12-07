@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ClientEntity } from 'src/users/models/client.entity';
+import { ClientEntity } from 'src/clients/models/client.entity';
 import { FindOneOptions, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 

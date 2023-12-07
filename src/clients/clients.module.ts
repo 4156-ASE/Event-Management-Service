@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ClientEntity } from 'src/users/models/client.entity';
+import { ClientEntity } from 'src/clients/models/client.entity';
 
 /**
  * Event module which contains EventsController and EventsService.
