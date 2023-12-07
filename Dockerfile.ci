@@ -11,9 +11,8 @@ FROM installer as builder
 
 COPY . /home/node
 
-# RUN pnpm lint
-# RUN pnpm test
-# RUN pnpm test:e2e
+RUN pnpm lint
+RUN pnpm test:cov
 RUN pnpm build
 # --- deploy
 
