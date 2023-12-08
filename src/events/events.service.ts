@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { EventEntity } from './models/event.entity';
@@ -171,12 +175,11 @@ export class EventsService {
     eventID: string,
     updatedEvent: EventUpdateReq,
   ) {
-    // const protectList = ['eid'];
-    // protectList.forEach((key) => {
-    //   if (key in updatedEvent) {
-    //     delete updatedEvent[key];
-    //   }
-    // });
+    const new_updated_event = { ...updatedEvent };
+    delete new_updated_event['host_email'];
+    delete new_updated_event['host_name'];
+    delete new_updated_event['participants_email'];
+    delete new_updated_event['participants_name'];
     const result = await this.eventRepository.update(
       {
         eid: eventID,
@@ -184,26 +187,38 @@ export class EventsService {
           cid,
         },
       },
-      updatedEvent,
+      new_updated_event,
     );
 
     if (result.affected !== 1) {
       throw new NotFoundException('Not found event');
     }
 
+    console.log(updatedEvent.host_email, updatedEvent.host_name);
     if (updatedEvent.host_email && updatedEvent.host_name) {
+      const new_event = await this.getEvent(cid, eventID);
       const replacements = {
         name: updatedEvent.host_name,
-        title: updatedEvent.title,
-        desc: updatedEvent.desc,
-        startTime: updatedEvent.start_time,
-        endTime: updatedEvent.end_time,
-        location: updatedEvent.location,
+        title: new_event.title,
+        desc: new_event.desc,
+        startTime: new_event.start_time,
+        endTime: new_event.end_time,
+        location: new_event.location,
         host: updatedEvent.host_name,
         message: 'You have updated an event.',
       };
-      const content = this.loadHTMLContent(replacements);
-      await this.sendEmail([updatedEvent.host_email], 'Event Updated', content);
+      try {
+        const content = this.loadHTMLContent(replacements);
+        console.log('here2');
+        await this.sendEmail(
+          [updatedEvent.host_email],
+          'Event Updated',
+          content,
+        );
+      } catch {
+        //do nothing
+        throw new InternalServerErrorException('Failed to send email');
+      }
     }
     if (
       updatedEvent.participants_email &&
@@ -220,22 +235,27 @@ export class EventsService {
           this.isValidEmail(updatedEvent.participants_email[i]) &&
           updatedEvent.participants_name[i]
         ) {
+          const new_event = await this.getEvent(cid, eventID);
           const replacements = {
             name: updatedEvent.participants_name[i],
-            title: updatedEvent.title,
-            desc: updatedEvent.desc,
-            startTime: updatedEvent.start_time,
-            endTime: updatedEvent.end_time,
-            location: updatedEvent.location,
+            title: new_event.title,
+            desc: new_event.desc,
+            startTime: new_event.start_time,
+            endTime: new_event.end_time,
+            location: new_event.location,
             host: updatedEvent.host_name,
             message: 'You have been invited to an event.',
           };
-          const content = this.loadHTMLContent(replacements);
-          await this.sendEmail(
-            [updatedEvent.participants_email[i]],
-            'Event Invitation',
-            content,
-          );
+          try {
+            const content = this.loadHTMLContent(replacements);
+            await this.sendEmail(
+              [updatedEvent.participants_email[i]],
+              'Event Invitation',
+              content,
+            );
+          } catch {
+            throw new InternalServerErrorException('Failed to send email');
+          }
         }
       }
     }
