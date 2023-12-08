@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { EventEntity } from './models/event.entity';
@@ -71,8 +67,12 @@ export class EventsService {
         host: data.host_name,
         message: 'You have created an event.',
       };
-      const content = this.loadHTMLContent(replacements);
-      await this.sendEmail([data.host_email], 'Event Created', content);
+      try {
+        const content = this.loadHTMLContent(replacements);
+        await this.sendEmail([data.host_email], 'Event Created', content);
+      } catch {
+        //do nothing
+      }
     }
     if (
       data.participants_email &&
@@ -98,12 +98,16 @@ export class EventsService {
             host: data.host_name,
             message: 'You have been invited to an event.',
           };
-          const content = this.loadHTMLContent(replacements);
-          await this.sendEmail(
-            [data.participants_email[i]],
-            'Event Invitation',
-            content,
-          );
+          try {
+            const content = this.loadHTMLContent(replacements);
+            await this.sendEmail(
+              [data.participants_email[i]],
+              'Event Invitation',
+              content,
+            );
+          } catch {
+            //do nothing
+          }
         }
       }
     }
@@ -116,6 +120,7 @@ export class EventsService {
   async getEvents(query: {
     cid: string;
     pid?: string;
+    email?: string;
   }): Promise<EventDetail[]> {
     const where = query.pid
       ? [
@@ -126,13 +131,19 @@ export class EventsService {
             },
             host: query.pid,
           },
+          {
+            client: {
+              cid: query.cid,
+            },
+            participants: In([query.pid]),
+          },
 
           // find events as participants
           {
             client: {
               cid: query.cid,
             },
-            participants: In([query.pid]),
+            participants: In([query.email]),
           },
         ]
       : // find all events from a client
@@ -175,7 +186,7 @@ export class EventsService {
     eventID: string,
     updatedEvent: EventUpdateReq,
   ) {
-    const new_updated_event = { ...updatedEvent };
+    const new_updated_event = updatedEvent;
     delete new_updated_event['host_email'];
     delete new_updated_event['host_name'];
     delete new_updated_event['participants_email'];
@@ -194,7 +205,6 @@ export class EventsService {
       throw new NotFoundException('Not found event');
     }
 
-    console.log(updatedEvent.host_email, updatedEvent.host_name);
     if (updatedEvent.host_email && updatedEvent.host_name) {
       const new_event = await this.getEvent(cid, eventID);
       const replacements = {
@@ -209,7 +219,6 @@ export class EventsService {
       };
       try {
         const content = this.loadHTMLContent(replacements);
-        console.log('here2');
         await this.sendEmail(
           [updatedEvent.host_email],
           'Event Updated',
@@ -217,7 +226,6 @@ export class EventsService {
         );
       } catch {
         //do nothing
-        throw new InternalServerErrorException('Failed to send email');
       }
     }
     if (
@@ -253,9 +261,7 @@ export class EventsService {
               'Event Invitation',
               content,
             );
-          } catch {
-            throw new InternalServerErrorException('Failed to send email');
-          }
+          } catch {}
         }
       }
     }
