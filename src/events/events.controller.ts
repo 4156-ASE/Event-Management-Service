@@ -40,12 +40,13 @@ export class EventsController {
    */
   @Get()
   async getEvents(
-    @Query() query: { pid: string },
+    @Query() query: { pid: string; email: string },
     @Req() req: Request,
   ): Promise<EventDetail[]> {
     return await this.eventsService.getEvents({
       cid: req.client.cid,
       pid: query.pid,
+      email: query.email,
     });
   }
 
