@@ -2,7 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { EventsService } from './events.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { EventEntity } from './models/event.entity';
-import { NotFoundException } from '@nestjs/common';
+import {
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import {
   EventCreateReq,
   EventDetail,
@@ -137,6 +140,28 @@ describe('EventsService', () => {
     jest.spyOn(service, 'getEvent').mockResolvedValue(new EventDetail());
     await service.updateEvent('test', 'test', event);
     expect(service.sendEmail).toBeCalledTimes(3);
+  });
+
+  it('should send email to host and participants when updating', async () => {
+    const event: EventCreateReq = {
+      title: 'test',
+      desc: 'test',
+      start_time: '2021-04-01T00:00:00.000Z',
+      end_time: '2021-04-01T00:00:00.000Z',
+      location: 'test',
+      host: 'test',
+      participants: ['test', 'test'],
+      host_email: 'test@test.com',
+      host_name: 'test',
+      participants_email: ['test1@test.com', 'test2@test.com'],
+      participants_name: ['test1', 'test2'],
+    };
+    repositoryMock.update.mockResolvedValue({ affected: 1 });
+    jest.spyOn(service, 'getEvent').mockResolvedValue(new EventDetail());
+    jest.spyOn(service, 'sendEmail').mockRejectedValue(undefined);
+    await expect(service.updateEvent('test', 'test', event)).rejects.toThrow(
+      InternalServerErrorException,
+    );
   });
 
   it('should throw NotFoundException if update failed', async () => {

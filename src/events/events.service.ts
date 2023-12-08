@@ -120,6 +120,7 @@ export class EventsService {
   async getEvents(query: {
     cid: string;
     pid?: string;
+    email?: string;
   }): Promise<EventDetail[]> {
     const where = query.pid
       ? [
@@ -130,13 +131,19 @@ export class EventsService {
             },
             host: query.pid,
           },
+          {
+            client: {
+              cid: query.cid,
+            },
+            participants: In([query.pid]),
+          },
 
           // find events as participants
           {
             client: {
               cid: query.cid,
             },
-            participants: In([query.pid]),
+            participants: In([query.email]),
           },
         ]
       : // find all events from a client
