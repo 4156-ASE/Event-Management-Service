@@ -130,4 +130,8 @@ $ pnpm run lint
 
 ```
 
+Bug finder report: https://github.com/4156-ASE/Event-Management-Service/security/code-scanning
+
+## Third Party Code
+All the third party code and libraries are in `./node_modules`.
 
